@@ -17,24 +17,29 @@
         .btn-blue { background: #007aff; color: white; }
         .btn-green { background: #34c759; color: white; }
         .btn-red { background: #ff3b30; color: white; }
+        .btn-orange { background: #ff9500; color: white; }
         
-        /* 買い物リスト */
-        #shopping-ul { list-style: none; padding: 0; }
-        #shopping-ul li { background: #fff; border-bottom: 1px solid #eee; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .delete-btn { background: #ff3b30; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; border: none; width: auto; margin: 0; }
-
-        /* ポイント */
-        .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
-        .point-card { text-align: center; width: 45%; padding: 10px; background: #f9f9f9; border-radius: 10px; }
-        .point-num { font-size: 32px; font-weight: bold; color: #ff9500; }
+        /* スマートタブ専用 */
+        .smart-btn-container { display: flex; gap: 10px; margin-top: 10px; }
+        .smart-btn { flex: 1; padding: 20px; border-radius: 15px; font-size: 18px; border: none; cursor: pointer; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .btn-naoki { background: linear-gradient(135deg, #007aff, #00c6ff); }
+        .btn-maki { background: linear-gradient(135deg, #ff3b30, #ff9a9e); }
+        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .cat-btn { padding: 15px; border: 1px solid #ddd; background: #fff; border-radius: 8px; font-size: 14px; cursor: pointer; }
         
-        /* ナビゲーション (6つ用) */
-        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-around; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; }
-        .nav-item { text-align: center; color: #888; font-size: 9px; cursor: pointer; width: 16%; }
+        /* ナビゲーション (7つ用) */
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-around; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; overflow-x: auto; }
+        .nav-item { text-align: center; color: #888; font-size: 9px; cursor: pointer; flex: 1; min-width: 50px; }
         .nav-item.active-tab { color: #007aff; font-weight: bold; }
         .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
         
-        /* ラジオボタン */
+        /* 共通スタイル */
+        #shopping-ul { list-style: none; padding: 0; }
+        #shopping-ul li { background: #fff; border-bottom: 1px solid #eee; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .delete-btn { background: #ff3b30; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; border: none; width: auto; margin: 0; }
+        .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
+        .point-card { text-align: center; width: 45%; padding: 10px; background: #f9f9f9; border-radius: 10px; }
+        .point-num { font-size: 32px; font-weight: bold; color: #ff9500; }
         .radio-group { display: flex; gap: 5px; margin: 10px 0; }
         .radio-label { flex: 1; text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; background: #f9f9f9; font-size: 14px; }
         input[type="radio"] { display: none; }
@@ -44,7 +49,52 @@
 </head>
 <body>
 
-    <div id="tab-scan" class="container active">
+    <div id="tab-smart" class="container active">
+        <div class="box">
+            <h3>🏠 爆速・帰るコール</h3>
+            <p style="text-align:center; color:#666; font-size:12px;">現在地から自宅まで</p>
+            <div class="smart-btn-container">
+                <button class="smart-btn btn-naoki" onclick="quickReturn('naoki')">
+                    <span style="font-size:24px;">🚃</span>尚輝帰る
+                </button>
+                <button class="smart-btn btn-maki" onclick="quickReturn('maki')">
+                    <span style="font-size:24px;">🏍</span>真輝帰る
+                </button>
+            </div>
+            <div id="return-status" style="text-align:center; margin-top:10px; font-weight:bold; color:#007aff;"></div>
+        </div>
+
+        <div class="box">
+            <h3>💰 瞬間・家計簿</h3>
+            
+            <label style="font-size:12px; color:#666;">金額・店名</label>
+            <input type="number" id="quick-amount" placeholder="金額（円）" inputmode="numeric" style="font-size:20px; text-align:center;">
+            <input type="text" id="quick-store" placeholder="店名 (任意)" style="text-align:center;">
+
+            <label style="font-size:12px; color:#666;">負担者</label>
+            <div class="radio-group">
+                <input type="radio" name="quick-owner" id="q-naoki" value="尚輝" checked><label for="q-naoki" class="radio-label">👤尚輝</label>
+                <input type="radio" name="quick-owner" id="q-maki" value="真輝"><label for="q-maki" class="radio-label">🎀真輝</label>
+                <input type="radio" name="quick-owner" id="q-joint" value="共同"><label for="q-joint" class="radio-label">🏠共同</label>
+            </div>
+
+            <label style="font-size:12px; color:#666;">支払方法</label>
+            <div class="radio-group">
+                <input type="radio" name="quick-method" id="m-cash" value="現金" checked><label for="m-cash" class="radio-label">💴現金</label>
+                <input type="radio" name="quick-method" id="m-card" value="クレジットカード"><label for="m-card" class="radio-label">💳カード</label>
+            </div>
+
+            <label style="font-size:12px; color:#666; margin-top:10px; display:block;">カテゴリを選んで送信</label>
+            <div class="category-grid">
+                <button class="cat-btn" onclick="quickExpense('食費')">🍔 食費</button>
+                <button class="cat-btn" onclick="quickExpense('日用品')">🧻 日用品</button>
+                <button class="cat-btn" onclick="quickExpense('外食')">🍻 外食</button>
+                <button class="cat-btn" onclick="quickExpense('その他')">💳 その他</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-scan" class="container">
         <div class="box">
             <h3>🛒 底値登録</h3>
             <div id="reader"></div>
@@ -86,7 +136,6 @@
     <div id="tab-bucket" class="container">
         <div class="box">
             <h3>✨ やりたいこと</h3>
-            <p style="font-size:12px; color:#666; text-align:center;">行きたい場所、食べたいもの...</p>
             <input type="text" id="bucket-item" placeholder="例：北海道でカニ食べる">
             <div class="radio-group">
                 <input type="radio" name="bucket-owner" id="b-naoki" value="naoki"><label for="b-naoki" class="radio-label">👤尚輝</label>
@@ -125,17 +174,18 @@
     </div>
 
     <div class="nav-bar">
-        <div class="nav-item active-tab" onclick="switchTab('scan')"><span class="nav-icon">🛒</span>底値</div>
-        <div class="nav-item" onclick="switchTab('list')"><span class="nav-icon">📝</span>買う</div>
-        <div class="nav-item" onclick="switchTab('schedule')"><span class="nav-icon">📅</span>予定</div>
+        <div class="nav-item active-tab" onclick="switchTab('smart')"><span class="nav-icon">⚡️</span>楽</div>
+        <div class="nav-item" onclick="switchTab('scan')"><span class="nav-icon">🛒</span>底</div>
+        <div class="nav-item" onclick="switchTab('list')"><span class="nav-icon">📝</span>買</div>
+        <div class="nav-item" onclick="switchTab('schedule')"><span class="nav-icon">📅</span>予</div>
         <div class="nav-item" onclick="switchTab('bucket')"><span class="nav-icon">✨</span>夢</div>
-        <div class="nav-item" onclick="switchTab('pay')"><span class="nav-icon">💸</span>立替</div>
-        <div class="nav-item" onclick="switchTab('love')"><span class="nav-icon">❤️</span>感謝</div>
+        <div class="nav-item" onclick="switchTab('pay')"><span class="nav-icon">💸</span>立</div>
+        <div class="nav-item" onclick="switchTab('love')"><span class="nav-icon">❤️</span>感</div>
     </div>
 
     <script>
         // ★★★ここにGASのURLを貼る★★★
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyctZozZNdGYLYJMwNUAvsmX3OT6fNNRrSg41ajCveyZz6FB7kMPLEU1dGP4WcdQpp5/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwnwXkhemWrPSqAvcImWzhBH1x9MaulHjVdzWPXzi1LWEd3o0JhEcvYhynu6fBaaomx/exec";
 
         function switchTab(tabName) {
             document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
@@ -144,6 +194,40 @@
             event.currentTarget.classList.add('active-tab');
             if(tabName === 'list') loadShoppingList();
             if(tabName === 'love') loadPoints();
+        }
+
+        // 0. スマート機能
+        function quickReturn(who) {
+            document.getElementById('return-status').innerText = "📍 位置情報取得中...";
+            if (!navigator.geolocation) { alert("GPSが使えません"); return; }
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                document.getElementById('return-status').innerText = "🚀 計算中...";
+                const payload = { type: "web_app", action: "quick_return", lat: pos.coords.latitude, lon: pos.coords.longitude, owner: who };
+                const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+                const data = await res.json();
+                document.getElementById('return-status').innerText = (data.status === "success") ? "✅ 送信完了！" : "エラー";
+                if(data.status==="success") alert(data.msg);
+            }, (err) => { document.getElementById('return-status').innerText = "⚠️ GPSエラー"; });
+        }
+        async function quickExpense(cat) {
+            const amount = document.getElementById('quick-amount').value;
+            const store = document.getElementById('quick-store').value;
+            const owner = document.querySelector('input[name="quick-owner"]:checked').value;
+            const method = document.querySelector('input[name="quick-method"]:checked').value;
+            
+            if(!amount) return alert("金額を入れてください");
+            
+            // 確認ダイアログ
+            const msg = `【${cat}】${amount}円\n店：${store || "なし"}\n人：${owner} (${method})`;
+            if(confirm(msg + "\n\n記録しますか？")) {
+                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({
+                    type: "web_app", action: "quick_expense",
+                    amount: amount, category: cat, payer: owner, method: method, store: store
+                }) });
+                alert("記録しました！💰");
+                document.getElementById('quick-amount').value = "";
+                document.getElementById('quick-store').value = "";
+            }
         }
 
         // 1. 底値
@@ -196,7 +280,7 @@
             }
         }
 
-        // 4. やりたいことリスト (新機能)
+        // 4. やりたいこと
         async function submitBucket() {
             const item = document.getElementById('bucket-item').value;
             const owner = document.querySelector('input[name="bucket-owner"]:checked').value;
