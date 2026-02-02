@@ -10,124 +10,227 @@
         .container { padding: 15px; display: none; }
         .active { display: block; }
         .box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        h3 { margin-top: 0; color: #333; font-size: 18px; text-align: center; }
+        
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-blue { background: #007aff; color: white; }
         .btn-green { background: #34c759; color: white; }
-        #reader { width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 15px; background: #000; }
+        .btn-red { background: #ff3b30; color: white; }
         
-        /* ラジオボタン（誰の予定？） */
-        .radio-group { display: flex; gap: 10px; margin: 15px 0; }
-        .radio-label { flex: 1; text-align: center; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; background: #f9f9f9; font-size: 14px; }
+        /* 買い物リスト */
+        #shopping-ul { list-style: none; padding: 0; }
+        #shopping-ul li { background: #fff; border-bottom: 1px solid #eee; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .delete-btn { background: #ff3b30; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; border: none; width: auto; margin: 0; }
+
+        /* ポイント */
+        .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
+        .point-card { text-align: center; width: 45%; padding: 10px; background: #f9f9f9; border-radius: 10px; }
+        .point-num { font-size: 32px; font-weight: bold; color: #ff9500; }
+        
+        /* ナビゲーション (6つ用) */
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-around; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; }
+        .nav-item { text-align: center; color: #888; font-size: 9px; cursor: pointer; width: 16%; }
+        .nav-item.active-tab { color: #007aff; font-weight: bold; }
+        .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+        
+        /* ラジオボタン */
+        .radio-group { display: flex; gap: 5px; margin: 10px 0; }
+        .radio-label { flex: 1; text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; background: #f9f9f9; font-size: 14px; }
         input[type="radio"] { display: none; }
         input[type="radio"]:checked + .radio-label { background: #e0f0ff; border-color: #007aff; color: #007aff; font-weight: bold; }
-
-        /* 下部ナビゲーション */
-        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; }
-        .nav-item { text-align: center; color: #888; font-size: 11px; cursor: pointer; width: 50%; }
-        .nav-item.active-tab { color: #007aff; font-weight: bold; }
-        .nav-icon { font-size: 24px; display: block; margin-bottom: 4px; }
+        #reader { width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 15px; background: #000; }
     </style>
 </head>
 <body>
 
-    <div id="tab-shopping" class="container active">
+    <div id="tab-scan" class="container active">
         <div class="box">
-            <h3>🛒 底値チェック＆登録</h3>
+            <h3>🛒 底値登録</h3>
             <div id="reader"></div>
-            <button class="btn-blue" onclick="startScan()">📷 スキャン開始</button>
-            <hr>
-            <input type="text" id="item" placeholder="品名（自動入力）">
-            <input type="number" id="price" placeholder="価格（税込）" inputmode="numeric">
-            <input type="number" id="weight" placeholder="内容量（g または 個）" inputmode="numeric">
-            <input type="text" id="store" placeholder="店名（フジ、マルナカなど）">
-            <div id="unit-result" style="margin-top:10px; text-align:center;">100g単価：--- 円</div>
-            <button class="btn-green" onclick="submitPrice()">底値リストへ登録</button>
+            <button class="btn-blue" onclick="startScan()">📷 カメラ起動</button>
+            <input type="text" id="item" placeholder="商品名">
+            <input type="number" id="price" placeholder="価格" inputmode="numeric">
+            <input type="number" id="weight" placeholder="内容量(g)" inputmode="numeric">
+            <input type="text" id="store" placeholder="店名">
+            <div id="unit-result" style="text-align:center; margin:10px 0;">単価：---</div>
+            <button class="btn-green" onclick="submitPrice()">登録</button>
+        </div>
+    </div>
+
+    <div id="tab-list" class="container">
+        <div class="box">
+            <h3>📝 買うものリスト</h3>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="list-input" placeholder="牛乳、洗剤など">
+                <button class="btn-blue" style="width:30%; margin:8px 0;" onclick="addListItem()">追加</button>
+            </div>
+            <ul id="shopping-ul"></ul>
         </div>
     </div>
 
     <div id="tab-schedule" class="container">
         <div class="box">
-            <h3>📅 予定を追加</h3>
-            <label>イベント名</label>
-            <input type="text" id="event-name" placeholder="例：温泉旅行、記念日">
-            
-            <label>日付</label>
+            <h3>📅 予定登録</h3>
+            <input type="text" id="event-name" placeholder="イベント名">
             <input type="date" id="event-date">
-            
-            <label>誰の予定？</label>
             <div class="radio-group">
-                <input type="radio" name="owner" id="naoki" value="naoki">
-                <label for="naoki" class="radio-label">🔵尚輝</label>
-                
-                <input type="radio" name="owner" id="maki" value="maki">
-                <label for="maki" class="radio-label">🔴真輝</label>
-                
-                <input type="radio" name="owner" id="common" value="common" checked>
-                <label for="common" class="radio-label">🟢2人</label>
+                <input type="radio" name="owner" id="naoki" value="naoki"><label for="naoki" class="radio-label">👤尚輝</label>
+                <input type="radio" name="owner" id="maki" value="maki"><label for="maki" class="radio-label">🎀真輝</label>
+                <input type="radio" name="owner" id="common" value="common" checked><label for="common" class="radio-label">🏠2人</label>
             </div>
-            
-            <button class="btn-green" onclick="submitEvent()">予定を登録する</button>
+            <button class="btn-green" onclick="submitEvent()">登録</button>
         </div>
-        <div class="box" style="text-align:center; color:#666; font-size:14px;">
-            <p>ここに登録すると、LINEの<br>「予定まであと何日」に反映されます。</p>
+    </div>
+
+    <div id="tab-bucket" class="container">
+        <div class="box">
+            <h3>✨ やりたいこと</h3>
+            <p style="font-size:12px; color:#666; text-align:center;">行きたい場所、食べたいもの...</p>
+            <input type="text" id="bucket-item" placeholder="例：北海道でカニ食べる">
+            <div class="radio-group">
+                <input type="radio" name="bucket-owner" id="b-naoki" value="naoki"><label for="b-naoki" class="radio-label">👤尚輝</label>
+                <input type="radio" name="bucket-owner" id="b-maki" value="maki"><label for="b-maki" class="radio-label">🎀真輝</label>
+                <input type="radio" name="bucket-owner" id="b-common" value="common" checked><label for="b-common" class="radio-label">🏠2人</label>
+            </div>
+            <button class="btn-green" onclick="submitBucket()">リストに追加</button>
+        </div>
+    </div>
+
+    <div id="tab-pay" class="container">
+        <div class="box">
+            <h3>💸 立替記録</h3>
+            <input type="text" id="pay-item" placeholder="何に使った？">
+            <input type="number" id="pay-amount" placeholder="金額" inputmode="numeric">
+            <div class="radio-group">
+                <input type="radio" name="payer" id="pay-naoki" value="尚輝" checked><label for="pay-naoki" class="radio-label">👤尚輝払</label>
+                <input type="radio" name="payer" id="pay-maki" value="真輝"><label for="pay-maki" class="radio-label">🎀真輝払</label>
+            </div>
+            <button class="btn-green" onclick="submitPayment()">記録</button>
+        </div>
+    </div>
+
+    <div id="tab-love" class="container">
+        <div class="box">
+            <h3>❤️ 感謝ポイント</h3>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-blue" onclick="addPoint('naoki')">👤 尚輝へ</button>
+                <button class="btn-red" onclick="addPoint('maki')">🎀 真輝へ</button>
+            </div>
+            <div class="point-box">
+                <div class="point-card">👤尚輝<br><span id="pt-naoki" class="point-num">0</span></div>
+                <div class="point-card">🎀真輝<br><span id="pt-maki" class="point-num">0</span></div>
+            </div>
         </div>
     </div>
 
     <div class="nav-bar">
-        <div class="nav-item active-tab" onclick="switchTab('shopping')">
-            <span class="nav-icon">🛒</span>買い物
-        </div>
-        <div class="nav-item" onclick="switchTab('schedule')">
-            <span class="nav-icon">📅</span>予定
-        </div>
+        <div class="nav-item active-tab" onclick="switchTab('scan')"><span class="nav-icon">🛒</span>底値</div>
+        <div class="nav-item" onclick="switchTab('list')"><span class="nav-icon">📝</span>買う</div>
+        <div class="nav-item" onclick="switchTab('schedule')"><span class="nav-icon">📅</span>予定</div>
+        <div class="nav-item" onclick="switchTab('bucket')"><span class="nav-icon">✨</span>夢</div>
+        <div class="nav-item" onclick="switchTab('pay')"><span class="nav-icon">💸</span>立替</div>
+        <div class="nav-item" onclick="switchTab('love')"><span class="nav-icon">❤️</span>感謝</div>
     </div>
 
     <script>
-        // ★★★重要：ここにあなたのGASウェブアプリURLを貼り付けてください★★★
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxLGUC-tPnf7y_kMH8bvUO0xc_4deVTtE71hYqvo1LYKeyj9tBm5VNrR6TlLNTJh7QK/exec";
+        // ★★★ここにGASのURLを貼る★★★
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxRnq9CfELny2Ulv0x27ZO7-L9rp6LY52r6bcH0kW0ji0Ubr5b2VP8bC7_nNNFZV6RU/exec";
 
         function switchTab(tabName) {
             document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-tab'));
             document.getElementById('tab-' + tabName).classList.add('active');
             event.currentTarget.classList.add('active-tab');
+            if(tabName === 'list') loadShoppingList();
+            if(tabName === 'love') loadPoints();
         }
 
-        // --- 買い物機能 ---
+        // 1. 底値
         const scanner = new Html5Qrcode("reader");
         function startScan() { scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => { scanner.stop(); fetchItem(text); }); }
         async function fetchItem(jan) {
             const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "search_jan", jan: jan }) });
-            const data = await res.json(); document.getElementById('item').value = data.itemName || "未登録商品";
+            const data = await res.json(); document.getElementById('item').value = data.itemName || "";
         }
-        function calculateUnit() {
+        document.getElementById('price').addEventListener('input', () => {
             const p = document.getElementById('price').value, w = document.getElementById('weight').value;
-            if(p && w) document.getElementById('unit-result').innerText = `100g単価：${Math.round((p/w)*100)} 円`;
-        }
-        document.getElementById('price').addEventListener('input', calculateUnit);
-        document.getElementById('weight').addEventListener('input', calculateUnit);
+            if(p&&w) document.getElementById('unit-result').innerText = `単価：${Math.round((p/w)*100)} 円`;
+        });
         async function submitPrice() {
-            const payload = { type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value };
-            await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) }); alert("底値を登録しました！");
+            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value }) });
+            alert("登録しました！");
         }
 
-        // --- 予定登録機能 ---
+        // 2. 買い物リスト
+        async function loadShoppingList() {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_shopping_list" }) });
+            const data = await res.json();
+            const ul = document.getElementById('shopping-ul'); ul.innerHTML = "";
+            data.items.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${item}</span> <button class="delete-btn" onclick="deleteItem('${item}')">完了</button>`;
+                ul.appendChild(li);
+            });
+        }
+        async function addListItem() {
+            const item = document.getElementById('list-input').value; if(!item) return;
+            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_shopping_item", item: item }) });
+            document.getElementById('list-input').value = ""; loadShoppingList();
+        }
+        async function deleteItem(item) {
+            if(!confirm("買いましたか？")) return;
+            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "delete_shopping_item", item: item }) });
+            loadShoppingList();
+        }
+
+        // 3. 予定
         async function submitEvent() {
             const name = document.getElementById('event-name').value;
             const date = document.getElementById('event-date').value;
             const owner = document.querySelector('input[name="owner"]:checked').value;
-            if(!name || !date) return alert("イベント名と日付を入力してください");
-            
-            const payload = { type: "web_app", action: "register_event", name: name, date: date, owner: owner };
-            const ownerName = document.querySelector('input[name="owner"]:checked').nextElementSibling.innerText;
-
-            if(confirm(`【${name}】\n${date}\nカテゴリ：${ownerName}\n\n登録しますか？`)) {
-                await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
-                alert("登録完了！");
-                document.getElementById('event-name').value = "";
-                document.getElementById('event-date').value = "";
+            if(!name || !date) return;
+            if(confirm("登録しますか？")) {
+                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_event", name: name, date: date, owner: owner }) });
+                alert("登録完了！"); document.getElementById('event-name').value = "";
             }
+        }
+
+        // 4. やりたいことリスト (新機能)
+        async function submitBucket() {
+            const item = document.getElementById('bucket-item').value;
+            const owner = document.querySelector('input[name="bucket-owner"]:checked').value;
+            if(!item) return;
+            if(confirm(`【${item}】\n\nやりたいことリストに追加しますか？`)) {
+                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_bucket", item: item, owner: owner }) });
+                alert("追加しました！✨"); document.getElementById('bucket-item').value = "";
+            }
+        }
+
+        // 5. 立替
+        async function submitPayment() {
+            const item = document.getElementById('pay-item').value;
+            const amount = document.getElementById('pay-amount').value;
+            const payer = document.querySelector('input[name="payer"]:checked').value;
+            if(!item || !amount) return;
+            if(confirm(`${payer}が ${amount}円\n(${item})\n\n記録しますか？`)) {
+                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_payment", item: item, amount: amount, payer: payer }) });
+                alert("記録しました！"); document.getElementById('pay-item').value = ""; document.getElementById('pay-amount').value = "";
+            }
+        }
+
+        // 6. ポイント
+        async function addPoint(to) {
+            if(confirm("「ありがとう」を送りますか？")) {
+                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_point", to: to }) });
+                alert("感謝を伝えました！"); loadPoints();
+            }
+        }
+        async function loadPoints() {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_points" }) });
+            const data = await res.json();
+            document.getElementById('pt-naoki').innerText = data.naoki;
+            document.getElementById('pt-maki').innerText = data.maki;
         }
     </script>
 </body>
