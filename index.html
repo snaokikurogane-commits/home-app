@@ -19,18 +19,21 @@
         .btn-orange { background: #ff9500; color: white; }
         .btn-black { background: #333; color: white; } 
         
-        /* 家計簿 */
-        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .cat-btn { padding: 15px; border: 1px solid #ddd; background: #fff; border-radius: 8px; font-size: 14px; cursor: pointer; }
         /* 献立 */
         .menu-row { display: flex; align-items: center; margin-bottom: 8px; }
         .menu-label { width: 30px; font-weight: bold; color: #555; }
         .menu-input { flex: 1; }
+        .history-list { font-size: 12px; color: #666; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
+        .history-item { margin-bottom: 5px; }
+
         /* 帰宅ボタン */
         .return-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .return-btn { padding: 15px; border-radius: 12px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .bg-naoki { background: linear-gradient(135deg, #007aff, #00c6ff); }
         .bg-maki { background: linear-gradient(135deg, #ff9500, #ffcc00); }
+        /* 家計簿 */
+        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .cat-btn { padding: 15px; border: 1px solid #ddd; background: #fff; border-radius: 8px; font-size: 14px; cursor: pointer; }
         /* アイコン */
         .radio-group { display: flex; gap: 5px; margin: 10px 0; }
         .radio-label { flex: 1; text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; background: #f9f9f9; font-size: 14px; }
@@ -129,7 +132,7 @@
     <div id="tab-menu" class="container">
         <div class="box">
             <h3>🍳 今週の献立</h3>
-            <p style="text-align:center; font-size:12px; color:#666;">真輝さんが決めたメニュー</p>
+            <p style="text-align:center; font-size:12px; color:#666;">最新の保存内容が表示されます</p>
             <div class="menu-row"><span class="menu-label">月</span><input type="text" id="menu-mon" class="menu-input"></div>
             <div class="menu-row"><span class="menu-label">火</span><input type="text" id="menu-tue" class="menu-input"></div>
             <div class="menu-row"><span class="menu-label">水</span><input type="text" id="menu-wed" class="menu-input"></div>
@@ -137,7 +140,15 @@
             <div class="menu-row"><span class="menu-label">金</span><input type="text" id="menu-fri" class="menu-input"></div>
             <div class="menu-row"><span class="menu-label">土</span><input type="text" id="menu-sat" class="menu-input"></div>
             <div class="menu-row"><span class="menu-label">日</span><input type="text" id="menu-sun" class="menu-input"></div>
-            <button class="btn-green" onclick="submitMenu()">メニューを保存</button>
+            
+            <div style="display:flex; gap:10px;">
+                <button class="btn-green" onclick="submitMenu()">保存 (履歴に残る)</button>
+                <button class="btn-red" onclick="clearMenuInputs()">入力をクリア</button>
+            </div>
+
+            <hr style="margin:20px 0;">
+            <h4 style="text-align:center; color:#666;">過去の献立履歴</h4>
+            <div id="menu-history" class="history-list"></div>
         </div>
     </div>
 
@@ -227,7 +238,7 @@
 
     <script>
         // ★★★ここにGASのURLを貼る★★★
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwjRbEqvlIA5_jzGJaQE3mK4eTG7qk6GCKvknnckVQzutB5DsZ3ME378R-_ve2kEmA9/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxkeKZuCwhd1GcQHCYnMlPRY3dxy1p66fUCcpzgRXfzjqwbwNUweqjUFsI5Q3NqQrzt/exec";
 
         function switchTab(tabName) {
             document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
@@ -253,6 +264,7 @@
             if (tab) switchTab(tab); else switchTab('return');
         }
 
+        // --- 0. 今すぐ帰ります ---
         function quickReturn(who, mode) {
             document.getElementById('return-status').innerText = "📍 位置情報取得中...";
             if (!navigator.geolocation) { alert("GPS利用不可"); return; }
@@ -266,6 +278,7 @@
             }, (err) => { document.getElementById('return-status').innerText = "⚠️ GPSエラー"; });
         }
 
+        // --- 1. 瞬間家計簿 ---
         async function quickExpense(cat) {
             const date = document.getElementById('quick-date').value;
             const type = document.querySelector('input[name="quick-type"]:checked').value;
@@ -284,6 +297,7 @@
             }
         }
         
+        // --- 8. 献立 (★更新) ---
         async function submitMenu() {
             if(!confirm("この内容で献立を保存しますか？")) return;
             const payload = {
@@ -294,14 +308,32 @@
             };
             await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
             alert("保存しました！📅");
+            loadMenu(); // 保存後にリストを再読み込み
+        }
+        function clearMenuInputs() {
+            if(!confirm("入力欄をクリアしますか？")) return;
+            document.getElementById('menu-mon').value = ""; document.getElementById('menu-tue').value = "";
+            document.getElementById('menu-wed').value = ""; document.getElementById('menu-thu').value = "";
+            document.getElementById('menu-fri').value = ""; document.getElementById('menu-sat').value = ""; document.getElementById('menu-sun').value = "";
         }
         async function loadMenu() {
             const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_menu" }) });
             const data = await res.json();
+            // 最新メニューを表示
             if(data.menu) {
                 document.getElementById('menu-mon').value = data.menu.mon || ""; document.getElementById('menu-tue').value = data.menu.tue || "";
                 document.getElementById('menu-wed').value = data.menu.wed || ""; document.getElementById('menu-thu').value = data.menu.thu || "";
                 document.getElementById('menu-fri').value = data.menu.fri || ""; document.getElementById('menu-sat').value = data.menu.sat || ""; document.getElementById('menu-sun').value = data.menu.sun || "";
+            }
+            // 履歴を表示
+            const historyDiv = document.getElementById('menu-history');
+            historyDiv.innerHTML = "";
+            if(data.history) {
+                data.history.forEach(h => {
+                    const d = new Date(h.date);
+                    const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
+                    historyDiv.innerHTML += `<div class="history-item"><strong>${dateStr}更新</strong><br>${h.menuStr}</div>`;
+                });
             }
         }
 
