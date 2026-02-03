@@ -6,53 +6,68 @@
     <title>山西町ライフ</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 0; padding-bottom: 90px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 0; padding-bottom: 90px; color: #333; }
         .container { padding: 15px; display: none; }
         .active { display: block; }
-        .box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        h3 { margin-top: 0; color: #333; font-size: 18px; text-align: center; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-blue { background: #007aff; color: white; }
-        .btn-green { background: #34c759; color: white; }
-        .btn-red { background: #ff3b30; color: white; }
-        .btn-orange { background: #ff9500; color: white; }
-        .btn-black { background: #333; color: white; } 
+        .box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; }
+        h3 { margin-top: 0; color: #444; font-size: 18px; text-align: center; margin-bottom: 20px; letter-spacing: 0.05em; }
+        
+        /* 入力フォーム系 */
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; background: #f9f9f9; transition: 0.2s; }
+        input:focus, select:focus, textarea:focus { border-color: #5D7EA7; background: #fff; outline: none; }
+        
+        /* 共通ボタン */
+        button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
+        button:active { transform: scale(0.98); box-shadow: none; }
+        
+        .btn-blue { background: #5D7EA7; color: white; } /* 落ち着いた青 */
+        .btn-green { background: #56AB91; color: white; } /* おしゃれな緑 */
+        .btn-red { background: #E07A5F; color: white; } /* テラコッタ */
+        .btn-black { background: #3D405B; color: white; } /* ダークネイビー */
+        
+        /* ★修正：帰宅ボタン（おしゃれカラー） */
+        .return-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .return-btn { padding: 20px 10px; border-radius: 15px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* 尚輝：落ち着いたスレートブルー */
+        .bg-naoki { background: linear-gradient(135deg, #6D8CAA, #486684); } 
+        /* 真輝：おしゃれなミモザ・マスタードイエロー */
+        .bg-maki { background: linear-gradient(135deg, #F2C94C, #E0AA3E); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+
+        /* 家計簿 */
+        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .cat-btn { padding: 15px; border: 1px solid #eee; background: #fff; border-radius: 10px; font-size: 14px; cursor: pointer; color: #555; }
         
         /* 献立 */
         .menu-row { display: flex; align-items: center; margin-bottom: 8px; }
-        .menu-label { width: 30px; font-weight: bold; color: #555; }
+        .menu-label { width: 30px; font-weight: bold; color: #777; font-size: 14px; }
         .menu-input { flex: 1; }
-        .history-list { font-size: 12px; color: #666; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
-        .history-item { margin-bottom: 5px; }
+        .history-list { font-size: 12px; color: #666; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; line-height: 1.6; }
+        .history-item { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #eee; }
 
-        /* 帰宅ボタン */
-        .return-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .return-btn { padding: 15px; border-radius: 12px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .bg-naoki { background: linear-gradient(135deg, #007aff, #00c6ff); }
-        .bg-maki { background: linear-gradient(135deg, #ff9500, #ffcc00); }
-        /* 家計簿 */
-        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .cat-btn { padding: 15px; border: 1px solid #ddd; background: #fff; border-radius: 8px; font-size: 14px; cursor: pointer; }
-        /* アイコン */
-        .radio-group { display: flex; gap: 5px; margin: 10px 0; }
-        .radio-label { flex: 1; text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; background: #f9f9f9; font-size: 14px; }
+        /* アイコン選択 */
+        .radio-group { display: flex; gap: 8px; margin: 10px 0; }
+        .radio-label { flex: 1; text-align: center; padding: 12px; border: 1px solid #eee; border-radius: 10px; cursor: pointer; background: #fff; font-size: 14px; color: #555; transition: 0.2s; }
         input[type="radio"] { display: none; }
-        input[type="radio"]:checked + .radio-label { background: #e0f0ff; border-color: #007aff; color: #007aff; font-weight: bold; }
+        /* 選択時の色：尚輝カラーに合わせる */
+        input[type="radio"]:checked + .radio-label { background: #EAF2F8; border-color: #6D8CAA; color: #486684; font-weight: bold; }
+        
         /* リスト */
         #shopping-ul, #schedule-ul { list-style: none; padding: 0; }
-        #shopping-ul li, #schedule-ul li { background: #fff; border-bottom: 1px solid #eee; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .delete-btn { background: #ff3b30; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; border: none; width: auto; margin: 0; }
-        /* ナビ */
-        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-between; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; overflow-x: auto; white-space: nowrap; }
-        .nav-item { text-align: center; color: #888; font-size: 9px; cursor: pointer; min-width: 50px; display: inline-block; padding: 0 5px; }
-        .nav-item.active-tab { color: #007aff; font-weight: bold; }
-        .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
-        #reader { width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 15px; background: #000; }
-        /* ポイント */
+        #shopping-ul li, #schedule-ul li { background: #fff; border-bottom: 1px solid #f0f0f0; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+        .delete-btn { background: #E07A5F; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; width: auto; margin: 0; }
+
+        /* ナビゲーション */
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #eee; display: flex; justify-content: space-between; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); z-index: 1000; overflow-x: auto; white-space: nowrap; }
+        .nav-item { text-align: center; color: #999; font-size: 10px; cursor: pointer; min-width: 50px; display: inline-block; padding: 0 5px; transition: 0.2s; }
+        .nav-item.active-tab { color: #486684; font-weight: bold; transform: translateY(-2px); }
+        .nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+        
+        /* その他ツール */
+        #reader { width: 100%; border-radius: 15px; overflow: hidden; margin-bottom: 15px; background: #000; }
         .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
-        .point-card { text-align: center; width: 45%; padding: 10px; background: #f9f9f9; border-radius: 10px; }
-        .point-num { font-size: 32px; font-weight: bold; color: #ff9500; }
+        .point-card { text-align: center; width: 45%; padding: 15px; background: #f8f9fa; border-radius: 12px; border: 1px solid #eee; }
+        .point-num { font-size: 36px; font-weight: bold; color: #F2C94C; display: block; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -60,41 +75,39 @@
     <div id="tab-return" class="container active">
         <div class="box">
             <h3>🏠 今すぐ帰ります</h3>
+            <p style="text-align:center; font-size:12px; color:#888;">ワンタップで通知を送信</p>
             <div class="return-grid">
-                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'TRANSIT')"><span style="font-size:24px;">🐢🚃</span>尚輝 電車</button>
-                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'DRIVING')"><span style="font-size:24px;">🐢🚗</span>尚輝 車</button>
-                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'DRIVING')"><span style="font-size:24px;">🧸🏍</span>真輝 バイク</button>
-                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'TRANSIT')"><span style="font-size:24px;">🧸🚃</span>真輝 電車</button>
+                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'TRANSIT')"><span style="font-size:28px;">🐢🚃</span>尚輝 電車</button>
+                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'DRIVING')"><span style="font-size:28px;">🐢🚗</span>尚輝 車</button>
+                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'DRIVING')"><span style="font-size:28px;">🧸🏍</span>真輝 バイク</button>
+                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'TRANSIT')"><span style="font-size:28px;">🧸🚃</span>真輝 電車</button>
             </div>
-            <div id="return-status" style="text-align:center; margin-top:15px; font-weight:bold; color:#007aff;"></div>
+            <div id="return-status" style="text-align:center; margin-top:15px; font-weight:bold; color:#486684;"></div>
         </div>
     </div>
 
     <div id="tab-money" class="container">
         <div class="box">
             <h3>💰 瞬間・家計簿</h3>
-            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
                 <input type="datetime-local" id="quick-date" style="flex: 2;">
                 <div class="radio-group" style="flex: 1; margin: 0;">
                     <input type="radio" name="quick-type" id="t-exp" value="支出" checked><label for="t-exp" class="radio-label">支出</label>
                     <input type="radio" name="quick-type" id="t-inc" value="収入"><label for="t-inc" class="radio-label">収入</label>
                 </div>
             </div>
-            <label style="font-size:12px; color:#666;">金額・店名</label>
-            <input type="number" id="quick-amount" placeholder="金額（円）" inputmode="numeric" style="font-size:20px; text-align:center;">
+            <input type="number" id="quick-amount" placeholder="金額（円）" inputmode="numeric" style="font-size:20px; text-align:center; padding: 15px;">
             <input type="text" id="quick-store" placeholder="店名 (任意)" style="text-align:center;">
-            <label style="font-size:12px; color:#666;">負担者</label>
+            
             <div class="radio-group">
                 <input type="radio" name="quick-owner" id="q-naoki" value="尚輝" checked><label for="q-naoki" class="radio-label">🐢尚輝</label>
                 <input type="radio" name="quick-owner" id="q-maki" value="真輝"><label for="q-maki" class="radio-label">🧸真輝</label>
                 <input type="radio" name="quick-owner" id="q-joint" value="共同"><label for="q-joint" class="radio-label">🏠共同</label>
             </div>
-            <label style="font-size:12px; color:#666;">支払方法</label>
             <div class="radio-group">
                 <input type="radio" name="quick-method" id="m-cash" value="現金" checked><label for="m-cash" class="radio-label">💴現金</label>
                 <input type="radio" name="quick-method" id="m-card" value="クレジットカード"><label for="m-card" class="radio-label">💳カード</label>
             </div>
-            <label style="font-size:12px; color:#666; margin-top:10px; display:block;">カテゴリ</label>
             <div class="category-grid">
                 <button class="cat-btn" onclick="quickExpense('食費')">🍔 食費</button>
                 <button class="cat-btn" onclick="quickExpense('日用品')">🧻 日用品</button>
@@ -113,7 +126,7 @@
             <input type="number" id="price" placeholder="価格" inputmode="numeric">
             <input type="number" id="weight" placeholder="内容量(g)" inputmode="numeric">
             <input type="text" id="store" placeholder="店名">
-            <div id="unit-result" style="text-align:center; margin:10px 0;">単価：---</div>
+            <div id="unit-result" style="text-align:center; margin:10px 0; color:#666;">単価：---</div>
             <button class="btn-green" onclick="submitPrice()">登録</button>
         </div>
     </div>
@@ -121,7 +134,7 @@
     <div id="tab-list" class="container">
         <div class="box">
             <h3>📝 買うものリスト</h3>
-            <div style="display:flex; gap:5px;">
+            <div style="display:flex; gap:8px;">
                 <input type="text" id="list-input" placeholder="牛乳、洗剤など">
                 <button class="btn-blue" style="width:30%; margin:8px 0;" onclick="addListItem()">追加</button>
             </div>
@@ -132,7 +145,7 @@
     <div id="tab-menu" class="container">
         <div class="box">
             <h3>🍳 今週の献立</h3>
-            <p style="text-align:center; font-size:12px; color:#666;">最新の保存内容が表示されます</p>
+            <p style="text-align:center; font-size:12px; color:#888; margin-bottom:15px;">最新の保存内容が表示されます</p>
             <div class="menu-row"><span class="menu-label">月</span><input type="text" id="menu-mon" class="menu-input"></div>
             <div class="menu-row"><span class="menu-label">火</span><input type="text" id="menu-tue" class="menu-input"></div>
             <div class="menu-row"><span class="menu-label">水</span><input type="text" id="menu-wed" class="menu-input"></div>
@@ -141,22 +154,23 @@
             <div class="menu-row"><span class="menu-label">土</span><input type="text" id="menu-sat" class="menu-input"></div>
             <div class="menu-row"><span class="menu-label">日</span><input type="text" id="menu-sun" class="menu-input"></div>
             
-            <div style="display:flex; gap:10px;">
+            <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="btn-green" onclick="submitMenu()">保存 (履歴に残る)</button>
-                <button class="btn-red" onclick="clearMenuInputs()">入力をクリア</button>
+                <button class="btn-red" style="background:#E07A5F;" onclick="clearMenuInputs()">クリア</button>
             </div>
 
-            <hr style="margin:20px 0;">
-            <h4 style="text-align:center; color:#666;">過去の献立履歴</h4>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <h4 style="text-align:center; color:#888; font-size:13px;">過去の献立履歴</h4>
             <div id="menu-history" class="history-list"></div>
         </div>
     </div>
 
     <div id="tab-angry" class="container">
-        <div class="box" style="border: 2px solid #333;">
+        <div class="box" style="border: 2px solid #3D405B;">
             <h3>🧸 ムカッときたら…</h3>
+            <p style="text-align:center; font-size:12px; color:#666;">我慢せずにここに吐き出してください。<br>即座に通知されます。</p>
             <textarea id="angry-item" rows="4" placeholder="（例）靴下が脱ぎっぱなしです😡"></textarea>
-            <button class="btn-black" onclick="submitAnger()">送信する (直樹へ通知)</button>
+            <button class="btn-black" onclick="submitAnger()">送信する (尚輝へ通知)</button>
         </div>
     </div>
 
@@ -171,8 +185,8 @@
                 <input type="radio" name="owner" id="common" value="common" checked><label for="common" class="radio-label">🏠2人</label>
             </div>
             <button class="btn-green" onclick="submitEvent()">登録</button>
-            <hr style="margin:20px 0;">
-            <h4 style="text-align:center; color:#666;">今後の予定</h4>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <h4 style="text-align:center; color:#888; font-size:13px;">今後の予定リスト</h4>
             <ul id="schedule-ul"></ul>
         </div>
     </div>
@@ -181,12 +195,14 @@
         <div class="box">
             <h3>✨ やりたいこと</h3>
             <input type="text" id="bucket-item" placeholder="例：北海道でカニ">
-            <input type="date" id="bucket-limit">
-            <select id="bucket-rank">
-                <option value="★">★ 手軽</option>
-                <option value="★★">★★ 普通</option>
-                <option value="★★★">★★★ 挑戦</option>
-            </select>
+            <div style="display:flex; gap:10px;">
+                <input type="date" id="bucket-limit" style="flex:1;">
+                <select id="bucket-rank" style="flex:1;">
+                    <option value="★">★ 手軽</option>
+                    <option value="★★">★★ 普通</option>
+                    <option value="★★★">★★★ 挑戦</option>
+                </select>
+            </div>
             <div class="radio-group">
                 <input type="radio" name="bucket-owner" id="b-naoki" value="naoki"><label for="b-naoki" class="radio-label">🐢尚輝</label>
                 <input type="radio" name="bucket-owner" id="b-maki" value="maki"><label for="b-maki" class="radio-label">🧸真輝</label>
@@ -212,13 +228,13 @@
     <div id="tab-love" class="container">
         <div class="box">
             <h3>❤️ 感謝ポイント</h3>
-            <div style="display:flex; gap:10px;">
+            <div style="display:flex; gap:12px;">
                 <button class="btn-blue" onclick="addPoint('naoki')">🐢 尚輝へ</button>
                 <button class="btn-red" onclick="addPoint('maki')">🧸 真輝へ</button>
             </div>
             <div class="point-box">
-                <div class="point-card">🐢尚輝<br><span id="pt-naoki" class="point-num">0</span></div>
-                <div class="point-card">🧸真輝<br><span id="pt-maki" class="point-num">0</span></div>
+                <div class="point-card">🐢尚輝<span id="pt-naoki" class="point-num">0</span></div>
+                <div class="point-card">🧸真輝<span id="pt-maki" class="point-num">0</span></div>
             </div>
         </div>
     </div>
@@ -297,7 +313,7 @@
             }
         }
         
-        // --- 8. 献立 (★更新) ---
+        // --- 8. 献立 ---
         async function submitMenu() {
             if(!confirm("この内容で献立を保存しますか？")) return;
             const payload = {
@@ -308,7 +324,7 @@
             };
             await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
             alert("保存しました！📅");
-            loadMenu(); // 保存後にリストを再読み込み
+            loadMenu();
         }
         function clearMenuInputs() {
             if(!confirm("入力欄をクリアしますか？")) return;
@@ -319,13 +335,11 @@
         async function loadMenu() {
             const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_menu" }) });
             const data = await res.json();
-            // 最新メニューを表示
             if(data.menu) {
                 document.getElementById('menu-mon').value = data.menu.mon || ""; document.getElementById('menu-tue').value = data.menu.tue || "";
                 document.getElementById('menu-wed').value = data.menu.wed || ""; document.getElementById('menu-thu').value = data.menu.thu || "";
                 document.getElementById('menu-fri').value = data.menu.fri || ""; document.getElementById('menu-sat').value = data.menu.sat || ""; document.getElementById('menu-sun').value = data.menu.sun || "";
             }
-            // 履歴を表示
             const historyDiv = document.getElementById('menu-history');
             historyDiv.innerHTML = "";
             if(data.history) {
@@ -337,10 +351,12 @@
             }
         }
 
+        // --- 9. ムカッときたら ---
         async function submitAnger() {
             const item = document.getElementById('angry-item').value;
             if(!item) return alert("内容を入力してください");
-            if(confirm(`【${item}】\n\n送信しますか？`)) {
+            // ★尚輝さんに変更済み
+            if(confirm(`【${item}】\n\n尚輝さんに送信しますか？\n（即座に通知されます）`)) {
                 const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_anger", item: item, owner: "maki" }) });
                 const data = await res.json();
                 let msg = "送信しました。";
@@ -349,6 +365,7 @@
             }
         }
 
+        // --- その他共通 ---
         async function submitEvent() { const name = document.getElementById('event-name').value; const date = document.getElementById('event-date').value; const owner = document.querySelector('input[name="owner"]:checked').value; if(!name || !date) return; if(confirm("登録しますか？")) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_event", name: name, date: date, owner: owner }) }); alert("登録完了！"); document.getElementById('event-name').value = ""; loadSchedules(); } }
         async function loadSchedules() {
             const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_schedules" }) });
