@@ -11,80 +11,91 @@
         .active { display: block; }
         .box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; }
         h3 { margin-top: 0; color: #333; font-size: 18px; text-align: center; }
-        
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-blue { background: #007aff; color: white; }
         .btn-green { background: #34c759; color: white; }
         .btn-red { background: #ff3b30; color: white; }
-        .btn-orange { background: #ff9500; color: white; }
+        .btn-black { background: #333; color: white; } 
         
-        /* スマートタブ専用 */
-        .smart-btn-container { display: flex; gap: 10px; margin-top: 10px; }
-        .smart-btn { flex: 1; padding: 20px; border-radius: 15px; font-size: 18px; border: none; cursor: pointer; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .btn-naoki { background: linear-gradient(135deg, #007aff, #00c6ff); }
-        .btn-maki { background: linear-gradient(135deg, #ff3b30, #ff9a9e); }
+        /* 家計簿 */
         .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .cat-btn { padding: 15px; border: 1px solid #ddd; background: #fff; border-radius: 8px; font-size: 14px; cursor: pointer; }
-        
-        /* ナビゲーション (7つ用) */
-        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-around; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; overflow-x: auto; }
-        .nav-item { text-align: center; color: #888; font-size: 9px; cursor: pointer; flex: 1; min-width: 50px; }
-        .nav-item.active-tab { color: #007aff; font-weight: bold; }
-        .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
-        
-        /* 共通スタイル */
-        #shopping-ul { list-style: none; padding: 0; }
-        #shopping-ul li { background: #fff; border-bottom: 1px solid #eee; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .delete-btn { background: #ff3b30; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; border: none; width: auto; margin: 0; }
-        .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
-        .point-card { text-align: center; width: 45%; padding: 10px; background: #f9f9f9; border-radius: 10px; }
-        .point-num { font-size: 32px; font-weight: bold; color: #ff9500; }
+        /* 献立 */
+        .menu-row { display: flex; align-items: center; margin-bottom: 8px; }
+        .menu-label { width: 30px; font-weight: bold; color: #555; }
+        .menu-input { flex: 1; }
+        /* 帰宅ボタン */
+        .return-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .return-btn { padding: 15px; border-radius: 12px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .bg-naoki { background: linear-gradient(135deg, #007aff, #00c6ff); }
+        .bg-maki { background: linear-gradient(135deg, #ff9500, #ffcc00); }
+        /* アイコン */
         .radio-group { display: flex; gap: 5px; margin: 10px 0; }
         .radio-label { flex: 1; text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; background: #f9f9f9; font-size: 14px; }
         input[type="radio"] { display: none; }
         input[type="radio"]:checked + .radio-label { background: #e0f0ff; border-color: #007aff; color: #007aff; font-weight: bold; }
+        /* リスト */
+        #shopping-ul, #schedule-ul { list-style: none; padding: 0; }
+        #shopping-ul li, #schedule-ul li { background: #fff; border-bottom: 1px solid #eee; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .delete-btn { background: #ff3b30; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; border: none; width: auto; margin: 0; }
+        /* ナビ */
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-between; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000; overflow-x: auto; white-space: nowrap; }
+        .nav-item { text-align: center; color: #888; font-size: 9px; cursor: pointer; min-width: 50px; display: inline-block; padding: 0 5px; }
+        .nav-item.active-tab { color: #007aff; font-weight: bold; }
+        .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
         #reader { width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 15px; background: #000; }
+        /* ポイント */
+        .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
+        .point-card { text-align: center; width: 45%; padding: 10px; background: #f9f9f9; border-radius: 10px; }
+        .point-num { font-size: 32px; font-weight: bold; color: #ff9500; }
     </style>
 </head>
 <body>
 
-    <div id="tab-smart" class="container active">
+    <div id="tab-return" class="container active">
         <div class="box">
-            <h3>🏠 爆速・帰るコール</h3>
-            <p style="text-align:center; color:#666; font-size:12px;">現在地から自宅まで</p>
-            <div class="smart-btn-container">
-                <button class="smart-btn btn-naoki" onclick="quickReturn('naoki')">
-                    <span style="font-size:24px;">🚃</span>尚輝帰る
-                </button>
-                <button class="smart-btn btn-maki" onclick="quickReturn('maki')">
-                    <span style="font-size:24px;">🏍</span>真輝帰る
-                </button>
+            <h3>🏠 今すぐ帰ります</h3>
+            <div class="return-grid">
+                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'TRANSIT')"><span style="font-size:24px;">🐢🚃</span>尚輝 電車</button>
+                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'DRIVING')"><span style="font-size:24px;">🐢🚗</span>尚輝 車</button>
+                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'DRIVING')"><span style="font-size:24px;">🧸🏍</span>真輝 バイク</button>
+                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'TRANSIT')"><span style="font-size:24px;">🧸🚃</span>真輝 電車</button>
             </div>
-            <div id="return-status" style="text-align:center; margin-top:10px; font-weight:bold; color:#007aff;"></div>
+            <div id="return-status" style="text-align:center; margin-top:15px; font-weight:bold; color:#007aff;"></div>
         </div>
+    </div>
 
+    <div id="tab-money" class="container">
         <div class="box">
             <h3>💰 瞬間・家計簿</h3>
             
+            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                <input type="datetime-local" id="quick-date" style="flex: 2;">
+                <div class="radio-group" style="flex: 1; margin: 0;">
+                    <input type="radio" name="quick-type" id="t-exp" value="支出" checked><label for="t-exp" class="radio-label">支出</label>
+                    <input type="radio" name="quick-type" id="t-inc" value="収入"><label for="t-inc" class="radio-label">収入</label>
+                </div>
+            </div>
+
             <label style="font-size:12px; color:#666;">金額・店名</label>
             <input type="number" id="quick-amount" placeholder="金額（円）" inputmode="numeric" style="font-size:20px; text-align:center;">
             <input type="text" id="quick-store" placeholder="店名 (任意)" style="text-align:center;">
-
+            
             <label style="font-size:12px; color:#666;">負担者</label>
             <div class="radio-group">
-                <input type="radio" name="quick-owner" id="q-naoki" value="尚輝" checked><label for="q-naoki" class="radio-label">👤尚輝</label>
-                <input type="radio" name="quick-owner" id="q-maki" value="真輝"><label for="q-maki" class="radio-label">🎀真輝</label>
+                <input type="radio" name="quick-owner" id="q-naoki" value="尚輝" checked><label for="q-naoki" class="radio-label">🐢尚輝</label>
+                <input type="radio" name="quick-owner" id="q-maki" value="真輝"><label for="q-maki" class="radio-label">🧸真輝</label>
                 <input type="radio" name="quick-owner" id="q-joint" value="共同"><label for="q-joint" class="radio-label">🏠共同</label>
             </div>
-
+            
             <label style="font-size:12px; color:#666;">支払方法</label>
             <div class="radio-group">
                 <input type="radio" name="quick-method" id="m-cash" value="現金" checked><label for="m-cash" class="radio-label">💴現金</label>
                 <input type="radio" name="quick-method" id="m-card" value="クレジットカード"><label for="m-card" class="radio-label">💳カード</label>
             </div>
-
-            <label style="font-size:12px; color:#666; margin-top:10px; display:block;">カテゴリを選んで送信</label>
+            
+            <label style="font-size:12px; color:#666; margin-top:10px; display:block;">カテゴリ</label>
             <div class="category-grid">
                 <button class="cat-btn" onclick="quickExpense('食費')">🍔 食費</button>
                 <button class="cat-btn" onclick="quickExpense('日用品')">🧻 日用品</button>
@@ -119,27 +130,59 @@
         </div>
     </div>
 
+    <div id="tab-menu" class="container">
+        <div class="box">
+            <h3>🍳 今週の献立</h3>
+            <p style="text-align:center; font-size:12px; color:#666;">真輝さんが決めたメニュー</p>
+            <div class="menu-row"><span class="menu-label">月</span><input type="text" id="menu-mon" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">火</span><input type="text" id="menu-tue" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">水</span><input type="text" id="menu-wed" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">木</span><input type="text" id="menu-thu" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">金</span><input type="text" id="menu-fri" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">土</span><input type="text" id="menu-sat" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">日</span><input type="text" id="menu-sun" class="menu-input"></div>
+            <button class="btn-green" onclick="submitMenu()">メニューを保存</button>
+        </div>
+    </div>
+
+    <div id="tab-angry" class="container">
+        <div class="box" style="border: 2px solid #333;">
+            <h3>🧸 ムカッときたら…</h3>
+            <textarea id="angry-item" rows="4" placeholder="（例）靴下が脱ぎっぱなしです😡"></textarea>
+            <button class="btn-black" onclick="submitAnger()">送信する (直樹へ通知)</button>
+        </div>
+    </div>
+
     <div id="tab-schedule" class="container">
         <div class="box">
             <h3>📅 予定登録</h3>
             <input type="text" id="event-name" placeholder="イベント名">
             <input type="date" id="event-date">
             <div class="radio-group">
-                <input type="radio" name="owner" id="naoki" value="naoki"><label for="naoki" class="radio-label">👤尚輝</label>
-                <input type="radio" name="owner" id="maki" value="maki"><label for="maki" class="radio-label">🎀真輝</label>
+                <input type="radio" name="owner" id="naoki" value="naoki"><label for="naoki" class="radio-label">🐢尚輝</label>
+                <input type="radio" name="owner" id="maki" value="maki"><label for="maki" class="radio-label">🧸真輝</label>
                 <input type="radio" name="owner" id="common" value="common" checked><label for="common" class="radio-label">🏠2人</label>
             </div>
             <button class="btn-green" onclick="submitEvent()">登録</button>
+            <hr style="margin:20px 0;">
+            <h4 style="text-align:center; color:#666;">今後の予定</h4>
+            <ul id="schedule-ul"></ul>
         </div>
     </div>
 
     <div id="tab-bucket" class="container">
         <div class="box">
             <h3>✨ やりたいこと</h3>
-            <input type="text" id="bucket-item" placeholder="例：北海道でカニ食べる">
+            <input type="text" id="bucket-item" placeholder="例：北海道でカニ">
+            <input type="date" id="bucket-limit">
+            <select id="bucket-rank">
+                <option value="★">★ 手軽</option>
+                <option value="★★">★★ 普通</option>
+                <option value="★★★">★★★ 挑戦</option>
+            </select>
             <div class="radio-group">
-                <input type="radio" name="bucket-owner" id="b-naoki" value="naoki"><label for="b-naoki" class="radio-label">👤尚輝</label>
-                <input type="radio" name="bucket-owner" id="b-maki" value="maki"><label for="b-maki" class="radio-label">🎀真輝</label>
+                <input type="radio" name="bucket-owner" id="b-naoki" value="naoki"><label for="b-naoki" class="radio-label">🐢尚輝</label>
+                <input type="radio" name="bucket-owner" id="b-maki" value="maki"><label for="b-maki" class="radio-label">🧸真輝</label>
                 <input type="radio" name="bucket-owner" id="b-common" value="common" checked><label for="b-common" class="radio-label">🏠2人</label>
             </div>
             <button class="btn-green" onclick="submitBucket()">リストに追加</button>
@@ -152,8 +195,8 @@
             <input type="text" id="pay-item" placeholder="何に使った？">
             <input type="number" id="pay-amount" placeholder="金額" inputmode="numeric">
             <div class="radio-group">
-                <input type="radio" name="payer" id="pay-naoki" value="尚輝" checked><label for="pay-naoki" class="radio-label">👤尚輝払</label>
-                <input type="radio" name="payer" id="pay-maki" value="真輝"><label for="pay-maki" class="radio-label">🎀真輝払</label>
+                <input type="radio" name="payer" id="pay-naoki" value="尚輝" checked><label for="pay-naoki" class="radio-label">🐢尚輝払</label>
+                <input type="radio" name="payer" id="pay-maki" value="真輝"><label for="pay-maki" class="radio-label">🧸真輝払</label>
             </div>
             <button class="btn-green" onclick="submitPayment()">記録</button>
         </div>
@@ -163,20 +206,23 @@
         <div class="box">
             <h3>❤️ 感謝ポイント</h3>
             <div style="display:flex; gap:10px;">
-                <button class="btn-blue" onclick="addPoint('naoki')">👤 尚輝へ</button>
-                <button class="btn-red" onclick="addPoint('maki')">🎀 真輝へ</button>
+                <button class="btn-blue" onclick="addPoint('naoki')">🐢 尚輝へ</button>
+                <button class="btn-red" onclick="addPoint('maki')">🧸 真輝へ</button>
             </div>
             <div class="point-box">
-                <div class="point-card">👤尚輝<br><span id="pt-naoki" class="point-num">0</span></div>
-                <div class="point-card">🎀真輝<br><span id="pt-maki" class="point-num">0</span></div>
+                <div class="point-card">🐢尚輝<br><span id="pt-naoki" class="point-num">0</span></div>
+                <div class="point-card">🧸真輝<br><span id="pt-maki" class="point-num">0</span></div>
             </div>
         </div>
     </div>
 
     <div class="nav-bar">
-        <div class="nav-item active-tab" onclick="switchTab('smart')"><span class="nav-icon">⚡️</span>楽</div>
+        <div class="nav-item active-tab" onclick="switchTab('return')"><span class="nav-icon">🏠</span>帰</div>
+        <div class="nav-item" onclick="switchTab('money')"><span class="nav-icon">💰</span>金</div>
         <div class="nav-item" onclick="switchTab('scan')"><span class="nav-icon">🛒</span>底</div>
         <div class="nav-item" onclick="switchTab('list')"><span class="nav-icon">📝</span>買</div>
+        <div class="nav-item" onclick="switchTab('menu')"><span class="nav-icon">🍳</span>献</div>
+        <div class="nav-item" onclick="switchTab('angry')"><span class="nav-icon">🧸</span>怒</div>
         <div class="nav-item" onclick="switchTab('schedule')"><span class="nav-icon">📅</span>予</div>
         <div class="nav-item" onclick="switchTab('bucket')"><span class="nav-icon">✨</span>夢</div>
         <div class="nav-item" onclick="switchTab('pay')"><span class="nav-icon">💸</span>立</div>
@@ -185,137 +231,129 @@
 
     <script>
         // ★★★ここにGASのURLを貼る★★★
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwnwXkhemWrPSqAvcImWzhBH1x9MaulHjVdzWPXzi1LWEd3o0JhEcvYhynu6fBaaomx/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbz4_9Z7j6YwXOFCTtKdzDXuxQj2RybVVTMn7MCvhuDdUsOGyNGaLyjFmOhLmpUPCWjY/exec";
 
         function switchTab(tabName) {
             document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-tab'));
             document.getElementById('tab-' + tabName).classList.add('active');
-            event.currentTarget.classList.add('active-tab');
+            const tabs = ['return','money','scan','list','menu','angry','schedule','bucket','pay','love'];
+            const idx = tabs.indexOf(tabName);
+            if(idx >= 0) document.querySelectorAll('.nav-item')[idx].classList.add('active-tab');
+
             if(tabName === 'list') loadShoppingList();
+            if(tabName === 'menu') loadMenu();
             if(tabName === 'love') loadPoints();
+            if(tabName === 'schedule') loadSchedules(); // 予定リスト読込
+            if(tabName === 'money') {
+                // 家計簿タブを開いた時、現在時刻をデフォルトセット
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                document.getElementById('quick-date').value = now.toISOString().slice(0,16);
+            }
+        }
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            if (tab) switchTab(tab); else switchTab('return');
         }
 
-        // 0. スマート機能
-        function quickReturn(who) {
+        // --- 0. 今すぐ帰ります ---
+        function quickReturn(who, mode) {
             document.getElementById('return-status').innerText = "📍 位置情報取得中...";
-            if (!navigator.geolocation) { alert("GPSが使えません"); return; }
+            if (!navigator.geolocation) { alert("GPS利用不可"); return; }
             navigator.geolocation.getCurrentPosition(async (pos) => {
                 document.getElementById('return-status').innerText = "🚀 計算中...";
-                const payload = { type: "web_app", action: "quick_return", lat: pos.coords.latitude, lon: pos.coords.longitude, owner: who };
+                const payload = { type: "web_app", action: "quick_return", lat: pos.coords.latitude, lon: pos.coords.longitude, owner: who, mode: mode };
                 const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
                 const data = await res.json();
                 document.getElementById('return-status').innerText = (data.status === "success") ? "✅ 送信完了！" : "エラー";
                 if(data.status==="success") alert(data.msg);
             }, (err) => { document.getElementById('return-status').innerText = "⚠️ GPSエラー"; });
         }
+
+        // --- 1. 瞬間家計簿 (更新) ---
         async function quickExpense(cat) {
+            const date = document.getElementById('quick-date').value;
+            const type = document.querySelector('input[name="quick-type"]:checked').value;
             const amount = document.getElementById('quick-amount').value;
             const store = document.getElementById('quick-store').value;
             const owner = document.querySelector('input[name="quick-owner"]:checked').value;
             const method = document.querySelector('input[name="quick-method"]:checked').value;
             
             if(!amount) return alert("金額を入れてください");
-            
-            // 確認ダイアログ
-            const msg = `【${cat}】${amount}円\n店：${store || "なし"}\n人：${owner} (${method})`;
-            if(confirm(msg + "\n\n記録しますか？")) {
-                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({
-                    type: "web_app", action: "quick_expense",
-                    amount: amount, category: cat, payer: owner, method: method, store: store
+            if(confirm(`【${cat}】${amount}円\n日時：${date}\n種類：${type}\n人：${owner} (${method})\n\n記録しますか？`)) {
+                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ 
+                    type: "web_app", action: "quick_expense", 
+                    date: date, type: type, amount: amount, category: cat, payer: owner, method: method, store: store 
                 }) });
-                alert("記録しました！💰");
-                document.getElementById('quick-amount').value = "";
-                document.getElementById('quick-store').value = "";
+                alert("記録しました！💰"); document.getElementById('quick-amount').value = ""; document.getElementById('quick-store').value = "";
+            }
+        }
+        
+        // --- 8. 献立 ---
+        async function submitMenu() {
+            if(!confirm("この内容で献立を保存しますか？")) return;
+            const payload = {
+                type: "web_app", action: "register_menu",
+                mon: document.getElementById('menu-mon').value, tue: document.getElementById('menu-tue').value,
+                wed: document.getElementById('menu-wed').value, thu: document.getElementById('menu-thu').value,
+                fri: document.getElementById('menu-fri').value, sat: document.getElementById('menu-sat').value, sun: document.getElementById('menu-sun').value
+            };
+            await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+            alert("保存しました！📅");
+        }
+        async function loadMenu() {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_menu" }) });
+            const data = await res.json();
+            if(data.menu) {
+                document.getElementById('menu-mon').value = data.menu.mon || ""; document.getElementById('menu-tue').value = data.menu.tue || "";
+                document.getElementById('menu-wed').value = data.menu.wed || ""; document.getElementById('menu-thu').value = data.menu.thu || "";
+                document.getElementById('menu-fri').value = data.menu.fri || ""; document.getElementById('menu-sat').value = data.menu.sat || ""; document.getElementById('menu-sun').value = data.menu.sun || "";
             }
         }
 
-        // 1. 底値
-        const scanner = new Html5Qrcode("reader");
-        function startScan() { scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => { scanner.stop(); fetchItem(text); }); }
-        async function fetchItem(jan) {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "search_jan", jan: jan }) });
-            const data = await res.json(); document.getElementById('item').value = data.itemName || "";
-        }
-        document.getElementById('price').addEventListener('input', () => {
-            const p = document.getElementById('price').value, w = document.getElementById('weight').value;
-            if(p&&w) document.getElementById('unit-result').innerText = `単価：${Math.round((p/w)*100)} 円`;
-        });
-        async function submitPrice() {
-            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value }) });
-            alert("登録しました！");
+        // --- 9. ムカッときたら ---
+        async function submitAnger() {
+            const item = document.getElementById('angry-item').value;
+            if(!item) return alert("内容を入力してください");
+            if(confirm(`【${item}】\n\n送信しますか？`)) {
+                const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_anger", item: item, owner: "maki" }) });
+                const data = await res.json();
+                let msg = "送信しました。";
+                if (data.penalty) msg += `\n\n🚨 2回蓄積！\n🍰 尚輝さんから「マッサージorデザート」の刑が執行されます。`;
+                alert(msg); document.getElementById('angry-item').value = "";
+            }
         }
 
-        // 2. 買い物リスト
-        async function loadShoppingList() {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_shopping_list" }) });
+        // --- 4. 予定 (更新：リスト取得) ---
+        async function submitEvent() { const name = document.getElementById('event-name').value; const date = document.getElementById('event-date').value; const owner = document.querySelector('input[name="owner"]:checked').value; if(!name || !date) return; if(confirm("登録しますか？")) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_event", name: name, date: date, owner: owner }) }); alert("登録完了！"); document.getElementById('event-name').value = ""; loadSchedules(); } }
+        async function loadSchedules() {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_schedules" }) });
             const data = await res.json();
-            const ul = document.getElementById('shopping-ul'); ul.innerHTML = "";
-            data.items.forEach(item => {
+            const ul = document.getElementById('schedule-ul'); ul.innerHTML = "";
+            data.items.forEach(e => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span>${item}</span> <button class="delete-btn" onclick="deleteItem('${item}')">完了</button>`;
+                let icon = "🏠"; if(e.owner === "naoki") icon = "🐢"; if(e.owner === "maki") icon = "🧸";
+                const d = new Date(e.date);
+                li.innerHTML = `${icon} ${d.getMonth()+1}/${d.getDate()} ${e.name}`;
                 ul.appendChild(li);
             });
         }
-        async function addListItem() {
-            const item = document.getElementById('list-input').value; if(!item) return;
-            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_shopping_item", item: item }) });
-            document.getElementById('list-input').value = ""; loadShoppingList();
-        }
-        async function deleteItem(item) {
-            if(!confirm("買いましたか？")) return;
-            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "delete_shopping_item", item: item }) });
-            loadShoppingList();
-        }
 
-        // 3. 予定
-        async function submitEvent() {
-            const name = document.getElementById('event-name').value;
-            const date = document.getElementById('event-date').value;
-            const owner = document.querySelector('input[name="owner"]:checked').value;
-            if(!name || !date) return;
-            if(confirm("登録しますか？")) {
-                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_event", name: name, date: date, owner: owner }) });
-                alert("登録完了！"); document.getElementById('event-name').value = "";
-            }
-        }
-
-        // 4. やりたいこと
-        async function submitBucket() {
-            const item = document.getElementById('bucket-item').value;
-            const owner = document.querySelector('input[name="bucket-owner"]:checked').value;
-            if(!item) return;
-            if(confirm(`【${item}】\n\nやりたいことリストに追加しますか？`)) {
-                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_bucket", item: item, owner: owner }) });
-                alert("追加しました！✨"); document.getElementById('bucket-item').value = "";
-            }
-        }
-
-        // 5. 立替
-        async function submitPayment() {
-            const item = document.getElementById('pay-item').value;
-            const amount = document.getElementById('pay-amount').value;
-            const payer = document.querySelector('input[name="payer"]:checked').value;
-            if(!item || !amount) return;
-            if(confirm(`${payer}が ${amount}円\n(${item})\n\n記録しますか？`)) {
-                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_payment", item: item, amount: amount, payer: payer }) });
-                alert("記録しました！"); document.getElementById('pay-item').value = ""; document.getElementById('pay-amount').value = "";
-            }
-        }
-
-        // 6. ポイント
-        async function addPoint(to) {
-            if(confirm("「ありがとう」を送りますか？")) {
-                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_point", to: to }) });
-                alert("感謝を伝えました！"); loadPoints();
-            }
-        }
-        async function loadPoints() {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_points" }) });
-            const data = await res.json();
-            document.getElementById('pt-naoki').innerText = data.naoki;
-            document.getElementById('pt-maki').innerText = data.maki;
-        }
+        // --- その他共通 ---
+        const scanner = new Html5Qrcode("reader");
+        function startScan() { scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => { scanner.stop(); fetchItem(text); }); }
+        async function fetchItem(jan) { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "search_jan", jan: jan }) }); const data = await res.json(); document.getElementById('item').value = data.itemName || ""; }
+        document.getElementById('price').addEventListener('input', () => { const p = document.getElementById('price').value, w = document.getElementById('weight').value; if(p&&w) document.getElementById('unit-result').innerText = `単価：${Math.round((p/w)*100)} 円`; });
+        async function submitPrice() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value }) }); alert("登録しました！"); }
+        async function loadShoppingList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_shopping_list" }) }); const data = await res.json(); const ul = document.getElementById('shopping-ul'); ul.innerHTML = ""; data.items.forEach(item => { const li = document.createElement('li'); li.innerHTML = `<span>${item}</span> <button class="delete-btn" onclick="deleteItem('${item}')">完了</button>`; ul.appendChild(li); }); }
+        async function addListItem() { const item = document.getElementById('list-input').value; if(!item) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_shopping_item", item: item }) }); document.getElementById('list-input').value = ""; loadShoppingList(); }
+        async function deleteItem(item) { if(!confirm("買いましたか？")) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "delete_shopping_item", item: item }) }); loadShoppingList(); }
+        async function submitBucket() { const item = document.getElementById('bucket-item').value; const owner = document.querySelector('input[name="bucket-owner"]:checked').value; const limit = document.getElementById('bucket-limit').value; const rank = document.getElementById('bucket-rank').value; if(!item) return; if(confirm(`【${item}】\n\nやりたいことリストに追加しますか？`)) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_bucket", item: item, owner: owner, limit: limit, rank: rank }) }); alert("追加しました！✨"); document.getElementById('bucket-item').value = ""; } }
+        async function submitPayment() { const item = document.getElementById('pay-item').value; const amount = document.getElementById('pay-amount').value; const payer = document.querySelector('input[name="payer"]:checked').value; if(!item || !amount) return; if(confirm(`${payer}が ${amount}円\n(${item})\n\n記録しますか？`)) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_payment", item: item, amount: amount, payer: payer }) }); alert("記録しました！"); document.getElementById('pay-item').value = ""; document.getElementById('pay-amount').value = ""; } }
+        async function addPoint(to) { let confirmMsg = (to === 'naoki') ? "尚輝さんに感謝を伝えますか？" : "真輝さんに感謝を伝えますか？"; if(confirm(confirmMsg)) { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_point", to: to }) }); const data = await res.json(); if (data.reward) { let msg = (to === 'naoki') ? `🎉 祝！尚輝さんが ${data.total}ポイント達成！\n\n💆‍♀️ 真輝さん、尚輝さんに\n「マッサージ」をしてあげてください！` : `🎉 祝！真輝さんが ${data.total}ポイント達成！\n\n💆‍♂️ 尚輝さん、真輝さんに\n「マッサージ」をしてあげてください！`; alert(msg); } else { alert(`感謝を伝えました！\n(現在: ${data.total}ポイント)`); } loadPoints(); } }
+        async function loadPoints() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_points" }) }); const data = await res.json(); document.getElementById('pt-naoki').innerText = data.naoki; document.getElementById('pt-maki').innerText = data.maki; }
     </script>
 </body>
 </html>
