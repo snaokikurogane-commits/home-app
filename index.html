@@ -16,6 +16,7 @@
         .btn-blue { background: #007aff; color: white; }
         .btn-green { background: #34c759; color: white; }
         .btn-red { background: #ff3b30; color: white; }
+        .btn-orange { background: #ff9500; color: white; }
         .btn-black { background: #333; color: white; } 
         
         /* 家計簿 */
@@ -69,7 +70,6 @@
     <div id="tab-money" class="container">
         <div class="box">
             <h3>💰 瞬間・家計簿</h3>
-            
             <div style="display: flex; gap: 5px; margin-bottom: 10px;">
                 <input type="datetime-local" id="quick-date" style="flex: 2;">
                 <div class="radio-group" style="flex: 1; margin: 0;">
@@ -77,24 +77,20 @@
                     <input type="radio" name="quick-type" id="t-inc" value="収入"><label for="t-inc" class="radio-label">収入</label>
                 </div>
             </div>
-
             <label style="font-size:12px; color:#666;">金額・店名</label>
             <input type="number" id="quick-amount" placeholder="金額（円）" inputmode="numeric" style="font-size:20px; text-align:center;">
             <input type="text" id="quick-store" placeholder="店名 (任意)" style="text-align:center;">
-            
             <label style="font-size:12px; color:#666;">負担者</label>
             <div class="radio-group">
                 <input type="radio" name="quick-owner" id="q-naoki" value="尚輝" checked><label for="q-naoki" class="radio-label">🐢尚輝</label>
                 <input type="radio" name="quick-owner" id="q-maki" value="真輝"><label for="q-maki" class="radio-label">🧸真輝</label>
                 <input type="radio" name="quick-owner" id="q-joint" value="共同"><label for="q-joint" class="radio-label">🏠共同</label>
             </div>
-            
             <label style="font-size:12px; color:#666;">支払方法</label>
             <div class="radio-group">
                 <input type="radio" name="quick-method" id="m-cash" value="現金" checked><label for="m-cash" class="radio-label">💴現金</label>
                 <input type="radio" name="quick-method" id="m-card" value="クレジットカード"><label for="m-card" class="radio-label">💳カード</label>
             </div>
-            
             <label style="font-size:12px; color:#666; margin-top:10px; display:block;">カテゴリ</label>
             <div class="category-grid">
                 <button class="cat-btn" onclick="quickExpense('食費')">🍔 食費</button>
@@ -231,7 +227,7 @@
 
     <script>
         // ★★★ここにGASのURLを貼る★★★
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyPDj8q7yk2rc3AbyzzFXmjs2emSR9FnXownfmrBmYzoRYkTKqQXdVv4fdbeqR9MYGc/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwjRbEqvlIA5_jzGJaQE3mK4eTG7qk6GCKvknnckVQzutB5DsZ3ME378R-_ve2kEmA9/exec";
 
         function switchTab(tabName) {
             document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
@@ -244,9 +240,8 @@
             if(tabName === 'list') loadShoppingList();
             if(tabName === 'menu') loadMenu();
             if(tabName === 'love') loadPoints();
-            if(tabName === 'schedule') loadSchedules(); // 予定リスト読込
+            if(tabName === 'schedule') loadSchedules();
             if(tabName === 'money') {
-                // 家計簿タブを開いた時、現在時刻をデフォルトセット
                 const now = new Date();
                 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
                 document.getElementById('quick-date').value = now.toISOString().slice(0,16);
@@ -258,7 +253,6 @@
             if (tab) switchTab(tab); else switchTab('return');
         }
 
-        // --- 0. 今すぐ帰ります ---
         function quickReturn(who, mode) {
             document.getElementById('return-status').innerText = "📍 位置情報取得中...";
             if (!navigator.geolocation) { alert("GPS利用不可"); return; }
@@ -272,7 +266,6 @@
             }, (err) => { document.getElementById('return-status').innerText = "⚠️ GPSエラー"; });
         }
 
-        // --- 1. 瞬間家計簿 (更新) ---
         async function quickExpense(cat) {
             const date = document.getElementById('quick-date').value;
             const type = document.querySelector('input[name="quick-type"]:checked').value;
@@ -291,7 +284,6 @@
             }
         }
         
-        // --- 8. 献立 ---
         async function submitMenu() {
             if(!confirm("この内容で献立を保存しますか？")) return;
             const payload = {
@@ -313,7 +305,6 @@
             }
         }
 
-        // --- 9. ムカッときたら ---
         async function submitAnger() {
             const item = document.getElementById('angry-item').value;
             if(!item) return alert("内容を入力してください");
@@ -326,7 +317,6 @@
             }
         }
 
-        // --- 4. 予定 (更新：リスト取得) ---
         async function submitEvent() { const name = document.getElementById('event-name').value; const date = document.getElementById('event-date').value; const owner = document.querySelector('input[name="owner"]:checked').value; if(!name || !date) return; if(confirm("登録しますか？")) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_event", name: name, date: date, owner: owner }) }); alert("登録完了！"); document.getElementById('event-name').value = ""; loadSchedules(); } }
         async function loadSchedules() {
             const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_schedules" }) });
@@ -341,7 +331,6 @@
             });
         }
 
-        // --- その他共通 ---
         const scanner = new Html5Qrcode("reader");
         function startScan() { scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => { scanner.stop(); fetchItem(text); }); }
         async function fetchItem(jan) { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "search_jan", jan: jan }) }); const data = await res.json(); document.getElementById('item').value = data.itemName || ""; }
