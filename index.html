@@ -30,22 +30,21 @@
 
         .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .cat-btn { padding: 15px; border: 1px solid #eee; background: #fff; border-radius: 10px; font-size: 14px; cursor: pointer; color: #555; transition: 0.2s; }
-        /* ★追加：選択されたカテゴリの色 */
         .cat-btn.active-cat { background: #EAF2F8; border: 2px solid #5D7EA7; color: #486684; font-weight: bold; }
         
         .menu-row { display: flex; align-items: center; margin-bottom: 8px; }
         .menu-label { width: 30px; font-weight: bold; color: #777; font-size: 14px; }
         .menu-input { flex: 1; }
-        .history-list { font-size: 12px; color: #666; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; line-height: 1.6; }
-        .history-item { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #eee; }
+        .history-list { font-size: 13px; color: #555; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; line-height: 1.6; }
+        .history-item { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center; }
 
         .radio-group { display: flex; gap: 8px; margin: 10px 0; }
         .radio-label { flex: 1; text-align: center; padding: 12px; border: 1px solid #eee; border-radius: 10px; cursor: pointer; background: #fff; font-size: 14px; color: #555; transition: 0.2s; }
         input[type="radio"] { display: none; }
         input[type="radio"]:checked + .radio-label { background: #EAF2F8; border-color: #6D8CAA; color: #486684; font-weight: bold; }
         
-        #shopping-ul, #schedule-ul { list-style: none; padding: 0; }
-        #shopping-ul li, #schedule-ul li { background: #fff; border-bottom: 1px solid #f0f0f0; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+        #shopping-ul, #schedule-ul, #bucket-ul { list-style: none; padding: 0; }
+        #shopping-ul li, #schedule-ul li, #bucket-ul li { background: #fff; border-bottom: 1px solid #f0f0f0; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
         .delete-btn { background: #E07A5F; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; width: auto; margin: 0; }
 
         .photo-card { background: white; border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -64,6 +63,9 @@
         .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
         .point-card { text-align: center; width: 45%; padding: 15px; background: #f8f9fa; border-radius: 12px; border: 1px solid #eee; }
         .point-num { font-size: 36px; font-weight: bold; color: #F2C94C; display: block; margin-top: 5px; }
+        
+        .price-list { margin-top: 10px; }
+        .price-item { background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 5px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -145,6 +147,11 @@
             <input type="text" id="store" placeholder="店名">
             <div id="unit-result" style="text-align:center; margin:10px 0; color:#666;">単価：---</div>
             <button class="btn-green" onclick="submitPrice()">登録</button>
+            
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <h4 style="text-align:center; color:#888; font-size:13px;">登録済みデータを検索</h4>
+            <input type="text" id="price-search" placeholder="🔍 商品名で検索 (例: 牛乳)" oninput="searchPrices()">
+            <div id="price-list" class="price-list"></div>
         </div>
     </div>
 
@@ -224,6 +231,9 @@
                 <input type="radio" name="bucket-owner" id="b-common" value="common" checked><label for="b-common" class="radio-label">🏠2人</label>
             </div>
             <button class="btn-green" onclick="submitBucket()">リストに追加</button>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <h4 style="text-align:center; color:#888; font-size:13px;">夢リスト一覧</h4>
+            <ul id="bucket-ul"></ul>
         </div>
     </div>
 
@@ -273,7 +283,7 @@
 
     <script>
         // ★★★ここにGASのURLを貼る★★★
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbx4bzXhqEJ3F_xRMMVxRUH-FEC9YAtbR_h25FEhax5PTMjWya0xih7Eo6YRuVXd_RGe/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxTCiEPKF4KRzGM5UuNgWj2jU8T8-hEclw7msr5Yas9EMhS485oRCbF5nn2lIN350Yn/exec";
 
         function switchTab(tabName) {
             document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
@@ -289,6 +299,8 @@
             if(tabName === 'schedule') loadSchedules();
             if(tabName === 'photo') loadPhotos(); 
             if(tabName === 'pay') loadPaymentHistory(); 
+            if(tabName === 'bucket') loadBucketList(); // ★追加
+            if(tabName === 'scan') loadPriceList(); // ★追加
             if(tabName === 'money') {
                 const now = new Date();
                 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -368,16 +380,13 @@
             }, (err) => { document.getElementById('return-status').innerText = "⚠️ GPSエラー"; });
         }
 
-        // --- 1. 瞬間家計簿 (★更新) ---
+        // --- 1. 瞬間家計簿 ---
         let selectedCategory = "";
         function selectCategory(cat, btnElement) {
             selectedCategory = cat;
-            // 全ボタンのリセット
             document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active-cat'));
-            // 押されたボタンをハイライト
             btnElement.classList.add('active-cat');
         }
-
         async function submitQuickExpense() {
             const date = document.getElementById('quick-date').value;
             const type = document.querySelector('input[name="quick-type"]:checked').value;
@@ -395,11 +404,8 @@
                     date: date, type: type, amount: amount, category: selectedCategory, payer: owner, method: method, store: store 
                 }) });
                 alert("記録しました！💰"); 
-                // 入力クリア
-                document.getElementById('quick-amount').value = ""; 
-                document.getElementById('quick-store').value = "";
-                selectedCategory = "";
-                document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active-cat'));
+                document.getElementById('quick-amount').value = ""; document.getElementById('quick-store').value = "";
+                selectedCategory = ""; document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active-cat'));
             }
         }
         
@@ -461,6 +467,61 @@
             }
         }
 
+        // --- 5. やりたいことリスト (★新機能) ---
+        async function submitBucket() { 
+            const item = document.getElementById('bucket-item').value; 
+            const owner = document.querySelector('input[name="bucket-owner"]:checked').value; 
+            const limit = document.getElementById('bucket-limit').value;
+            const rank = document.getElementById('bucket-rank').value;
+            if(!item) return; 
+            if(confirm(`【${item}】\n\nリストに追加しますか？`)) { 
+                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_bucket", item: item, owner: owner, limit: limit, rank: rank }) }); 
+                alert("追加しました！✨"); document.getElementById('bucket-item').value = ""; 
+                loadBucketList();
+            } 
+        }
+        async function loadBucketList() {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_bucket_list" }) });
+            const data = await res.json();
+            const ul = document.getElementById('bucket-ul'); ul.innerHTML = "";
+            data.items.forEach(b => {
+                const li = document.createElement('li');
+                let icon = "🏠"; if(b.owner === "naoki") icon = "🐢"; if(b.owner === "maki") icon = "🧸";
+                li.innerHTML = `<span>${icon} ${b.item} (${b.rank})</span> <button class="delete-btn" onclick="deleteBucket('${b.item}')">達成</button>`;
+                ul.appendChild(li);
+            });
+        }
+        async function deleteBucket(item) {
+            if(!confirm("この夢を達成しましたか？（リストから消えます）")) return;
+            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "delete_bucket_item", item: item }) });
+            loadBucketList();
+        }
+
+        // --- 2. 底値検索 (★新機能) ---
+        let allPrices = [];
+        async function loadPriceList() {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_price_list" }) });
+            const data = await res.json();
+            allPrices = data.items || [];
+            searchPrices(); // 初期表示
+        }
+        function searchPrices() {
+            const query = document.getElementById('price-search').value.toLowerCase();
+            const filtered = allPrices.filter(p => p.item.toLowerCase().includes(query));
+            const div = document.getElementById('price-list');
+            div.innerHTML = "";
+            
+            // 最大10件表示
+            filtered.slice(0, 10).forEach(p => {
+                let unitPrice = "";
+                if(p.price && p.weight) unitPrice = `(@${Math.round((p.price/p.weight)*100)}円/100g)`;
+                div.innerHTML += `<div class="price-item">
+                    <strong>${p.item}</strong> ${p.price}円 ${unitPrice}<br>
+                    <span style="color:#666;">🏪 ${p.store} (${new Date(p.date).toLocaleDateString()})</span>
+                </div>`;
+            });
+        }
+
         // --- その他共通 ---
         async function submitEvent() { const name = document.getElementById('event-name').value; const date = document.getElementById('event-date').value; const owner = document.querySelector('input[name="owner"]:checked').value; if(!name || !date) return; if(confirm("登録しますか？")) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_event", name: name, date: date, owner: owner }) }); alert("登録完了！"); document.getElementById('event-name').value = ""; loadSchedules(); } }
         async function loadSchedules() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_schedules" }) }); const data = await res.json(); const ul = document.getElementById('schedule-ul'); ul.innerHTML = ""; data.items.forEach(e => { const li = document.createElement('li'); let icon = "🏠"; if(e.owner === "naoki") icon = "🐢"; if(e.owner === "maki") icon = "🧸"; const d = new Date(e.date); li.innerHTML = `${icon} ${d.getMonth()+1}/${d.getDate()} ${e.name}`; ul.appendChild(li); }); }
@@ -468,11 +529,10 @@
         function startScan() { scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => { scanner.stop(); fetchItem(text); }); }
         async function fetchItem(jan) { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "search_jan", jan: jan }) }); const data = await res.json(); document.getElementById('item').value = data.itemName || ""; }
         document.getElementById('price').addEventListener('input', () => { const p = document.getElementById('price').value, w = document.getElementById('weight').value; if(p&&w) document.getElementById('unit-result').innerText = `単価：${Math.round((p/w)*100)} 円`; });
-        async function submitPrice() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value }) }); alert("登録しました！"); }
+        async function submitPrice() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value }) }); alert("登録しました！"); loadPriceList(); } // 登録後にリスト更新
         async function loadShoppingList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_shopping_list" }) }); const data = await res.json(); const ul = document.getElementById('shopping-ul'); ul.innerHTML = ""; data.items.forEach(item => { const li = document.createElement('li'); li.innerHTML = `<span>${item}</span> <button class="delete-btn" onclick="deleteItem('${item}')">完了</button>`; ul.appendChild(li); }); }
         async function addListItem() { const item = document.getElementById('list-input').value; if(!item) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_shopping_item", item: item }) }); document.getElementById('list-input').value = ""; loadShoppingList(); }
         async function deleteItem(item) { if(!confirm("買いましたか？")) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "delete_shopping_item", item: item }) }); loadShoppingList(); }
-        async function submitBucket() { const item = document.getElementById('bucket-item').value; const owner = document.querySelector('input[name="bucket-owner"]:checked').value; const limit = document.getElementById('bucket-limit').value; const rank = document.getElementById('bucket-rank').value; if(!item) return; if(confirm(`【${item}】\n\nやりたいことリストに追加しますか？`)) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_bucket", item: item, owner: owner, limit: limit, rank: rank }) }); alert("追加しました！✨"); document.getElementById('bucket-item').value = ""; } }
         async function addPoint(to) { let confirmMsg = (to === 'naoki') ? "尚輝さんに感謝を伝えますか？" : "真輝さんに感謝を伝えますか？"; if(confirm(confirmMsg)) { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_point", to: to }) }); const data = await res.json(); if (data.reward) { let msg = (to === 'naoki') ? `🎉 祝！尚輝さんが ${data.total}ポイント達成！\n\n💆‍♀️ 真輝さん、尚輝さんに\n「マッサージ」をしてあげてください！` : `🎉 祝！真輝さんが ${data.total}ポイント達成！\n\n💆‍♂️ 尚輝さん、真輝さんに\n「マッサージ」をしてあげてください！`; alert(msg); } else { alert(`感謝を伝えました！\n(現在: ${data.total}ポイント)`); } loadPoints(); } }
         async function loadPoints() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_points" }) }); const data = await res.json(); document.getElementById('pt-naoki').innerText = data.naoki; document.getElementById('pt-maki').innerText = data.maki; }
     </script>
