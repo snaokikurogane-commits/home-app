@@ -52,12 +52,12 @@
         .photo-meta { padding: 10px; }
         .photo-date { font-size: 12px; color: #888; }
         .photo-memo { font-weight: bold; color: #333; margin-top: 5px; }
-        #upload-status { text-align:center; color:#56AB91; font-weight:bold; margin:10px 0; }
+        #upload-status, #memory-upload-status { text-align:center; color:#56AB91; font-weight:bold; margin:10px 0; }
 
         .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #eee; display: flex; justify-content: space-between; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); z-index: 1000; overflow-x: auto; white-space: nowrap; }
-        .nav-item { text-align: center; color: #999; font-size: 10px; cursor: pointer; min-width: 45px; display: inline-block; padding: 0 5px; transition: 0.2s; }
+        .nav-item { text-align: center; color: #999; font-size: 9px; cursor: pointer; min-width: 40px; display: inline-block; padding: 0 3px; transition: 0.2s; }
         .nav-item.active-tab { color: #486684; font-weight: bold; transform: translateY(-2px); }
-        .nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+        .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
         
         #reader { width: 100%; border-radius: 15px; overflow: hidden; margin-bottom: 15px; background: #000; }
         .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
@@ -98,6 +98,22 @@
             <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
             <input type="text" id="photo-search" placeholder="🔍 過去の料理を検索..." oninput="filterPhotos()">
             <div id="photo-gallery"></div>
+        </div>
+    </div>
+
+    <div id="tab-memory" class="container">
+        <div class="box">
+            <h3>👫 思い出アルバム</h3>
+            <label style="display:block; text-align:center; margin-bottom:10px; border: 2px dashed #ddd; padding: 20px; border-radius: 10px; background: #fafafa;">
+                <span style="font-size:40px; cursor:pointer;">📸</span><br>
+                <span style="font-size:14px; color:#E07A5F; font-weight:bold;">2人の写真を撮影・選択</span>
+                <input type="file" id="memory-camera-input" accept="image/*" style="display:none;" onchange="handleMemoryFileSelect(this)">
+            </label>
+            <input type="text" id="memory-memo" placeholder="場所・メモ (任意)">
+            <button class="btn-red" onclick="uploadMemory()">保存する</button>
+            <div id="memory-upload-status"></div>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <div id="memory-gallery"></div>
         </div>
     </div>
 
@@ -147,7 +163,6 @@
             <input type="text" id="store" placeholder="店名">
             <div id="unit-result" style="text-align:center; margin:10px 0; color:#666;">単価：---</div>
             <button class="btn-green" onclick="submitPrice()">登録</button>
-            
             <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
             <h4 style="text-align:center; color:#888; font-size:13px;">登録済みデータを検索</h4>
             <input type="text" id="price-search" placeholder="🔍 商品名で検索 (例: 牛乳)" oninput="searchPrices()">
@@ -273,7 +288,8 @@
         <div class="nav-item" onclick="switchTab('scan')"><span class="nav-icon">🛒</span>底</div>
         <div class="nav-item" onclick="switchTab('list')"><span class="nav-icon">📝</span>買</div>
         <div class="nav-item" onclick="switchTab('menu')"><span class="nav-icon">🍳</span>献</div>
-        <div class="nav-item" onclick="switchTab('photo')"><span class="nav-icon">📸</span>撮</div>
+        <div class="nav-item" onclick="switchTab('photo')"><span class="nav-icon">📸</span>食</div>
+        <div class="nav-item" onclick="switchTab('memory')"><span class="nav-icon">👫</span>思</div>
         <div class="nav-item" onclick="switchTab('angry')"><span class="nav-icon">🧸</span>怒</div>
         <div class="nav-item" onclick="switchTab('schedule')"><span class="nav-icon">📅</span>予</div>
         <div class="nav-item" onclick="switchTab('bucket')"><span class="nav-icon">✨</span>夢</div>
@@ -283,13 +299,13 @@
 
     <script>
         // ★★★ここにGASのURLを貼る★★★
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwNlvtmCeDJ1bZzelDvACag056x1GVMWmQFv14HBrJVooE8HVV0WjWEsM_5I9xxNTCy/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzAXOvt-yek2noKIeKzjxy0pX3dxeqcouMspdUwNtuuW-D8d2eS3IuYn60o-jZAXViq/exec";
 
         function switchTab(tabName) {
             document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-tab'));
             document.getElementById('tab-' + tabName).classList.add('active');
-            const tabs = ['return','money','scan','list','menu','photo','angry','schedule','bucket','pay','love'];
+            const tabs = ['return','money','scan','list','menu','photo','memory','angry','schedule','bucket','pay','love'];
             const idx = tabs.indexOf(tabName);
             if(idx >= 0) document.querySelectorAll('.nav-item')[idx].classList.add('active-tab');
 
@@ -298,9 +314,10 @@
             if(tabName === 'love') loadPoints();
             if(tabName === 'schedule') loadSchedules();
             if(tabName === 'photo') loadPhotos(); 
+            if(tabName === 'memory') loadMemories(); 
             if(tabName === 'pay') loadPaymentHistory(); 
-            if(tabName === 'bucket') loadBucketList(); // ★追加
-            if(tabName === 'scan') loadPriceList(); // ★追加
+            if(tabName === 'bucket') loadBucketList();
+            if(tabName === 'scan') loadPriceList();
             if(tabName === 'money') {
                 const now = new Date();
                 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -313,7 +330,7 @@
             if (tab) switchTab(tab); else switchTab('return');
         }
 
-        // --- 10. 写真アルバム ---
+        // --- 10. 料理写真 ---
         let selectedFileBase64 = null;
         function handleFileSelect(input) {
             const file = input.files[0];
@@ -353,17 +370,60 @@
             const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_photos" }) });
             const data = await res.json();
             allPhotos = data.items || [];
-            renderPhotos(allPhotos);
-        }
-        function renderPhotos(photos) {
-            const gallery = document.getElementById('photo-gallery'); gallery.innerHTML = "";
-            if(photos.length === 0) { gallery.innerHTML = "<p style='text-align:center; color:#999;'>写真がありません</p>"; return; }
-            photos.forEach(p => { const d = new Date(p.date); const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`; const div = document.createElement('div'); div.className = 'photo-card'; div.innerHTML = `<img src="${p.url}" class="photo-img" loading="lazy"><div class="photo-meta"><div class="photo-date">${dateStr}</div><div class="photo-memo">${p.memo}</div></div>`; gallery.appendChild(div); });
+            renderPhotos(allPhotos, 'photo-gallery');
         }
         function filterPhotos() {
             const query = document.getElementById('photo-search').value.toLowerCase();
             const filtered = allPhotos.filter(p => (p.memo && p.memo.toLowerCase().includes(query)) || (p.date && p.date.includes(query)));
-            renderPhotos(filtered);
+            renderPhotos(filtered, 'photo-gallery');
+        }
+
+        // --- ★新機能 11. 思い出写真 ---
+        let selectedMemoryBase64 = null;
+        function handleMemoryFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            document.getElementById('memory-upload-status').innerText = "圧縮中...";
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const MAX_SIZE = 800;
+                    let width = img.width; let height = img.height;
+                    if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                    canvas.width = width; canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    selectedMemoryBase64 = canvas.toDataURL("image/jpeg", 0.7).split(',')[1];
+                    document.getElementById('memory-upload-status').innerText = "準備完了！「保存」を押してください";
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        async function uploadMemory() {
+            if(!selectedMemoryBase64) return alert("写真を撮影または選択してください");
+            document.getElementById('memory-upload-status').innerText = "📤 アップロード中...";
+            const memo = document.getElementById('memory-memo').value;
+            try {
+                const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "upload_memory", image: selectedMemoryBase64, memo: memo }) });
+                const data = await res.json();
+                if(data.status === "success") { alert("保存しました！👫"); document.getElementById('memory-upload-status').innerText = ""; document.getElementById('memory-memo').value = ""; selectedMemoryBase64 = null; loadMemories(); } else { alert("エラー: " + data.msg); }
+            } catch(e) { alert("送信エラー"); }
+        }
+        async function loadMemories() {
+            document.getElementById('memory-gallery').innerText = "読み込み中...";
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_memories" }) });
+            const data = await res.json();
+            renderPhotos(data.items || [], 'memory-gallery');
+        }
+
+        // 共通写真レンダリング関数
+        function renderPhotos(photos, targetId) {
+            const gallery = document.getElementById(targetId); gallery.innerHTML = "";
+            if(photos.length === 0) { gallery.innerHTML = "<p style='text-align:center; color:#999;'>写真がありません</p>"; return; }
+            photos.forEach(p => { const d = new Date(p.date); const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`; const div = document.createElement('div'); div.className = 'photo-card'; div.innerHTML = `<img src="${p.url}" class="photo-img" loading="lazy"><div class="photo-meta"><div class="photo-date">${dateStr}</div><div class="photo-memo">${p.memo}</div></div>`; gallery.appendChild(div); });
         }
 
         // --- 0. 今すぐ帰ります ---
@@ -467,7 +527,7 @@
             }
         }
 
-        // --- 5. やりたいことリスト (★新機能) ---
+        // --- 5. やりたいことリスト ---
         async function submitBucket() { 
             const item = document.getElementById('bucket-item').value; 
             const owner = document.querySelector('input[name="bucket-owner"]:checked').value; 
@@ -497,28 +557,23 @@
             loadBucketList();
         }
 
-        // --- 2. 底値検索 (★新機能) ---
+        // --- 2. 底値検索 ---
         let allPrices = [];
         async function loadPriceList() {
             const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_price_list" }) });
             const data = await res.json();
             allPrices = data.items || [];
-            searchPrices(); // 初期表示
+            searchPrices(); 
         }
         function searchPrices() {
             const query = document.getElementById('price-search').value.toLowerCase();
             const filtered = allPrices.filter(p => p.item.toLowerCase().includes(query));
             const div = document.getElementById('price-list');
             div.innerHTML = "";
-            
-            // 最大10件表示
             filtered.slice(0, 10).forEach(p => {
                 let unitPrice = "";
                 if(p.price && p.weight) unitPrice = `(@${Math.round((p.price/p.weight)*100)}円/100g)`;
-                div.innerHTML += `<div class="price-item">
-                    <strong>${p.item}</strong> ${p.price}円 ${unitPrice}<br>
-                    <span style="color:#666;">🏪 ${p.store} (${new Date(p.date).toLocaleDateString()})</span>
-                </div>`;
+                div.innerHTML += `<div class="price-item"><strong>${p.item}</strong> ${p.price}円 ${unitPrice}<br><span style="color:#666;">🏪 ${p.store} (${new Date(p.date).toLocaleDateString()})</span></div>`;
             });
         }
 
@@ -529,7 +584,7 @@
         function startScan() { scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => { scanner.stop(); fetchItem(text); }); }
         async function fetchItem(jan) { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "search_jan", jan: jan }) }); const data = await res.json(); document.getElementById('item').value = data.itemName || ""; }
         document.getElementById('price').addEventListener('input', () => { const p = document.getElementById('price').value, w = document.getElementById('weight').value; if(p&&w) document.getElementById('unit-result').innerText = `単価：${Math.round((p/w)*100)} 円`; });
-        async function submitPrice() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value }) }); alert("登録しました！"); loadPriceList(); } // 登録後にリスト更新
+        async function submitPrice() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value }) }); alert("登録しました！"); loadPriceList(); } 
         async function loadShoppingList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_shopping_list" }) }); const data = await res.json(); const ul = document.getElementById('shopping-ul'); ul.innerHTML = ""; data.items.forEach(item => { const li = document.createElement('li'); li.innerHTML = `<span>${item}</span> <button class="delete-btn" onclick="deleteItem('${item}')">完了</button>`; ul.appendChild(li); }); }
         async function addListItem() { const item = document.getElementById('list-input').value; if(!item) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_shopping_item", item: item }) }); document.getElementById('list-input').value = ""; loadShoppingList(); }
         async function deleteItem(item) { if(!confirm("買いましたか？")) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "delete_shopping_item", item: item }) }); loadShoppingList(); }
