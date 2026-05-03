@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>山西町ライフ</title>
-    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 0; padding-bottom: 90px; color: #333; }
         .container { padding: 15px; display: none; }
@@ -59,7 +58,6 @@
         .nav-item.active-tab { color: #486684; font-weight: bold; transform: translateY(-2px); }
         .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
         
-        #reader { width: 100%; border-radius: 15px; overflow: hidden; margin-bottom: 15px; background: #000; }
         .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
         .point-card { text-align: center; width: 45%; padding: 15px; background: #f8f9fa; border-radius: 12px; border: 1px solid #eee; }
         .point-num { font-size: 36px; font-weight: bold; color: #F2C94C; display: block; margin-top: 5px; }
@@ -162,9 +160,7 @@
     <div id="tab-scan" class="container">
         <div class="box">
             <h3>🛒 底値登録</h3>
-            <div id="reader"></div>
-            <button class="btn-blue" onclick="startScan()">📷 カメラ起動</button>
-            <input type="text" id="item" placeholder="商品名">
+            <input type="text" id="item" placeholder="商品名を入力">
             <input type="number" id="price" placeholder="価格" inputmode="numeric">
             <input type="number" id="weight" placeholder="内容量(g)" inputmode="numeric">
             <input type="text" id="store" placeholder="店名">
@@ -306,7 +302,6 @@
 
     <script>
         // ★★★ここにGASのURLを貼る★★★
-        // (※新しくデプロイしたWebアプリのURLを貼り付けてください)
         const GAS_URL = "https://script.google.com/macros/s/AKfycbzXPnK--qy-7nOdCs43zjydKq5QdKEXeGBdYMu3PeVPg54O8VvbBAGMEj26tXgdirDT/exec";
 
         function switchTab(tabName) {
@@ -512,7 +507,7 @@
             }
         }
 
-        // --- 6. 立替 (★アップデート箇所) ---
+        // --- 6. 立替 ---
         async function submitPayment() {
             const item = document.getElementById('pay-item').value;
             const amount = document.getElementById('pay-amount').value;
@@ -593,4 +588,38 @@
         }
         async function deleteBucket(item) {
             if(!confirm("この夢を達成しましたか？（リストから消えます）")) return;
-            await fetch
+            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "delete_bucket_item", item: item }) });
+            loadBucketList();
+        }
+
+        // --- 2. 底値検索 ---
+        let allPrices = [];
+        async function loadPriceList() {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_price_list" }) });
+            const data = await res.json();
+            allPrices = data.items || [];
+            searchPrices(); 
+        }
+        function searchPrices() {
+            const query = document.getElementById('price-search').value.toLowerCase();
+            const filtered = allPrices.filter(p => p.item.toLowerCase().includes(query));
+            const div = document.getElementById('price-list');
+            div.innerHTML = "";
+            filtered.slice(0, 10).forEach(p => {
+                let unitPrice = "";
+                if(p.price && p.weight) unitPrice = `(@${Math.round((p.price/p.weight)*100)}円/100g)`;
+                div.innerHTML += `<div class="price-item"><strong>${p.item}</strong> ${p.price}円 ${unitPrice}<br><span style="color:#666;">🏪 ${p.store} (${new Date(p.date).toLocaleDateString()})</span></div>`;
+            });
+        }
+        
+        document.getElementById('price').addEventListener('input', () => { const p = document.getElementById('price').value, w = document.getElementById('weight').value; if(p&&w) document.getElementById('unit-result').innerText = `単価：${Math.round((p/w)*100)} 円`; });
+        async function submitPrice() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value }) }); alert("登録しました！"); loadPriceList(); } 
+        
+        async function loadShoppingList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_shopping_list" }) }); const data = await res.json(); const ul = document.getElementById('shopping-ul'); ul.innerHTML = ""; data.items.forEach(item => { const li = document.createElement('li'); li.innerHTML = `<span>${item}</span> <button class="delete-btn" onclick="deleteItem('${item}')">完了</button>`; ul.appendChild(li); }); }
+        async function addListItem() { const item = document.getElementById('list-input').value; if(!item) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_shopping_item", item: item }) }); document.getElementById('list-input').value = ""; loadShoppingList(); }
+        async function deleteItem(item) { if(!confirm("買いましたか？")) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "delete_shopping_item", item: item }) }); loadShoppingList(); }
+        async function addPoint(to) { let confirmMsg = (to === 'naoki') ? "尚輝さんに感謝を伝えますか？" : "真輝さんに感謝を伝えますか？"; if(confirm(confirmMsg)) { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_point", to: to }) }); const data = await res.json(); if (data.reward) { let msg = (to === 'naoki') ? `🎉 祝！尚輝さんが ${data.total}ポイント達成！\n\n💆‍♀️ 真輝さん、尚輝さんに\n「マッサージ」をしてあげてください！` : `🎉 祝！真輝さんが ${data.total}ポイント達成！\n\n💆‍♂️ 尚輝さん、真輝さんに\n「マッサージ」をしてあげてください！`; alert(msg); } else { alert(`感謝を伝えました！\n(現在: ${data.total}ポイント)`); } loadPoints(); } }
+        async function loadPoints() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_points" }) }); const data = await res.json(); document.getElementById('pt-naoki').innerText = data.naoki; document.getElementById('pt-maki').innerText = data.maki; }
+    </script>
+</body>
+</html>
