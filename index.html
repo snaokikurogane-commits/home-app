@@ -306,7 +306,8 @@
 
     <script>
         // ★★★ここにGASのURLを貼る★★★
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbx693qRS8uIPyFs_S7AsThduj_lglhmnD0yIalO9tzx0pdoUq-HTqqmB-DRIfvOCFs6/exec";
+        // (※新しくデプロイしたWebアプリのURLを貼り付けてください)
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzXPnK--qy-7nOdCs43zjydKq5QdKEXeGBdYMu3PeVPg54O8VvbBAGMEj26tXgdirDT/exec";
 
         function switchTab(tabName) {
             document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
@@ -337,7 +338,7 @@
             if (tab) switchTab(tab); else switchTab('return');
         }
 
-        // --- 10. 料理写真 (アップデート: ownerを送信) ---
+        // --- 10. 料理写真 ---
         let selectedFileBase64 = null;
         function handleFileSelect(input) {
             const file = input.files[0];
@@ -363,10 +364,9 @@
         }
         async function uploadPhoto() {
             if(!selectedFileBase64) return alert("写真を撮影または選択してください");
-            document.getElementById('upload-status').innerText = "📤 AIが計算中... (数秒かかります)";
+            document.getElementById('upload-status').innerText = "📤 保存中... (数秒かかります)";
             
             const memo = document.getElementById('photo-memo').value;
-            // 選択された人を取得
             const owner = document.querySelector('input[name="photo-owner"]:checked').value;
 
             try {
@@ -512,7 +512,7 @@
             }
         }
 
-        // --- 6. 立替 ---
+        // --- 6. 立替 (★アップデート箇所) ---
         async function submitPayment() {
             const item = document.getElementById('pay-item').value;
             const amount = document.getElementById('pay-amount').value;
@@ -533,9 +533,38 @@
                 data.items.forEach(h => {
                     const d = new Date(h.date);
                     const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
-                    div.innerHTML += `<div class="history-item"><strong>${dateStr}</strong> ${h.payer}: ${h.amount}円 (${h.item})</div>`;
+                    
+                    const isCompleted = (h.status === "完了");
+                    const textStyle = isCompleted ? "text-decoration: line-through; color: #aaa;" : "color: #555;";
+                    const actionHtml = isCompleted 
+                        ? `<span style="color: #56AB91; font-weight: bold; font-size: 12px;">✅ 精算済</span>`
+                        : `<button class="btn-blue" style="padding: 6px 12px; font-size: 12px; width: auto; margin: 0; border-radius: 6px;" onclick="completePayment('${h.date}')">精算する</button>`;
+
+                    div.innerHTML += `
+                    <div class="history-item" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="${textStyle}">
+                            <strong>${dateStr}</strong> ${h.payer}: ${h.amount}円 <br><span style="font-size: 11px;">(${h.item})</span>
+                        </div>
+                        <div>
+                            ${actionHtml}
+                        </div>
+                    </div>`;
                 });
             }
+        }
+        async function completePayment(paymentDate) {
+            if(!confirm("この立替を「精算済み」にしてよろしいですか？")) return;
+            
+            const div = document.getElementById('pay-history');
+            div.innerHTML = "<div style='text-align:center; color:#999;'>更新中...</div>";
+
+            await fetch(GAS_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ type: "web_app", action: "complete_payment", date: paymentDate }) 
+            });
+            
+            alert("精算済みにしました！💸");
+            loadPaymentHistory();
         }
 
         // --- 5. やりたいことリスト ---
@@ -564,43 +593,4 @@
         }
         async function deleteBucket(item) {
             if(!confirm("この夢を達成しましたか？（リストから消えます）")) return;
-            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "delete_bucket_item", item: item }) });
-            loadBucketList();
-        }
-
-        // --- 2. 底値検索 ---
-        let allPrices = [];
-        async function loadPriceList() {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_price_list" }) });
-            const data = await res.json();
-            allPrices = data.items || [];
-            searchPrices(); 
-        }
-        function searchPrices() {
-            const query = document.getElementById('price-search').value.toLowerCase();
-            const filtered = allPrices.filter(p => p.item.toLowerCase().includes(query));
-            const div = document.getElementById('price-list');
-            div.innerHTML = "";
-            filtered.slice(0, 10).forEach(p => {
-                let unitPrice = "";
-                if(p.price && p.weight) unitPrice = `(@${Math.round((p.price/p.weight)*100)}円/100g)`;
-                div.innerHTML += `<div class="price-item"><strong>${p.item}</strong> ${p.price}円 ${unitPrice}<br><span style="color:#666;">🏪 ${p.store} (${new Date(p.date).toLocaleDateString()})</span></div>`;
-            });
-        }
-
-        // --- その他共通 ---
-        async function submitEvent() { const name = document.getElementById('event-name').value; const date = document.getElementById('event-date').value; const owner = document.querySelector('input[name="owner"]:checked').value; if(!name || !date) return; if(confirm("登録しますか？")) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_event", name: name, date: date, owner: owner }) }); alert("登録完了！"); document.getElementById('event-name').value = ""; loadSchedules(); } }
-        async function loadSchedules() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_schedules" }) }); const data = await res.json(); const ul = document.getElementById('schedule-ul'); ul.innerHTML = ""; data.items.forEach(e => { const li = document.createElement('li'); let icon = "🏠"; if(e.owner === "naoki") icon = "🐢"; if(e.owner === "maki") icon = "🧸"; const d = new Date(e.date); li.innerHTML = `${icon} ${d.getMonth()+1}/${d.getDate()} ${e.name}`; ul.appendChild(li); }); }
-        const scanner = new Html5Qrcode("reader");
-        function startScan() { scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => { scanner.stop(); fetchItem(text); }); }
-        async function fetchItem(jan) { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "search_jan", jan: jan }) }); const data = await res.json(); document.getElementById('item').value = data.itemName || ""; }
-        document.getElementById('price').addEventListener('input', () => { const p = document.getElementById('price').value, w = document.getElementById('weight').value; if(p&&w) document.getElementById('unit-result').innerText = `単価：${Math.round((p/w)*100)} 円`; });
-        async function submitPrice() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value }) }); alert("登録しました！"); loadPriceList(); } 
-        async function loadShoppingList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_shopping_list" }) }); const data = await res.json(); const ul = document.getElementById('shopping-ul'); ul.innerHTML = ""; data.items.forEach(item => { const li = document.createElement('li'); li.innerHTML = `<span>${item}</span> <button class="delete-btn" onclick="deleteItem('${item}')">完了</button>`; ul.appendChild(li); }); }
-        async function addListItem() { const item = document.getElementById('list-input').value; if(!item) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_shopping_item", item: item }) }); document.getElementById('list-input').value = ""; loadShoppingList(); }
-        async function deleteItem(item) { if(!confirm("買いましたか？")) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "delete_shopping_item", item: item }) }); loadShoppingList(); }
-        async function addPoint(to) { let confirmMsg = (to === 'naoki') ? "尚輝さんに感謝を伝えますか？" : "真輝さんに感謝を伝えますか？"; if(confirm(confirmMsg)) { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_point", to: to }) }); const data = await res.json(); if (data.reward) { let msg = (to === 'naoki') ? `🎉 祝！尚輝さんが ${data.total}ポイント達成！\n\n💆‍♀️ 真輝さん、尚輝さんに\n「マッサージ」をしてあげてください！` : `🎉 祝！真輝さんが ${data.total}ポイント達成！\n\n💆‍♂️ 尚輝さん、真輝さんに\n「マッサージ」をしてあげてください！`; alert(msg); } else { alert(`感謝を伝えました！\n(現在: ${data.total}ポイント)`); } loadPoints(); } }
-        async function loadPoints() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_points" }) }); const data = await res.json(); document.getElementById('pt-naoki').innerText = data.naoki; document.getElementById('pt-maki').innerText = data.maki; }
-    </script>
-</body>
-</html>
+            await fetch
