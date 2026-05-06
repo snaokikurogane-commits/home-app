@@ -3,193 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>山西町ライフ - 予定登録</title>
+  <title>山西町ライフ</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background-color: #f2f2f7; margin: 0; padding: 0; color: #333; }
-    .container { padding: 20px; }
-    .card { background-color: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    h2 { text-align: center; font-size: 1.2rem; margin-top: 0; margin-bottom: 20px; color: #444; }
+    body { font-family: -apple-system, sans-serif; background-color: #f2f2f7; margin: 0; padding-bottom: 80px; }
+    .container { padding: 15px; }
+    .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
+    h2 { text-align: center; font-size: 1.1rem; margin: 0 0 15px 0; display: flex; align-items: center; justify-content: center; gap: 8px; }
     
-    .input-group { margin-bottom: 15px; width: 100%; }
-    input[type="text"], input[type="date"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; background-color: #fafafa; }
-    .date-range-container { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-    .date-range-container input[type="date"] { flex: 1; }
-    .date-range-separator { margin: 0 10px; font-weight: bold; color: #666; }
+    /* 共通UI */
+    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 10px; background: #fafafa; }
+    .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
+    .btn-green { background-color: #5ab48e; }
     
-    .owner-selector { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 10px; }
-    .owner-btn { flex: 1; padding: 12px 0; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
-    .owner-btn.active { background-color: #e6f0ff; border-color: #4a90e2; color: #005bb5; font-weight: bold; }
+    /* タブ切り替え */
+    .view { display: none; }
+    .view.active { display: block; }
     
-    .submit-btn { width: 100%; padding: 15px; background-color: #5ab48e; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
-    
-    .divider { border-top: 1px dashed #ddd; margin: 20px 0; }
-    .sub-link { text-align: center; font-size: 14px; color: #888; margin-bottom: 10px; }
-    .schedule-list { font-size: 14px; color: #555; line-height: 1.6; }
+    /* 体重管理専用デザイン */
+    .weight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    .person-card { background: #f8f9fa; border: 1px solid #eee; border-radius: 12px; padding: 10px; text-align: center; }
+    .person-card h3 { font-size: 0.9rem; margin: 0 0 8px 0; }
+    .goal-info { font-size: 0.75rem; color: #666; margin-top: 5px; }
+    .remaining { font-size: 0.85rem; color: #e74c3c; font-weight: bold; }
+    canvas { background: white; border-radius: 8px; margin-bottom: 15px; }
 
-    /* ★ ここが新しい「トースト通知」のデザインです ★ */
-    #toast {
-      visibility: hidden;
-      min-width: 250px;
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 8px;
-      padding: 16px;
-      position: fixed;
-      z-index: 1000;
-      left: 50%;
-      bottom: 30px;
-      transform: translateX(-50%);
-      font-size: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      opacity: 0;
-      transition: opacity 0.3s, bottom 0.3s;
-    }
-    #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
-    #toast.error { background-color: #e74c3c; } /* エラー時は赤 */
-    #toast.success { background-color: #5ab48e; } /* 成功時は緑 */
+    /* 予定登録専用デザイン */
+    .date-row { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+    .owner-select { display: flex; gap: 5px; margin-bottom: 15px; }
+    .owner-btn { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; font-size: 0.8rem; }
+    .owner-btn.active { background: #e6f0ff; border-color: #4a90e2; font-weight: bold; }
+
+    /* フッターナビ */
+    nav { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-around; padding: 10px 0; }
+    .nav-item { border: none; background: none; font-size: 0.7rem; color: #888; text-align: center; flex: 1; }
+    .nav-item.active { color: #5ab48e; font-weight: bold; }
+    .nav-item i { display: block; font-size: 1.2rem; margin-bottom: 3px; }
+
+    /* 通知トースト */
+    #toast { visibility: hidden; min-width: 250px; background: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 80px; transform: translateX(-50%); opacity: 0; transition: 0.3s; }
+    #toast.show { visibility: visible; opacity: 1; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="card">
-    <h2>🗓 予定登録</h2>
-    
-    <div class="input-group">
-      <input type="text" id="event-name" placeholder="予定名 (例: ハワイ)">
+  
+  <div id="weight" class="view">
+    <div class="card">
+      <h2>⚖️ 体重管理</h2>
+      <canvas id="weightChart" width="400" height="250"></canvas>
+      
+      <div class="weight-grid">
+        <div class="person-card">
+          <h3>🐢 尚輝</h3>
+          <input type="number" id="w-naoki" placeholder="61.5" step="0.1">
+          <div class="goal-info">目標: <input type="number" id="g-naoki" placeholder="58.0" style="width:50px; padding:2px; margin:0;"> kg</div>
+          <div id="diff-naoki" class="remaining">目標まで -- kg</div>
+        </div>
+        <div class="person-card">
+          <h3>🧸 真輝</h3>
+          <input type="number" id="w-maki" placeholder="52.2" step="0.1">
+          <div class="goal-info">目標: <input type="number" id="g-maki" placeholder="50.0" style="width:50px; padding:2px; margin:0;"> kg</div>
+          <div id="diff-maki" class="remaining">目標まで -- kg</div>
+        </div>
+      </div>
+      
+      <button class="btn btn-green" onclick="saveWeight()">✅ 本日のデータを記録</button>
     </div>
-
-    <div class="input-group date-range-container">
-      <input type="date" id="event-start-date">
-      <span class="date-range-separator">〜</span>
-      <input type="date" id="event-end-date">
-    </div>
-
-    <div class="owner-selector">
-      <button class="owner-btn" data-owner="naoki" onclick="selectOwner('naoki')">🐢 尚輝</button>
-      <button class="owner-btn" data-owner="maki" onclick="selectOwner('maki')">🧸 真輝</button>
-      <button class="owner-btn active" data-owner="common" onclick="selectOwner('common')">🏠 2人</button>
-    </div>
-
-    <button class="submit-btn" onclick="registerSchedule()" id="submitBtn">登録</button>
-
-    <div class="divider"></div>
-    <div class="sub-link">今後の予定リスト</div>
-    
-    <!-- 予定リストが表示される場所 -->
-    <div id="schedule-display" class="schedule-list">読み込み中...</div>
   </div>
+
+  <div id="schedule" class="view">
+    <div class="card">
+      <h2>🗓 予定登録</h2>
+      <input type="text" id="event-name" placeholder="予定名 (例: ハワイ)">
+      <div class="date-row">
+        <input type="date" id="start-date"> <span>〜</span> <input type="date" id="end-date">
+      </div>
+      <div class="owner-select">
+        <button class="owner-btn" id="btn-naoki" onclick="setOwner('naoki')">🐢 尚輝</button>
+        <button class="owner-btn" id="btn-maki" onclick="setOwner('maki')">🧸 真輝</button>
+        <button class="owner-btn active" id="btn-common" onclick="setOwner('common')">🏠 2人</button>
+      </div>
+      <button class="btn btn-green" onclick="saveEvent()">登録</button>
+    </div>
+  </div>
+
 </div>
 
-<!-- ★ カスタム通知用の要素 ★ -->
+<nav>
+  <button class="nav-item" onclick="showTab('schedule')">🗓 予定</button>
+  <button class="nav-item" onclick="showTab('weight')">⚖️ 体重</button>
+  </nav>
+
 <div id="toast"></div>
 
 <script>
-  // =========================================
-  // ★★★ 必ず最新のGASウェブアプリURLをここに貼り付けてください ★★★
-  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyywaWGlAModcdyEbUNalG3sri09WC_5Nn-_mIs5x09eAeZpu9jri_iql3l4a5SRfaf/exec";
-  // =========================================
-
+  const GAS_URL = "★あなたの新しいGASデプロイURL★";
   let currentOwner = 'common';
+  let myChart;
 
-  // カスタム通知を表示する関数（alertの代わり）
-  function showToast(message, type) {
-    const toast = document.getElementById("toast");
-    toast.innerText = message;
-    toast.className = type + " show";
-    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+  // タブ切り替え
+  function showTab(tabId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    if(tabId === 'weight') loadWeight();
   }
 
-  function selectOwner(owner) {
-    currentOwner = owner;
-    document.querySelectorAll('.owner-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.owner-btn[data-owner="${owner}"]`).classList.add('active');
+  // 通知表示
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.innerText = msg; t.className = "show";
+    setTimeout(() => t.className = "", 3000);
   }
 
-  // 予定を登録する処理
-  async function registerSchedule() {
-    const name = document.getElementById('event-name').value;
-    const startDate = document.getElementById('event-start-date').value;
-    const endDate = document.getElementById('event-end-date').value;
-    const btn = document.getElementById('submitBtn');
+  // 体重保存
+  async function saveWeight() {
+    const data = {
+      type: "web_app", action: "register_weight",
+      naoki: document.getElementById('w-naoki').value,
+      maki: document.getElementById('w-maki').value,
+      naokiGoal: document.getElementById('g-naoki').value,
+      makiGoal: document.getElementById('g-maki').value
+    };
+    await fetch(GAS_URL, { method: "POST", body: JSON.stringify(data) });
+    showToast("✅ 記録しました！");
+    loadWeight();
+  }
 
-    if (!name || !startDate) {
-      showToast("⚠️ 予定名と開始日は入力してください", "error");
-      return;
+  // 体重読み込み & グラフ描画
+  async function loadWeight() {
+    const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({type:"web_app", action:"get_weight_data"}) });
+    const data = await res.json();
+    const last = data.items[data.items.length - 1];
+    
+    // 目標まであと何キロの計算
+    if(last) {
+      document.getElementById('diff-naoki').innerText = `目標まで あと ${(last.naoki - last.naokiGoal).toFixed(1)}kg`;
+      document.getElementById('diff-maki').innerText = `目標まで あと ${(last.maki - last.makiGoal).toFixed(1)}kg`;
     }
 
-    btn.innerText = "登録中...";
-    btn.disabled = true;
+    const ctx = document.getElementById('weightChart').getContext('2d');
+    if(myChart) myChart.destroy();
+    myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.items.map(i => i.date),
+        datasets: [
+          { label: '尚輝', data: data.items.map(i => i.naoki), borderColor: '#5ab48e', tension: 0.3 },
+          { label: '真輝', data: data.items.map(i => i.maki), borderColor: '#ff9500', tension: 0.3 },
+          { label: '尚輝目標', data: data.items.map(i => i.naokiGoal), borderDash: [5, 5], borderColor: '#5ab48e', fill: false, pointRadius:0 },
+          { label: '真輝目標', data: data.items.map(i => i.makiGoal), borderDash: [5, 5], borderColor: '#ff9500', fill: false, pointRadius:0 }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  }
 
-    const payload = {
-      type: "web_app",
-      action: "register_event",
-      name: name,
-      startDate: startDate,
-      endDate: endDate,
+  // 初期化
+  window.onload = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab') || 'schedule';
+    showTab(tab);
+  };
+
+  // 予定保存
+  function setOwner(o) {
+    currentOwner = o;
+    document.querySelectorAll('.owner-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-'+o).classList.add('active');
+  }
+
+  async function saveEvent() {
+    const data = {
+      type: "web_app", action: "register_event",
+      name: document.getElementById('event-name').value,
+      startDate: document.getElementById('start-date').value,
+      endDate: document.getElementById('end-date').value,
       owner: currentOwner
     };
-
-    try {
-      const res = await fetch(GAS_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-      });
-      
-      showToast("✅ 予定を登録しました！", "success");
-      
-      // 入力欄をリセット
-      document.getElementById('event-name').value = "";
-      document.getElementById('event-start-date').value = "";
-      document.getElementById('event-end-date').value = "";
-      selectOwner('common');
-      
-      // 登録後に予定リストを再読み込みする
-      loadSchedules();
-      
-    } catch (e) {
-      showToast("❌ エラーが発生しました。通信環境を確認してください。", "error");
-    } finally {
-      btn.innerText = "登録";
-      btn.disabled = false;
-    }
+    await fetch(GAS_URL, { method: "POST", body: JSON.stringify(data) });
+    showToast("🌴 予定を登録しました！");
   }
-
-  // 今後の予定リストを読み込む処理
-  async function loadSchedules() {
-    const display = document.getElementById('schedule-display');
-    try {
-      const res = await fetch(GAS_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify({ type: "web_app", action: "get_schedules" })
-      });
-      const data = await res.json();
-      
-      if (data.items && data.items.length > 0) {
-        display.innerHTML = data.items.map(e => {
-          const icon = e.owner === "naoki" ? "🐢" : e.owner === "maki" ? "🧸" : "🏠";
-          const start = new Date(e.startDate);
-          let dateStr = `${start.getMonth()+1}/${start.getDate()}`;
-          if (e.endDate) {
-            const end = new Date(e.endDate);
-            dateStr += `〜${end.getMonth()+1}/${end.getDate()}`;
-          }
-          return `<div>${icon} ${dateStr} : <b>${e.name}</b></div>`;
-        }).join("");
-      } else {
-        display.innerHTML = "予定はありません🍵";
-      }
-    } catch (e) {
-      display.innerHTML = '<span style="color:#e74c3c;">読み込みエラーが発生しました。</span>';
-    }
-  }
-
-  // 画面を開いた時に予定リストを読み込む
-  window.onload = loadSchedules;
 </script>
-
 </body>
 </html>
