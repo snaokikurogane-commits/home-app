@@ -2,16 +2,19 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>山西町ライフ</title>
     <style>
+        /* ★右への突き抜けを防ぐ魔法のコード★ */
+        *, *::before, *::after { box-sizing: border-box; }
+
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 0; padding-bottom: 90px; color: #333; }
         .container { padding: 15px; display: none; }
         .active { display: block; }
         .box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; }
         h3 { margin-top: 0; color: #444; font-size: 18px; text-align: center; margin-bottom: 20px; letter-spacing: 0.05em; }
         
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; background: #f9f9f9; transition: 0.2s; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; background: #f9f9f9; transition: 0.2s; }
         input:focus, select:focus, textarea:focus { border-color: #5D7EA7; background: #fff; outline: none; }
         
         button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
@@ -37,7 +40,7 @@
         .history-list { font-size: 13px; color: #555; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; line-height: 1.6; }
         .history-item { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center; }
 
-        .radio-group { display: flex; gap: 8px; margin: 10px 0; }
+        .radio-group { display: flex; gap: 8px; margin: 10px 0; width: 100%; }
         .radio-label { flex: 1; text-align: center; padding: 12px; border: 1px solid #eee; border-radius: 10px; cursor: pointer; background: #fff; font-size: 14px; color: #555; transition: 0.2s; }
         input[type="radio"] { display: none; }
         input[type="radio"]:checked + .radio-label { background: #EAF2F8; border-color: #6D8CAA; color: #486684; font-weight: bold; }
@@ -217,14 +220,21 @@
     <div id="tab-schedule" class="container">
         <div class="box">
             <h3>📅 予定登録</h3>
-            <input type="text" id="event-name" placeholder="イベント名">
-            <input type="date" id="event-date">
-            <div class="radio-group">
-                <input type="radio" name="owner" id="naoki" value="naoki"><label for="naoki" class="radio-label">🐢尚輝</label>
-                <input type="radio" name="owner" id="maki" value="maki"><label for="maki" class="radio-label">🧸真輝</label>
-                <input type="radio" name="owner" id="common" value="common" checked><label for="common" class="radio-label">🏠2人</label>
+            <input type="text" id="event-name" placeholder="予定名 (例: ハワイ)">
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0;">
+                <input type="date" id="event-start-date" style="margin: 0; flex: 1;">
+                <span style="font-weight: bold; color: #666;">〜</span>
+                <input type="date" id="event-end-date" style="margin: 0; flex: 1;">
             </div>
-            <button class="btn-green" onclick="submitEvent()">登録</button>
+
+            <div class="radio-group">
+                <input type="radio" name="event-owner" id="ev-naoki" value="naoki"><label for="ev-naoki" class="radio-label">🐢尚輝</label>
+                <input type="radio" name="event-owner" id="ev-maki" value="maki"><label for="ev-maki" class="radio-label">🧸真輝</label>
+                <input type="radio" name="event-owner" id="ev-common" value="common" checked><label for="ev-common" class="radio-label">🏠2人</label>
+            </div>
+            <button class="btn-green" onclick="submitEvent()" id="btn-submit-event">登録</button>
+            
             <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
             <h4 style="text-align:center; color:#888; font-size:13px;">今後の予定リスト</h4>
             <ul id="schedule-ul"></ul>
@@ -301,7 +311,7 @@
     </div>
 
     <script>
-        // ★★★ここにGASのURLを貼る★★★
+        // ★★★ここにGASのURLを貼る（既存のもの残しています）★★★
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyCYokM_dOdj7ORy1FqPiY_3yknM9zzGUScc1g8jFChF_Yp4Rzaq72_CBtuIHIRUJXZ/exec";
 
         function switchTab(tabName) {
@@ -315,7 +325,7 @@
             if(tabName === 'list') loadShoppingList();
             if(tabName === 'menu') loadMenu();
             if(tabName === 'love') loadPoints();
-            if(tabName === 'schedule') loadSchedules();
+            if(tabName === 'schedule') loadSchedules(); // 予定一覧を読み込み
             if(tabName === 'photo') loadPhotos(); 
             if(tabName === 'memory') loadMemories(); 
             if(tabName === 'pay') loadPaymentHistory(); 
@@ -331,6 +341,80 @@
             const params = new URLSearchParams(window.location.search);
             const tab = params.get('tab');
             if (tab) switchTab(tab); else switchTab('return');
+        }
+
+        // =========================================
+        // ★ 予定登録 (tab-schedule) 追加部分
+        // =========================================
+        async function submitEvent() {
+            const name = document.getElementById('event-name').value;
+            const startDate = document.getElementById('event-start-date').value;
+            const endDate = document.getElementById('event-end-date').value;
+            const owner = document.querySelector('input[name="event-owner"]:checked').value;
+            const btn = document.getElementById('btn-submit-event');
+
+            if (!name || !startDate) {
+                alert("予定名と開始日は必ず入力してください！");
+                return;
+            }
+
+            btn.innerText = "登録中...";
+            btn.disabled = true;
+
+            const payload = {
+                type: "web_app",
+                action: "register_event",
+                name: name,
+                startDate: startDate,
+                endDate: endDate,
+                owner: owner
+            };
+
+            try {
+                await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+                alert("予定を登録しました！🌴");
+                document.getElementById('event-name').value = "";
+                document.getElementById('event-start-date').value = "";
+                document.getElementById('event-end-date').value = "";
+                loadSchedules(); // 一覧を再読み込み
+            } catch (e) {
+                alert("エラーが発生しました: " + e.message);
+            } finally {
+                btn.innerText = "登録";
+                btn.disabled = false;
+            }
+        }
+
+        async function loadSchedules() {
+            const ul = document.getElementById('schedule-ul');
+            ul.innerHTML = "<div style='text-align:center; color:#999; margin-top:10px;'>読み込み中...</div>";
+            try {
+                const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_schedules" }) });
+                const data = await res.json();
+                ul.innerHTML = "";
+                if (data.items && data.items.length > 0) {
+                    data.items.forEach(e => {
+                        const li = document.createElement('li');
+                        let icon = "🏠"; if(e.owner === "naoki") icon = "🐢"; if(e.owner === "maki") icon = "🧸";
+                        
+                        const startD = new Date(e.startDate);
+                        let dateStr = `${startD.getMonth() + 1}/${startD.getDate()}`;
+                        
+                        // 終了日があれば「〜」でつなぐ
+                        if (e.endDate) {
+                            const endD = new Date(e.endDate);
+                            dateStr += `〜${endD.getMonth() + 1}/${endD.getDate()}`;
+                        }
+
+                        li.innerHTML = `<span>${icon} <strong>${dateStr}</strong> ${e.name}</span>`;
+                        ul.appendChild(li);
+                    });
+                } else {
+                    ul.innerHTML = "<div style='text-align:center; color:#999;'>予定はありません🍵</div>";
+                }
+            } catch(e) {
+                ul.innerHTML = "<div style='text-align:center; color:#E07A5F;'>読み込みエラー</div>";
+            }
         }
 
         // --- 10. 料理写真 ---
