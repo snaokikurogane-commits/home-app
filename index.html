@@ -4,90 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>山西町ライフ</title>
-    <!-- グラフ描画用ライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* ★ 突き抜け防止の魔法のコード ★ */
         *, *::before, *::after { box-sizing: border-box; }
-
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 0; padding-bottom: 90px; color: #333; }
-        
-        /* コンテナとタブ切り替え */
         .container { padding: 15px; display: none; }
         .active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
         .box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; }
         h3 { margin-top: 0; color: #444; font-size: 18px; text-align: center; margin-bottom: 20px; letter-spacing: 0.05em; }
-        
-        /* 入力フォーム共通 */
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; background: #f9f9f9; transition: 0.2s; }
         input:focus, select:focus, textarea:focus { border-color: #5D7EA7; background: #fff; outline: none; }
-        
-        /* ボタン共通 */
         button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
         button:active { transform: scale(0.98); box-shadow: none; }
         button:disabled { opacity: 0.6; cursor: not-allowed; }
-        
         .btn-blue { background: #5D7EA7; color: white; }
         .btn-green { background: #56AB91; color: white; }
         .btn-red { background: #E07A5F; color: white; }
         .btn-black { background: #3D405B; color: white; }
-        
-        /* 帰宅連絡 */
         .return-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
         .return-btn { padding: 20px 10px; border-radius: 15px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .bg-naoki { background: linear-gradient(135deg, #6D8CAA, #486684); } 
         .bg-maki { background: linear-gradient(135deg, #F2C94C, #E0AA3E); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-
-        /* ラジオボタン・カテゴリ */
         .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .cat-btn { padding: 15px; border: 1px solid #eee; background: #fff; border-radius: 10px; font-size: 14px; cursor: pointer; color: #555; transition: 0.2s; }
         .cat-btn.active-cat { background: #EAF2F8; border: 2px solid #5D7EA7; color: #486684; font-weight: bold; }
-        
         .radio-group { display: flex; gap: 8px; margin: 10px 0; width: 100%; }
         .radio-label { flex: 1; text-align: center; padding: 12px; border: 1px solid #eee; border-radius: 10px; cursor: pointer; background: #fff; font-size: 14px; color: #555; transition: 0.2s; }
         input[type="radio"] { display: none; }
         input[type="radio"]:checked + .radio-label { background: #EAF2F8; border-color: #6D8CAA; color: #486684; font-weight: bold; }
-
-        /* 新しい対象者選択（予定用） */
         .owner-selector { display: flex; justify-content: space-between; margin-bottom: 15px; gap: 10px; }
         .owner-btn { flex: 1; padding: 12px 0; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
         .owner-btn.active { background-color: #e6f0ff; border-color: #4a90e2; color: #005bb5; font-weight: bold; }
-        
-        /* リスト系 */
         .menu-row { display: flex; align-items: center; margin-bottom: 8px; }
         .menu-label { width: 30px; font-weight: bold; color: #777; font-size: 14px; }
         .menu-input { flex: 1; }
         .history-list { font-size: 13px; color: #555; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; line-height: 1.6; }
         .history-item { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center; }
-        
         #shopping-ul, #schedule-ul, #bucket-ul { list-style: none; padding: 0; }
         #shopping-ul li, #schedule-ul li, #bucket-ul li { background: #fff; border-bottom: 1px solid #f0f0f0; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
         .delete-btn { background: #E07A5F; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; width: auto; margin: 0; }
-
-        /* 写真アルバム */
         .photo-card { background: white; border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .photo-img { width: 100%; height: 200px; object-fit: cover; }
         .photo-meta { padding: 10px; }
         .photo-date { font-size: 12px; color: #888; }
         .photo-memo { font-weight: bold; color: #333; margin-top: 5px; }
         #upload-status, #memory-upload-status { text-align:center; color:#56AB91; font-weight:bold; margin:10px 0; }
-
-        /* ポイント */
         .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
         .point-card { text-align: center; width: 45%; padding: 15px; background: #f8f9fa; border-radius: 12px; border: 1px solid #eee; }
         .point-num { font-size: 36px; font-weight: bold; color: #F2C94C; display: block; margin-top: 5px; }
         .price-list { margin-top: 10px; }
         .price-item { background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 5px; font-size: 13px; }
-
-        /* ナビゲーションバー */
         .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #eee; display: flex; justify-content: space-between; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); z-index: 1000; overflow-x: auto; white-space: nowrap; }
         .nav-item { text-align: center; color: #999; font-size: 9px; cursor: pointer; min-width: 42px; display: inline-block; padding: 0 3px; transition: 0.2s; }
         .nav-item.active-tab { color: #486684; font-weight: bold; transform: translateY(-2px); }
         .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
-
-        /* トースト通知 */
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 80px; transform: translateX(-50%); font-size: 15px; opacity: 0; transition: opacity 0.3s; }
         #toast.show { visibility: visible; opacity: 1; }
         #toast.error { background-color: #e74c3c; }
@@ -96,7 +67,6 @@
 </head>
 <body>
 
-    <!-- 1. 帰宅連絡 -->
     <div id="tab-return" class="container active">
         <div class="box">
             <h3>🏠 今すぐ帰ります</h3>
@@ -111,7 +81,6 @@
         </div>
     </div>
 
-    <!-- 2. 家計簿 -->
     <div id="tab-money" class="container">
         <div class="box">
             <h3>💰 瞬間・家計簿</h3>
@@ -146,7 +115,6 @@
         </div>
     </div>
 
-    <!-- 3. 底値検索 -->
     <div id="tab-scan" class="container">
         <div class="box">
             <h3>🛒 底値登録</h3>
@@ -163,7 +131,6 @@
         </div>
     </div>
 
-    <!-- 4. 買うものリスト -->
     <div id="tab-list" class="container">
         <div class="box">
             <h3>📝 買うものリスト</h3>
@@ -175,7 +142,6 @@
         </div>
     </div>
 
-    <!-- 5. 献立 -->
     <div id="tab-menu" class="container">
         <div class="box">
             <h3>🍳 今週の献立</h3>
@@ -197,7 +163,6 @@
         </div>
     </div>
 
-    <!-- 6. 料理写真 -->
     <div id="tab-photo" class="container">
         <div class="box">
             <h3>🍽 料理アルバム</h3>
@@ -220,7 +185,6 @@
         </div>
     </div>
 
-    <!-- 7. 思い出アルバム -->
     <div id="tab-memory" class="container">
         <div class="box">
             <h3>👫 思い出アルバム</h3>
@@ -237,7 +201,6 @@
         </div>
     </div>
 
-    <!-- 8. 怒り -->
     <div id="tab-angry" class="container">
         <div class="box" style="border: 2px solid #3D405B;">
             <h3>🧸 ムカッときたら…</h3>
@@ -247,7 +210,6 @@
         </div>
     </div>
 
-    <!-- 9. 予定登録 -->
     <div id="tab-schedule" class="container">
         <div class="box">
             <h3>📅 予定登録</h3>
@@ -272,7 +234,6 @@
         </div>
     </div>
 
-    <!-- 10. やりたいこと -->
     <div id="tab-bucket" class="container">
         <div class="box">
             <h3>✨ やりたいこと</h3>
@@ -297,7 +258,6 @@
         </div>
     </div>
 
-    <!-- 11. 体重管理 -->
     <div id="tab-weight" class="container">
         <div class="box">
             <h3>⚖️ 体重管理</h3>
@@ -326,7 +286,6 @@
         </div>
     </div>
 
-    <!-- 12. 立替記録 -->
     <div id="tab-pay" class="container">
         <div class="box">
             <h3>💸 立替記録</h3>
@@ -343,7 +302,6 @@
         </div>
     </div>
 
-    <!-- 13. 感謝ポイント -->
     <div id="tab-love" class="container">
         <div class="box">
             <h3>❤️ 感謝ポイント</h3>
@@ -358,7 +316,6 @@
         </div>
     </div>
 
-    <!-- 下部ナビゲーション -->
     <div class="nav-bar">
         <div class="nav-item active-tab" onclick="switchTab('return')"><span class="nav-icon">🏠</span>帰</div>
         <div class="nav-item" onclick="switchTab('money')"><span class="nav-icon">💰</span>金</div>
@@ -380,7 +337,7 @@
     <script>
         // =========================================
         // ★★★ 必ず最新のGASウェブアプリURLをここに貼り付けてください ★★★
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyCYokM_dOdj7ORy1FqPiY_3yknM9zzGUScc1g8jFChF_Yp4Rzaq72_CBtuIHIRUJXZ/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbypBi8einTVJinBJDZyRqdTtnWSU7HB_XgYPhuQycOqz4ehtC-yfhfuZHaHWKPDN2s/exec";
         // =========================================
 
         function showToast(msg, type="success") {
@@ -472,7 +429,7 @@
         }
 
         // =========================================
-        // 体重管理
+        // 体重管理 (強化版)
         // =========================================
         let myChart = null;
 
@@ -503,21 +460,27 @@
                 const items = data.items;
                 const latest = items[items.length - 1];
 
-                if(latest.naoki) document.getElementById('w-naoki').value = latest.naoki;
-                if(latest.naokiGoal) {
+                // 強化版：値がnullでなければ入力欄を更新（片方が空欄でもOK）
+                if(latest.naoki !== null) document.getElementById('w-naoki').value = latest.naoki;
+                if(latest.naokiGoal !== null) {
                     document.getElementById('g-naoki').value = latest.naokiGoal;
-                    document.getElementById('diff-naoki').innerText = `目標まで あと ${(latest.naoki - latest.naokiGoal).toFixed(1)}kg`;
+                    if(latest.naoki !== null) {
+                        document.getElementById('diff-naoki').innerText = `目標まで あと ${(latest.naoki - latest.naokiGoal).toFixed(1)}kg`;
+                    }
                 }
-                if(latest.maki) document.getElementById('w-maki').value = latest.maki;
-                if(latest.makiGoal) {
+                
+                if(latest.maki !== null) document.getElementById('w-maki').value = latest.maki;
+                if(latest.makiGoal !== null) {
                     document.getElementById('g-maki').value = latest.makiGoal;
-                    document.getElementById('diff-maki').innerText = `目標まで あと ${(latest.maki - latest.makiGoal).toFixed(1)}kg`;
+                    if(latest.maki !== null) {
+                        document.getElementById('diff-maki').innerText = `目標まで あと ${(latest.maki - latest.makiGoal).toFixed(1)}kg`;
+                    }
                 }
                 drawChart(items);
             } catch (e) { console.error("体重データ取得エラー", e); }
         }
 
-        // ★ グラフの縦軸を 40〜80 に固定する修正を加えました！
+        // 強化版：空欄があっても「spanGaps: true」で点と点を繋ぐ
         function drawChart(items) {
             const ctx = document.getElementById('weightChart').getContext('2d');
             if(myChart) myChart.destroy();
@@ -526,23 +489,18 @@
                 data: {
                     labels: items.map(i => i.date),
                     datasets: [
-                        { label: '尚輝', data: items.map(i => i.naoki), borderColor: '#5ab48e', backgroundColor: '#5ab48e', tension: 0.3 },
-                        { label: '尚輝目標', data: items.map(i => i.naokiGoal), borderColor: '#5ab48e', borderDash: [5, 5], pointRadius: 0, fill: false },
-                        { label: '真輝', data: items.map(i => i.maki), borderColor: '#F2C94C', backgroundColor: '#F2C94C', tension: 0.3 },
-                        { label: '真輝目標', data: items.map(i => i.makiGoal), borderColor: '#F2C94C', borderDash: [5, 5], pointRadius: 0, fill: false }
+                        { label: '尚輝', data: items.map(i => i.naoki), borderColor: '#5ab48e', backgroundColor: '#5ab48e', tension: 0.3, spanGaps: true },
+                        { label: '尚輝目標', data: items.map(i => i.naokiGoal), borderColor: '#5ab48e', borderDash: [5, 5], pointRadius: 0, fill: false, spanGaps: true },
+                        { label: '真輝', data: items.map(i => i.maki), borderColor: '#F2C94C', backgroundColor: '#F2C94C', tension: 0.3, spanGaps: true },
+                        { label: '真輝目標', data: items.map(i => i.makiGoal), borderColor: '#F2C94C', borderDash: [5, 5], pointRadius: 0, fill: false, spanGaps: true }
                     ]
                 },
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false, 
                     plugins: { legend: { position: 'bottom' } },
-                    // 縦軸（Y軸）の範囲を固定
-                    scales: {
-                        y: {
-                            min: 40,
-                            max: 80
-                        }
-                    }
+                    // ★ 縦軸を40〜80に固定
+                    scales: { y: { min: 40, max: 80 } }
                 }
             });
         }
