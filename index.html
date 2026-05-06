@@ -1,336 +1,596 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>山西町ライフ</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background-color: #f2f2f7; margin: 0; padding-bottom: 70px; color: #333; }
-    .container { padding: 15px; }
-    .card { background-color: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    h2 { text-align: center; font-size: 1.2rem; margin-top: 0; margin-bottom: 20px; color: #444; }
-    
-    /* 入力フォーム共通 */
-    .input-group { margin-bottom: 15px; width: 100%; }
-    input[type="text"], input[type="date"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; background-color: #fafafa; }
-    
-    /* 予定登録用 */
-    .date-range-container { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-    .date-range-container input[type="date"] { flex: 1; }
-    .date-range-separator { margin: 0 10px; font-weight: bold; color: #666; }
-    .owner-selector { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 10px; }
-    .owner-btn { flex: 1; padding: 12px 0; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
-    .owner-btn.active { background-color: #e6f0ff; border-color: #4a90e2; color: #005bb5; font-weight: bold; }
-    
-    /* 体重管理用 */
-    .weight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    .person-card { background: #f8f9fa; border: 1px solid #eee; border-radius: 12px; padding: 15px 10px; text-align: center; }
-    .person-card h3 { font-size: 1rem; margin: 0 0 10px 0; }
-    .goal-input-row { display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #666; margin-top: 8px; gap: 5px;}
-    .goal-input-row input { width: 60px; padding: 5px; font-size: 0.9rem; text-align: center; }
-    .diff-text { font-size: 0.9rem; color: #e74c3c; font-weight: bold; margin-top: 8px; }
-    canvas { background: white; border-radius: 8px; margin-bottom: 15px; width: 100%; height: 250px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>山西町ライフ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ★ 突き抜け防止の魔法のコード ★ */
+        *, *::before, *::after { box-sizing: border-box; }
 
-    /* ボタン・その他 */
-    .submit-btn { width: 100%; padding: 15px; background-color: #5ab48e; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
-    .schedule-list { font-size: 14px; color: #555; line-height: 1.6; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 0; padding-bottom: 90px; color: #333; }
+        
+        /* コンテナとタブ切り替え */
+        .container { padding: 15px; display: none; }
+        .active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; }
+        h3 { margin-top: 0; color: #444; font-size: 18px; text-align: center; margin-bottom: 20px; letter-spacing: 0.05em; }
+        
+        /* 入力フォーム共通 */
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; background: #f9f9f9; transition: 0.2s; }
+        input:focus, select:focus, textarea:focus { border-color: #5D7EA7; background: #fff; outline: none; }
+        
+        /* ボタン共通 */
+        button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
+        button:active { transform: scale(0.98); box-shadow: none; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        .btn-blue { background: #5D7EA7; color: white; }
+        .btn-green { background: #56AB91; color: white; }
+        .btn-red { background: #E07A5F; color: white; }
+        .btn-black { background: #3D405B; color: white; }
+        
+        /* 帰宅連絡 */
+        .return-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .return-btn { padding: 20px 10px; border-radius: 15px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .bg-naoki { background: linear-gradient(135deg, #6D8CAA, #486684); } 
+        .bg-maki { background: linear-gradient(135deg, #F2C94C, #E0AA3E); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 
-    /* ★ タブ切り替えの仕組み ★ */
-    .view-content { display: none; }
-    .view-content.active { display: block; animation: fadeIn 0.3s; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* ラジオボタン・カテゴリ */
+        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .cat-btn { padding: 15px; border: 1px solid #eee; background: #fff; border-radius: 10px; font-size: 14px; cursor: pointer; color: #555; transition: 0.2s; }
+        .cat-btn.active-cat { background: #EAF2F8; border: 2px solid #5D7EA7; color: #486684; font-weight: bold; }
+        
+        .radio-group { display: flex; gap: 8px; margin: 10px 0; width: 100%; }
+        .radio-label { flex: 1; text-align: center; padding: 12px; border: 1px solid #eee; border-radius: 10px; cursor: pointer; background: #fff; font-size: 14px; color: #555; transition: 0.2s; }
+        input[type="radio"] { display: none; }
+        input[type="radio"]:checked + .radio-label { background: #EAF2F8; border-color: #6D8CAA; color: #486684; font-weight: bold; }
 
-    /* 下部ナビゲーションバー */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #fff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100;}
-    .nav-btn { background: none; border: none; font-size: 0.75rem; color: #888; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 25%; }
-    .nav-btn span { font-size: 1.4rem; }
-    .nav-btn.active { color: #5ab48e; font-weight: bold; }
+        /* 新しい対象者選択（予定用） */
+        .owner-selector { display: flex; justify-content: space-between; margin-bottom: 15px; gap: 10px; }
+        .owner-btn { flex: 1; padding: 12px 0; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+        .owner-btn.active { background-color: #e6f0ff; border-color: #4a90e2; color: #005bb5; font-weight: bold; }
+        
+        /* リスト系 */
+        .menu-row { display: flex; align-items: center; margin-bottom: 8px; }
+        .menu-label { width: 30px; font-weight: bold; color: #777; font-size: 14px; }
+        .menu-input { flex: 1; }
+        .history-list { font-size: 13px; color: #555; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; line-height: 1.6; }
+        .history-item { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center; }
+        
+        #shopping-ul, #schedule-ul, #bucket-ul { list-style: none; padding: 0; }
+        #shopping-ul li, #schedule-ul li, #bucket-ul li { background: #fff; border-bottom: 1px solid #f0f0f0; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+        .delete-btn { background: #E07A5F; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; width: auto; margin: 0; }
 
-    /* トースト通知 */
-    #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 90px; transform: translateX(-50%); font-size: 15px; opacity: 0; transition: opacity 0.3s; }
-    #toast.show { visibility: visible; opacity: 1; }
-    #toast.error { background-color: #e74c3c; }
-    #toast.success { background-color: #5ab48e; }
-  </style>
+        /* 写真アルバム */
+        .photo-card { background: white; border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .photo-img { width: 100%; height: 200px; object-fit: cover; }
+        .photo-meta { padding: 10px; }
+        .photo-date { font-size: 12px; color: #888; }
+        .photo-memo { font-weight: bold; color: #333; margin-top: 5px; }
+        #upload-status, #memory-upload-status { text-align:center; color:#56AB91; font-weight:bold; margin:10px 0; }
+
+        /* ポイント */
+        .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
+        .point-card { text-align: center; width: 45%; padding: 15px; background: #f8f9fa; border-radius: 12px; border: 1px solid #eee; }
+        .point-num { font-size: 36px; font-weight: bold; color: #F2C94C; display: block; margin-top: 5px; }
+        .price-list { margin-top: 10px; }
+        .price-item { background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 5px; font-size: 13px; }
+
+        /* ナビゲーションバー */
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #eee; display: flex; justify-content: space-between; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); z-index: 1000; overflow-x: auto; white-space: nowrap; }
+        .nav-item { text-align: center; color: #999; font-size: 9px; cursor: pointer; min-width: 42px; display: inline-block; padding: 0 3px; transition: 0.2s; }
+        .nav-item.active-tab { color: #486684; font-weight: bold; transform: translateY(-2px); }
+        .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+        /* トースト通知 */
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 80px; transform: translateX(-50%); font-size: 15px; opacity: 0; transition: opacity 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; }
+        #toast.error { background-color: #e74c3c; }
+        #toast.success { background-color: #5ab48e; }
+    </style>
 </head>
 <body>
 
-<div class="container">
-
-  <div id="view-schedule" class="view-content active">
-    <div class="card">
-      <h2>🗓 予定登録</h2>
-      <div class="input-group">
-        <input type="text" id="event-name" placeholder="予定名 (例: ハワイ)">
-      </div>
-      <div class="input-group date-range-container">
-        <input type="date" id="event-start-date">
-        <span class="date-range-separator">〜</span>
-        <input type="date" id="event-end-date">
-      </div>
-      <div class="owner-selector">
-        <button class="owner-btn" data-owner="naoki" onclick="selectOwner('naoki')">🐢 尚輝</button>
-        <button class="owner-btn" data-owner="maki" onclick="selectOwner('maki')">🧸 真輝</button>
-        <button class="owner-btn active" data-owner="common" onclick="selectOwner('common')">🏠 2人</button>
-      </div>
-      <button class="submit-btn" onclick="registerSchedule()" id="submitBtn">予定を登録</button>
-      <hr style="border:0; border-top:1px dashed #ddd; margin: 20px 0;">
-      <div style="text-align:center; color:#888; font-size:14px; margin-bottom:10px;">今後の予定リスト</div>
-      <div id="schedule-display" class="schedule-list">読み込み中...</div>
-    </div>
-  </div>
-
-  <div id="view-weight" class="view-content">
-    <div class="card">
-      <h2>⚖️ 体重管理ダッシュボード</h2>
-      <canvas id="weightChart"></canvas>
-
-      <div class="weight-grid">
-        <div class="person-card">
-          <h3>🐢 尚輝</h3>
-          <input type="number" id="w-naoki" placeholder="現在の体重 (kg)" step="0.1">
-          <div class="goal-input-row">
-            ⚙️ 目標: <input type="number" id="g-naoki" placeholder="58.0" step="0.1"> kg
-          </div>
-          <div id="diff-naoki" class="diff-text">目標まで -- kg</div>
+    <div id="tab-return" class="container active">
+        <div class="box">
+            <h3>🏠 今すぐ帰ります</h3>
+            <p style="text-align:center; font-size:12px; color:#888;">ワンタップで通知を送信</p>
+            <div class="return-grid">
+                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'TRANSIT')"><span style="font-size:28px;">🐢🚃</span>尚輝 電車</button>
+                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'DRIVING')"><span style="font-size:28px;">🐢🚗</span>尚輝 車</button>
+                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'DRIVING')"><span style="font-size:28px;">🧸🏍</span>真輝 バイク</button>
+                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'TRANSIT')"><span style="font-size:28px;">🧸🚃</span>真輝 電車</button>
+            </div>
+            <div id="return-status" style="text-align:center; margin-top:15px; font-weight:bold; color:#486684;"></div>
         </div>
-        <div class="person-card">
-          <h3>🧸 真輝</h3>
-          <input type="number" id="w-maki" placeholder="現在の体重 (kg)" step="0.1">
-          <div class="goal-input-row">
-            ⚙️ 目標: <input type="number" id="g-maki" placeholder="50.0" step="0.1"> kg
-          </div>
-          <div id="diff-maki" class="diff-text">目標まで -- kg</div>
+    </div>
+
+    <div id="tab-money" class="container">
+        <div class="box">
+            <h3>💰 瞬間・家計簿</h3>
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <input type="datetime-local" id="quick-date" style="flex: 2;">
+                <div class="radio-group" style="flex: 1; margin: 0;">
+                    <input type="radio" name="quick-type" id="t-exp" value="支出" checked><label for="t-exp" class="radio-label">支出</label>
+                    <input type="radio" name="quick-type" id="t-inc" value="収入"><label for="t-inc" class="radio-label">収入</label>
+                </div>
+            </div>
+            <input type="text" id="quick-amount" placeholder="金額（円）" inputmode="numeric" pattern="[0-9]*" style="font-size:20px; text-align:center; padding: 15px;">
+            <input type="text" id="quick-store" placeholder="店名 (任意)" style="text-align:center;">
+            
+            <div class="radio-group">
+                <input type="radio" name="quick-owner" id="q-naoki" value="尚輝" checked><label for="q-naoki" class="radio-label">🐢尚輝</label>
+                <input type="radio" name="quick-owner" id="q-maki" value="真輝"><label for="q-maki" class="radio-label">🧸真輝</label>
+                <input type="radio" name="quick-owner" id="q-joint" value="共同"><label for="q-joint" class="radio-label">🏠共同</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" name="quick-method" id="m-cash" value="現金" checked><label for="m-cash" class="radio-label">💴現金</label>
+                <input type="radio" name="quick-method" id="m-card" value="クレジットカード"><label for="m-card" class="radio-label">💳カード</label>
+            </div>
+            
+            <label style="font-size:12px; color:#666; margin-top:10px; display:block;">カテゴリを選択</label>
+            <div class="category-grid">
+                <button class="cat-btn" id="cat-food" onclick="selectCategory('食費', this)">🍔 食費</button>
+                <button class="cat-btn" id="cat-daily" onclick="selectCategory('日用品', this)">🧻 日用品</button>
+                <button class="cat-btn" id="cat-out" onclick="selectCategory('外食', this)">🍻 外食</button>
+                <button class="cat-btn" id="cat-other" onclick="selectCategory('その他', this)">💳 その他</button>
+            </div>
+
+            <button class="btn-green" style="margin-top:20px; font-size:18px;" onclick="submitQuickExpense()">✅ 記録する</button>
         </div>
-      </div>
-      
-      <button class="submit-btn" onclick="saveWeight()" id="btnWeightSave">✅ 本日のデータを記録</button>
     </div>
-  </div>
 
-  <div id="view-return" class="view-content">
-    <div class="card">
-      <h2>🏠 帰宅連絡</h2>
-      <p style="text-align:center; color:#666;">※LINEから直接「今から帰るよ」ボタンを押すか、ここで操作します。（現在UI準備中）</p>
+    <div id="tab-scan" class="container">
+        <div class="box">
+            <h3>🛒 底値登録</h3>
+            <input type="text" id="item" placeholder="商品名を入力">
+            <input type="text" id="price" placeholder="価格" inputmode="numeric" pattern="[0-9]*">
+            <input type="text" id="weight" placeholder="内容量(g)" inputmode="numeric" pattern="[0-9]*">
+            <input type="text" id="store" placeholder="店名">
+            <div id="unit-result" style="text-align:center; margin:10px 0; color:#666;">単価：---</div>
+            <button class="btn-green" onclick="submitPrice()">登録</button>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <h4 style="text-align:center; color:#888; font-size:13px;">登録済みデータを検索</h4>
+            <input type="text" id="price-search" placeholder="🔍 商品名で検索 (例: 牛乳)" oninput="searchPrices()">
+            <div id="price-list" class="price-list"></div>
+        </div>
     </div>
-  </div>
-  
-  <div id="view-money" class="view-content">
-    <div class="card">
-      <h2>💰 家計簿・底値</h2>
-      <p style="text-align:center; color:#666;">（現在UI準備中）</p>
+
+    <div id="tab-list" class="container">
+        <div class="box">
+            <h3>📝 買うものリスト</h3>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="list-input" placeholder="牛乳、洗剤など">
+                <button class="btn-blue" style="width:30%; margin:8px 0;" onclick="addListItem()">追加</button>
+            </div>
+            <ul id="shopping-ul"></ul>
+        </div>
     </div>
-  </div>
 
-</div>
+    <div id="tab-menu" class="container">
+        <div class="box">
+            <h3>🍳 今週の献立</h3>
+            <p style="text-align:center; font-size:12px; color:#888; margin-bottom:15px;">最新の保存内容が表示されます</p>
+            <div class="menu-row"><span class="menu-label">月</span><input type="text" id="menu-mon" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">火</span><input type="text" id="menu-tue" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">水</span><input type="text" id="menu-wed" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">木</span><input type="text" id="menu-thu" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">金</span><input type="text" id="menu-fri" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">土</span><input type="text" id="menu-sat" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">日</span><input type="text" id="menu-sun" class="menu-input"></div>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn-green" onclick="submitMenu()">保存 (履歴に残る)</button>
+                <button class="btn-red" style="background:#E07A5F;" onclick="clearMenuInputs()">クリア</button>
+            </div>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <h4 style="text-align:center; color:#888; font-size:13px;">過去の献立履歴</h4>
+            <div id="menu-history" class="history-list"></div>
+        </div>
+    </div>
 
-<div class="bottom-nav">
-  <button class="nav-btn" onclick="switchTab('return')" id="nav-return"><span>🏠</span>帰宅</button>
-  <button class="nav-btn active" onclick="switchTab('schedule')" id="nav-schedule"><span>🗓</span>予定</button>
-  <button class="nav-btn" onclick="switchTab('weight')" id="nav-weight"><span>⚖️</span>体重</button>
-  <button class="nav-btn" onclick="switchTab('money')" id="nav-money"><span>💰</span>家計簿</button>
-</div>
+    <div id="tab-photo" class="container">
+        <div class="box">
+            <h3>🍽 料理アルバム</h3>
+            <label style="display:block; text-align:center; margin-bottom:10px; border: 2px dashed #ddd; padding: 20px; border-radius: 10px; background: #fafafa;">
+                <span style="font-size:40px; cursor:pointer;">📸</span><br>
+                <span style="font-size:14px; color:#5D7EA7; font-weight:bold;">撮影 または アルバムから選択</span>
+                <input type="file" id="camera-input" accept="image/*" style="display:none;" onchange="handleFileSelect(this)">
+            </label>
+            
+            <div class="radio-group">
+                <input type="radio" name="photo-owner" id="p-naoki" value="naoki"><label for="p-naoki" class="radio-label">🐢尚輝</label>
+                <input type="radio" name="photo-owner" id="p-maki" value="maki"><label for="p-maki" class="radio-label">🧸真輝</label>
+                <input type="radio" name="photo-owner" id="p-common" value="common" checked><label for="p-common" class="radio-label">🏠2人</label>
+            </div>
 
-<div id="toast"></div>
+            <input type="text" id="photo-memo" placeholder="料理名・メモ (任意)">
+            <button class="btn-green" onclick="uploadPhoto()">保存する</button>
+            <div id="upload-status"></div>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <input type="text" id="photo-search" placeholder="🔍 過去の料理を検索..." oninput="filterPhotos()">
+            <div id="photo-gallery"></div>
+        </div>
+    </div>
 
-<script>
-  // =========================================
-  // ★★★ 必ず最新のGASウェブアプリURLをここに貼り付けてください ★★★
-  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwLxEUf3F4dvPvBoHVeITw5FT74vviax7JA3FSov_i9BKY9K55eE4AOCCMiONIZg6N2/exec";
-  // =========================================
+    <div id="tab-memory" class="container">
+        <div class="box">
+            <h3>👫 思い出アルバム</h3>
+            <label style="display:block; text-align:center; margin-bottom:10px; border: 2px dashed #ddd; padding: 20px; border-radius: 10px; background: #fafafa;">
+                <span style="font-size:40px; cursor:pointer;">📸</span><br>
+                <span style="font-size:14px; color:#E07A5F; font-weight:bold;">2人の写真を撮影・選択</span>
+                <input type="file" id="memory-camera-input" accept="image/*" style="display:none;" onchange="handleMemoryFileSelect(this)">
+            </label>
+            <input type="text" id="memory-memo" placeholder="場所・メモ (任意)">
+            <button class="btn-red" onclick="uploadMemory()">保存する</button>
+            <div id="memory-upload-status"></div>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <div id="memory-gallery"></div>
+        </div>
+    </div>
 
-  let currentOwner = 'common';
-  let myChart = null; // グラフ用変数
+    <div id="tab-angry" class="container">
+        <div class="box" style="border: 2px solid #3D405B;">
+            <h3>🧸 ムカッときたら…</h3>
+            <p style="text-align:center; font-size:12px; color:#666;">我慢せずにここに吐き出してください。<br>即座に通知されます。</p>
+            <textarea id="angry-item" rows="4" placeholder="（例）靴下が脱ぎっぱなしです😡"></textarea>
+            <button class="btn-black" onclick="submitAnger()">送信する (尚輝へ通知)</button>
+        </div>
+    </div>
 
-  // -----------------------------------------
-  // 1. タブ切り替え処理（LINEから飛んできた時用）
-  // -----------------------------------------
-  function switchTab(tabId) {
-    // すべての画面とナビボタンをオフにする
-    document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-    
-    // 指定された画面とナビボタンをオンにする
-    const targetView = document.getElementById('view-' + tabId);
-    const targetNav = document.getElementById('nav-' + tabId);
-    if (targetView) targetView.classList.add('active');
-    if (targetNav) targetNav.classList.add('active');
+    <div id="tab-schedule" class="container">
+        <div class="box">
+            <h3>📅 予定登録</h3>
+            <input type="text" id="event-name" placeholder="予定名 (例: ハワイ)">
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0;">
+                <input type="date" id="event-start-date" style="margin: 0; flex: 1;">
+                <span style="font-weight: bold; color: #666;">〜</span>
+                <input type="date" id="event-end-date" style="margin: 0; flex: 1;">
+            </div>
 
-    // 体重タブが開かれたらデータを読み込む
-    if (tabId === 'weight') {
-      loadWeightData();
-    }
-  }
+            <div class="owner-selector" style="margin-top:10px;">
+                <button class="owner-btn" data-owner="naoki" onclick="selectOwner('naoki')">🐢 尚輝</button>
+                <button class="owner-btn" data-owner="maki" onclick="selectOwner('maki')">🧸 真輝</button>
+                <button class="owner-btn active" data-owner="common" onclick="selectOwner('common')">🏠 2人</button>
+            </div>
+            <button class="btn-green" onclick="submitEvent()" id="btn-submit-event">登録</button>
+            
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <h4 style="text-align:center; color:#888; font-size:13px;">今後の予定リスト</h4>
+            <ul id="schedule-ul"></ul>
+        </div>
+    </div>
 
-  // ページ読み込み時にURLの「?tab=〇〇」を見て画面を切り替える
-  window.onload = () => {
-    const params = new URLSearchParams(window.location.search);
-    const tab = params.get('tab') || 'schedule'; // 指定がなければ予定を開く
-    switchTab(tab);
-    if(tab === 'schedule') loadSchedules();
-  };
+    <div id="tab-bucket" class="container">
+        <div class="box">
+            <h3>✨ やりたいこと</h3>
+            <input type="text" id="bucket-item" placeholder="例：北海道でカニ">
+            <div style="display:flex; gap:10px;">
+                <input type="date" id="bucket-limit" style="flex:1;">
+                <select id="bucket-rank" style="flex:1;">
+                    <option value="★">★ 手軽</option>
+                    <option value="★★">★★ 普通</option>
+                    <option value="★★★">★★★ 挑戦</option>
+                </select>
+            </div>
+            <div class="radio-group">
+                <input type="radio" name="bucket-owner" id="b-naoki" value="naoki"><label for="b-naoki" class="radio-label">🐢尚輝</label>
+                <input type="radio" name="bucket-owner" id="b-maki" value="maki"><label for="b-maki" class="radio-label">🧸真輝</label>
+                <input type="radio" name="bucket-owner" id="b-common" value="common" checked><label for="b-common" class="radio-label">🏠2人</label>
+            </div>
+            <button class="btn-green" onclick="submitBucket()">リストに追加</button>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <h4 style="text-align:center; color:#888; font-size:13px;">夢リスト一覧</h4>
+            <ul id="bucket-ul"></ul>
+        </div>
+    </div>
 
-  // -----------------------------------------
-  // 2. 共通：トースト通知
-  // -----------------------------------------
-  function showToast(message, type) {
-    const toast = document.getElementById("toast");
-    toast.innerText = message;
-    toast.className = type + " show";
-    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-  }
+    <div id="tab-weight" class="container">
+        <div class="box">
+            <h3>⚖️ 体重管理</h3>
+            <canvas id="weightChart" style="width:100%; height:250px; background:white; border-radius:8px; margin-bottom:15px;"></canvas>
+            
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div style="flex:1; background:#f8f9fa; padding:15px 10px; border-radius:12px; border:1px solid #eee; text-align:center;">
+                    <h4 style="margin:0 0 10px 0; font-size:16px;">🐢 尚輝</h4>
+                    <input type="text" id="w-naoki" inputmode="decimal" placeholder="今日の体重" style="text-align:center; font-size:18px;">
+                    <div style="font-size:12px; color:#666; margin-top:5px; display:flex; justify-content:center; align-items:center; gap:5px;">
+                        目標: <input type="text" id="g-naoki" inputmode="decimal" placeholder="58.0" style="width:55px; padding:4px; text-align:center;"> kg
+                    </div>
+                    <div id="diff-naoki" style="font-size:14px; color:#e74c3c; font-weight:bold; margin-top:8px;">目標まで -- kg</div>
+                </div>
+                
+                <div style="flex:1; background:#f8f9fa; padding:15px 10px; border-radius:12px; border:1px solid #eee; text-align:center;">
+                    <h4 style="margin:0 0 10px 0; font-size:16px;">🧸 真輝</h4>
+                    <input type="text" id="w-maki" inputmode="decimal" placeholder="今日の体重" style="text-align:center; font-size:18px;">
+                    <div style="font-size:12px; color:#666; margin-top:5px; display:flex; justify-content:center; align-items:center; gap:5px;">
+                        目標: <input type="text" id="g-maki" inputmode="decimal" placeholder="50.0" style="width:55px; padding:4px; text-align:center;"> kg
+                    </div>
+                    <div id="diff-maki" style="font-size:14px; color:#e74c3c; font-weight:bold; margin-top:8px;">目標まで -- kg</div>
+                </div>
+            </div>
+            <button class="btn-green" onclick="saveWeight()" id="btn-save-weight">✅ 本日のデータを記録</button>
+        </div>
+    </div>
 
-  // -----------------------------------------
-  // 3. 予定登録機能
-  // -----------------------------------------
-  function selectOwner(owner) {
-    currentOwner = owner;
-    document.querySelectorAll('.owner-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.owner-btn[data-owner="${owner}"]`).classList.add('active');
-  }
+    <div id="tab-pay" class="container">
+        <div class="box">
+            <h3>💸 立替記録</h3>
+            <input type="text" id="pay-item" placeholder="何に使った？">
+            <input type="text" id="pay-amount" placeholder="金額" inputmode="numeric" pattern="[0-9]*">
+            <div class="radio-group">
+                <input type="radio" name="payer" id="pay-naoki" value="尚輝" checked><label for="pay-naoki" class="radio-label">🐢尚輝払</label>
+                <input type="radio" name="payer" id="pay-maki" value="真輝"><label for="pay-maki" class="radio-label">🧸真輝払</label>
+            </div>
+            <button class="btn-green" onclick="submitPayment()">記録</button>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <h4 style="text-align:center; color:#888; font-size:13px;">最近の履歴</h4>
+            <div id="pay-history" class="history-list"></div>
+        </div>
+    </div>
 
-  async function registerSchedule() {
-    const name = document.getElementById('event-name').value;
-    const startDate = document.getElementById('event-start-date').value;
-    const endDate = document.getElementById('event-end-date').value;
-    const btn = document.getElementById('submitBtn');
+    <div id="tab-love" class="container">
+        <div class="box">
+            <h3>❤️ 感謝ポイント</h3>
+            <div style="display:flex; gap:12px;">
+                <button class="btn-blue" onclick="addPoint('naoki')">🐢 尚輝へ</button>
+                <button class="btn-red" onclick="addPoint('maki')">🧸 真輝へ</button>
+            </div>
+            <div class="point-box">
+                <div class="point-card">🐢尚輝<span id="pt-naoki" class="point-num">0</span></div>
+                <div class="point-card">🧸真輝<span id="pt-maki" class="point-num">0</span></div>
+            </div>
+        </div>
+    </div>
 
-    if (!name || !startDate) { showToast("⚠️ 予定名と開始日は必須です", "error"); return; }
+    <div class="nav-bar">
+        <div class="nav-item active-tab" onclick="switchTab('return')"><span class="nav-icon">🏠</span>帰</div>
+        <div class="nav-item" onclick="switchTab('money')"><span class="nav-icon">💰</span>金</div>
+        <div class="nav-item" onclick="switchTab('scan')"><span class="nav-icon">🛒</span>底</div>
+        <div class="nav-item" onclick="switchTab('list')"><span class="nav-icon">📝</span>買</div>
+        <div class="nav-item" onclick="switchTab('menu')"><span class="nav-icon">🍳</span>献</div>
+        <div class="nav-item" onclick="switchTab('photo')"><span class="nav-icon">📸</span>食</div>
+        <div class="nav-item" onclick="switchTab('memory')"><span class="nav-icon">👫</span>思</div>
+        <div class="nav-item" onclick="switchTab('angry')"><span class="nav-icon">🧸</span>怒</div>
+        <div class="nav-item" onclick="switchTab('schedule')"><span class="nav-icon">📅</span>予</div>
+        <div class="nav-item" onclick="switchTab('weight')"><span class="nav-icon">⚖️</span>体</div>
+        <div class="nav-item" onclick="switchTab('bucket')"><span class="nav-icon">✨</span>夢</div>
+        <div class="nav-item" onclick="switchTab('pay')"><span class="nav-icon">💸</span>立</div>
+        <div class="nav-item" onclick="switchTab('love')"><span class="nav-icon">❤️</span>感</div>
+    </div>
 
-    btn.innerText = "登録中..."; btn.disabled = true;
-    try {
-      await fetch(GAS_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify({ type: "web_app", action: "register_event", name: name, startDate: startDate, endDate: endDate, owner: currentOwner })
-      });
-      showToast("✅ 予定を登録しました！", "success");
-      document.getElementById('event-name').value = "";
-      document.getElementById('event-start-date').value = "";
-      document.getElementById('event-end-date').value = "";
-      loadSchedules();
-    } catch (e) {
-      showToast("❌ 通信エラー", "error");
-    } finally {
-      btn.innerText = "予定を登録"; btn.disabled = false;
-    }
-  }
+    <div id="toast"></div>
 
-  async function loadSchedules() {
-    const display = document.getElementById('schedule-display');
-    try {
-      const res = await fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_schedules" }) });
-      const data = await res.json();
-      if (data.items && data.items.length > 0) {
-        display.innerHTML = data.items.map(e => {
-          const icon = e.owner === "naoki" ? "🐢" : e.owner === "maki" ? "🧸" : "🏠";
-          const start = new Date(e.startDate);
-          let dateStr = `${start.getMonth()+1}/${start.getDate()}`;
-          if (e.endDate) { const end = new Date(e.endDate); dateStr += `〜${end.getMonth()+1}/${end.getDate()}`; }
-          return `<div>${icon} ${dateStr} : <b>${e.name}</b></div>`;
-        }).join("");
-      } else { display.innerHTML = "予定はありません🍵"; }
-    } catch (e) { display.innerHTML = '<span style="color:#e74c3c;">エラーが発生しました</span>'; }
-  }
+    <script>
+        // =========================================
+        // ★★★ 必ず最新のGASウェブアプリURLをここに貼り付けてください ★★★
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwLxEUf3F4dvPvBoHVeITw5FT74vviax7JA3FSov_i9BKY9K55eE4AOCCMiONIZg6N2/exec";
+        // =========================================
 
-  // -----------------------------------------
-  // 4. 体重管理機能（グラフと計算）
-  // -----------------------------------------
-  async function saveWeight() {
-    const wNaoki = document.getElementById('w-naoki').value;
-    const wMaki = document.getElementById('w-maki').value;
-    const gNaoki = document.getElementById('g-naoki').value;
-    const gMaki = document.getElementById('g-maki').value;
-    const btn = document.getElementById('btnWeightSave');
-
-    if(!wNaoki && !wMaki) { showToast("⚠️ 体重を入力してください", "error"); return; }
-
-    btn.innerText = "記録中..."; btn.disabled = true;
-    try {
-      await fetch(GAS_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify({ type: "web_app", action: "register_weight", naoki: wNaoki, maki: wMaki, naokiGoal: gNaoki, makiGoal: gMaki })
-      });
-      showToast("✅ 体重を記録しました！", "success");
-      
-      // 入力された値を空にせず、再読み込みしてグラフを更新
-      loadWeightData();
-    } catch (e) {
-      showToast("❌ 通信エラー", "error");
-    } finally {
-      btn.innerText = "✅ 本日のデータを記録"; btn.disabled = false;
-    }
-  }
-
-  async function loadWeightData() {
-    try {
-      const res = await fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_weight_data" }) });
-      const data = await res.json();
-      
-      if (!data.items || data.items.length === 0) return; // データがない場合は何もしない
-
-      const items = data.items;
-      const latest = items[items.length - 1]; // 一番新しいデータ
-
-      // 画面の数値と「目標まであと〇〇kg」を更新
-      if(latest.naoki) document.getElementById('w-naoki').value = latest.naoki;
-      if(latest.naokiGoal) {
-        document.getElementById('g-naoki').value = latest.naokiGoal;
-        const diffN = (latest.naoki - latest.naokiGoal).toFixed(1);
-        document.getElementById('diff-naoki').innerText = `目標まで あと ${diffN}kg`;
-      }
-
-      if(latest.maki) document.getElementById('w-maki').value = latest.maki;
-      if(latest.makiGoal) {
-        document.getElementById('g-maki').value = latest.makiGoal;
-        const diffM = (latest.maki - latest.makiGoal).toFixed(1);
-        document.getElementById('diff-maki').innerText = `目標まで あと ${diffM}kg`;
-      }
-
-      // グラフの描画
-      drawChart(items);
-
-    } catch (e) {
-      console.error("グラフの読み込みに失敗しました", e);
-    }
-  }
-
-  function drawChart(items) {
-    const ctx = document.getElementById('weightChart').getContext('2d');
-    
-    // すでにグラフがあれば一旦消す（重複描画エラー防止）
-    if(myChart) { myChart.destroy(); }
-
-    const labels = items.map(i => i.date);
-    const naokiData = items.map(i => i.naoki);
-    const makiData = items.map(i => i.maki);
-    const naokiGoalData = items.map(i => i.naokiGoal);
-    const makiGoalData = items.map(i => i.makiGoal);
-
-    myChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [
-          { label: '尚輝', data: naokiData, borderColor: '#5ab48e', backgroundColor: '#5ab48e', tension: 0.3 },
-          { label: '尚輝 目標', data: naokiGoalData, borderColor: '#5ab48e', borderDash: [5, 5], pointRadius: 0, fill: false },
-          { label: '真輝', data: makiData, borderColor: '#e67e22', backgroundColor: '#e67e22', tension: 0.3 },
-          { label: '真輝 目標', data: makiGoalData, borderColor: '#e67e22', borderDash: [5, 5], pointRadius: 0, fill: false }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
-        scales: {
-          y: { suggestedMin: 45, suggestedMax: 65 } // グラフの縦軸の大体の範囲
+        function showToast(msg, type="success") {
+            const toast = document.getElementById("toast");
+            toast.innerText = msg;
+            toast.className = type + " show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
         }
-      }
-    });
-  }
-</script>
 
+        function switchTab(tabName) {
+            document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-tab'));
+            
+            const target = document.getElementById('tab-' + tabName);
+            if(target) target.classList.add('active');
+            
+            const tabs = ['return','money','scan','list','menu','photo','memory','angry','schedule','weight','bucket','pay','love'];
+            const idx = tabs.indexOf(tabName);
+            if(idx >= 0) document.querySelectorAll('.nav-item')[idx].classList.add('active-tab');
+
+            // タブが開かれたらデータを読み込む
+            if(tabName === 'list') loadShoppingList();
+            if(tabName === 'menu') loadMenu();
+            if(tabName === 'love') loadPoints();
+            if(tabName === 'schedule') loadSchedules();
+            if(tabName === 'weight') loadWeightData();
+            if(tabName === 'photo') loadPhotos(); 
+            if(tabName === 'memory') loadMemories(); 
+            if(tabName === 'pay') loadPaymentHistory(); 
+            if(tabName === 'bucket') loadBucketList();
+            if(tabName === 'scan') loadPriceList();
+            if(tabName === 'money') {
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                document.getElementById('quick-date').value = now.toISOString().slice(0,16);
+            }
+        }
+
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab') || 'return';
+            switchTab(tab);
+        }
+
+        // =========================================
+        // ★ 予定登録（期間指定対応）
+        // =========================================
+        let currentOwner = 'common';
+        function selectOwner(owner) {
+            currentOwner = owner;
+            document.querySelectorAll('.owner-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.owner-btn[data-owner="${owner}"]`).classList.add('active');
+        }
+
+        async function submitEvent() {
+            const name = document.getElementById('event-name').value;
+            const startDate = document.getElementById('event-start-date').value;
+            const endDate = document.getElementById('event-end-date').value;
+            const btn = document.getElementById('btn-submit-event');
+
+            if (!name || !startDate) return showToast("⚠️ 予定名と開始日は必須です", "error");
+
+            btn.innerText = "登録中..."; btn.disabled = true;
+            try {
+                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_event", name: name, startDate: startDate, endDate: endDate, owner: currentOwner }) });
+                showToast("✅ 予定を登録しました！");
+                document.getElementById('event-name').value = ""; document.getElementById('event-start-date').value = ""; document.getElementById('event-end-date').value = "";
+                loadSchedules();
+            } catch (e) { showToast("❌ エラーが発生しました", "error"); } finally { btn.innerText = "登録"; btn.disabled = false; }
+        }
+
+        async function loadSchedules() {
+            const ul = document.getElementById('schedule-ul'); ul.innerHTML = "<div style='text-align:center; color:#999; margin-top:10px;'>読み込み中...</div>";
+            try {
+                const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_schedules" }) });
+                const data = await res.json();
+                ul.innerHTML = "";
+                if (data.items && data.items.length > 0) {
+                    data.items.forEach(e => {
+                        const li = document.createElement('li');
+                        let icon = "🏠"; if(e.owner === "naoki") icon = "🐢"; if(e.owner === "maki") icon = "🧸";
+                        const startD = new Date(e.startDate);
+                        let dateStr = `${startD.getMonth() + 1}/${startD.getDate()}`;
+                        if (e.endDate) { const endD = new Date(e.endDate); dateStr += `〜${endD.getMonth() + 1}/${endD.getDate()}`; }
+                        li.innerHTML = `<span>${icon} <strong>${dateStr}</strong> ${e.name}</span>`;
+                        ul.appendChild(li);
+                    });
+                } else { ul.innerHTML = "<div style='text-align:center; color:#999;'>予定はありません🍵</div>"; }
+            } catch(e) { ul.innerHTML = "<div style='text-align:center; color:#E07A5F;'>読み込みエラー</div>"; }
+        }
+
+        // =========================================
+        // ★ 体重管理（目標＆グラフエラー防止対応）
+        // =========================================
+        let myChart = null;
+
+        async function saveWeight() {
+            const wNaoki = document.getElementById('w-naoki').value;
+            const wMaki = document.getElementById('w-maki').value;
+            const gNaoki = document.getElementById('g-naoki').value;
+            const gMaki = document.getElementById('g-maki').value;
+            const btn = document.getElementById('btn-save-weight');
+
+            if(!wNaoki && !wMaki) return showToast("⚠️ 体重を入力してください", "error");
+
+            btn.innerText = "記録中..."; btn.disabled = true;
+            try {
+                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_weight", naoki: wNaoki, maki: wMaki, naokiGoal: gNaoki, makiGoal: gMaki }) });
+                showToast("✅ 体重を記録しました！");
+                loadWeightData();
+            } catch (e) { showToast("❌ 通信エラー", "error"); } finally { btn.innerText = "✅ 本日のデータを記録"; btn.disabled = false; }
+        }
+
+        async function loadWeightData() {
+            try {
+                const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_weight_data" }) });
+                const data = await res.json();
+                
+                // データが0件の場合はグラフを描画せずに終了（エラー回避）
+                if (!data.items || data.items.length === 0) return;
+
+                const items = data.items;
+                const latest = items[items.length - 1];
+
+                // 数値と目標までの差を更新
+                if(latest.naoki) document.getElementById('w-naoki').value = latest.naoki;
+                if(latest.naokiGoal) {
+                    document.getElementById('g-naoki').value = latest.naokiGoal;
+                    document.getElementById('diff-naoki').innerText = `目標まで あと ${(latest.naoki - latest.naokiGoal).toFixed(1)}kg`;
+                }
+                if(latest.maki) document.getElementById('w-maki').value = latest.maki;
+                if(latest.makiGoal) {
+                    document.getElementById('g-maki').value = latest.makiGoal;
+                    document.getElementById('diff-maki').innerText = `目標まで あと ${(latest.maki - latest.makiGoal).toFixed(1)}kg`;
+                }
+                drawChart(items);
+            } catch (e) { console.error("体重データ取得エラー", e); }
+        }
+
+        function drawChart(items) {
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: items.map(i => i.date),
+                    datasets: [
+                        { label: '尚輝', data: items.map(i => i.naoki), borderColor: '#5ab48e', backgroundColor: '#5ab48e', tension: 0.3 },
+                        { label: '尚輝目標', data: items.map(i => i.naokiGoal), borderColor: '#5ab48e', borderDash: [5, 5], pointRadius: 0, fill: false },
+                        { label: '真輝', data: items.map(i => i.maki), borderColor: '#F2C94C', backgroundColor: '#F2C94C', tension: 0.3 },
+                        { label: '真輝目標', data: items.map(i => i.makiGoal), borderColor: '#F2C94C', borderDash: [5, 5], pointRadius: 0, fill: false }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        // =========================================
+        // 既存の機能（帰宅、家計簿、底値、献立、アルバム等すべて維持）
+        // =========================================
+        function quickReturn(who, mode) {
+            document.getElementById('return-status').innerText = "📍 位置情報取得中...";
+            if (!navigator.geolocation) return alert("GPS利用不可");
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                document.getElementById('return-status').innerText = "🚀 計算中...";
+                const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "quick_return", lat: pos.coords.latitude, lon: pos.coords.longitude, owner: who, mode: mode }) });
+                const data = await res.json();
+                document.getElementById('return-status').innerText = (data.status === "success") ? "✅ 送信完了！" : "エラー";
+                if(data.status==="success") alert(data.msg);
+            }, () => { document.getElementById('return-status').innerText = "⚠️ GPSエラー"; });
+        }
+
+        let selectedCategory = "";
+        function selectCategory(cat, btn) { selectedCategory = cat; document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active-cat')); btn.classList.add('active-cat'); }
+        async function submitQuickExpense() {
+            const amount = document.getElementById('quick-amount').value;
+            if(!amount) return alert("金額を入れてください"); if(!selectedCategory) return alert("カテゴリを選んでください");
+            if(confirm(`【${selectedCategory}】${amount}円\n記録しますか？`)) {
+                await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "quick_expense", date: document.getElementById('quick-date').value, type: document.querySelector('input[name="quick-type"]:checked').value, amount: amount, category: selectedCategory, payer: document.querySelector('input[name="quick-owner"]:checked').value, method: document.querySelector('input[name="quick-method"]:checked').value, store: document.getElementById('quick-store').value }) });
+                alert("記録しました！💰"); document.getElementById('quick-amount').value = ""; document.getElementById('quick-store').value = "";
+                selectedCategory = ""; document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active-cat'));
+            }
+        }
+
+        let allPrices = [];
+        async function loadPriceList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_price_list" }) }); const data = await res.json(); allPrices = data.items || []; searchPrices(); }
+        function searchPrices() { const query = document.getElementById('price-search').value.toLowerCase(); const filtered = allPrices.filter(p => p.item.toLowerCase().includes(query)); const div = document.getElementById('price-list'); div.innerHTML = ""; filtered.slice(0, 10).forEach(p => { let unit = ""; if(p.price && p.weight) unit = `(@${Math.round((p.price/p.weight)*100)}円/100g)`; div.innerHTML += `<div class="price-item"><strong>${p.item}</strong> ${p.price}円 ${unit}<br><span style="color:#666;">🏪 ${p.store} (${new Date(p.date).toLocaleDateString()})</span></div>`; }); }
+        document.getElementById('price').addEventListener('input', () => { const p = document.getElementById('price').value, w = document.getElementById('weight').value; if(p&&w) document.getElementById('unit-result').innerText = `単価：${Math.round((p/w)*100)} 円`; });
+        async function submitPrice() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value }) }); alert("登録しました！"); loadPriceList(); } 
+
+        async function loadShoppingList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_shopping_list" }) }); const data = await res.json(); const ul = document.getElementById('shopping-ul'); ul.innerHTML = ""; data.items.forEach(item => { const li = document.createElement('li'); li.innerHTML = `<span>${item}</span> <button class="delete-btn" onclick="deleteItem('${item}')">完了</button>`; ul.appendChild(li); }); }
+        async function addListItem() { const item = document.getElementById('list-input').value; if(!item) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_shopping_item", item: item }) }); document.getElementById('list-input').value = ""; loadShoppingList(); }
+        async function deleteItem(item) { if(!confirm("買いましたか？")) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "delete_shopping_item", item: item }) }); loadShoppingList(); }
+
+        async function submitMenu() { if(!confirm("保存しますか？")) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_menu", mon: document.getElementById('menu-mon').value, tue: document.getElementById('menu-tue').value, wed: document.getElementById('menu-wed').value, thu: document.getElementById('menu-thu').value, fri: document.getElementById('menu-fri').value, sat: document.getElementById('menu-sat').value, sun: document.getElementById('menu-sun').value }) }); alert("保存しました！📅"); loadMenu(); }
+        function clearMenuInputs() { if(!confirm("クリアしますか？")) return; ['mon','tue','wed','thu','fri','sat','sun'].forEach(d => document.getElementById('menu-'+d).value = ""); }
+        async function loadMenu() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_menu" }) }); const data = await res.json(); if(data.menu) { ['mon','tue','wed','thu','fri','sat','sun'].forEach(d => document.getElementById('menu-'+d).value = data.menu[d] || ""); } const historyDiv = document.getElementById('menu-history'); historyDiv.innerHTML = ""; if(data.history) { data.history.forEach(h => { const d = new Date(h.date); historyDiv.innerHTML += `<div class="history-item"><strong>${d.getMonth()+1}/${d.getDate()}更新</strong><br>${h.menuStr}</div>`; }); } }
+
+        let selectedFileBase64 = null;
+        function handleFileSelect(input) { const file = input.files[0]; if(!file) return; document.getElementById('upload-status').innerText = "圧縮中..."; const reader = new FileReader(); reader.onload = e => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const MAX = 800; let w = img.width, h = img.height; if (w>h) { if(w>MAX){ h*=MAX/w; w=MAX; } } else { if(h>MAX){ w*=MAX/h; h=MAX; } } canvas.width=w; canvas.height=h; ctx.drawImage(img,0,0,w,h); selectedFileBase64 = canvas.toDataURL("image/jpeg",0.7).split(',')[1]; document.getElementById('upload-status').innerText="準備完了！"; }; img.src=e.target.result; }; reader.readAsDataURL(file); }
+        async function uploadPhoto() { if(!selectedFileBase64) return alert("写真を選択してください"); document.getElementById('upload-status').innerText="📤 保存中..."; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "upload_photo", image: selectedFileBase64, memo: document.getElementById('photo-memo').value, owner: document.querySelector('input[name="photo-owner"]:checked').value }) }); alert("保存しました！🍽"); document.getElementById('upload-status').innerText=""; document.getElementById('photo-memo').value=""; selectedFileBase64=null; loadPhotos(); }
+        let allPhotos = [];
+        async function loadPhotos() { document.getElementById('photo-gallery').innerText="読み込み中..."; const res = await fetch(GAS_URL, { method:"POST", body:JSON.stringify({ type:"web_app", action:"get_photos" }) }); const data = await res.json(); allPhotos = data.items || []; renderPhotos(allPhotos, 'photo-gallery'); }
+        function filterPhotos() { const q = document.getElementById('photo-search').value.toLowerCase(); const f = allPhotos.filter(p => (p.memo&&p.memo.toLowerCase().includes(q))||(p.date&&p.date.includes(q))); renderPhotos(f, 'photo-gallery'); }
+
+        let selectedMemoryBase64 = null;
+        function handleMemoryFileSelect(input) { const file = input.files[0]; if(!file) return; document.getElementById('memory-upload-status').innerText = "圧縮中..."; const reader = new FileReader(); reader.onload = e => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const MAX = 800; let w = img.width, h = img.height; if (w>h) { if(w>MAX){ h*=MAX/w; w=MAX; } } else { if(h>MAX){ w*=MAX/h; h=MAX; } } canvas.width=w; canvas.height=h; ctx.drawImage(img,0,0,w,h); selectedMemoryBase64 = canvas.toDataURL("image/jpeg",0.7).split(',')[1]; document.getElementById('memory-upload-status').innerText="準備完了！"; }; img.src=e.target.result; }; reader.readAsDataURL(file); }
+        async function uploadMemory() { if(!selectedMemoryBase64) return alert("写真を選択してください"); document.getElementById('memory-upload-status').innerText="📤 保存中..."; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "upload_memory", image: selectedMemoryBase64, memo: document.getElementById('memory-memo').value }) }); alert("保存しました！👫"); document.getElementById('memory-upload-status').innerText=""; document.getElementById('memory-memo').value=""; selectedMemoryBase64=null; loadMemories(); }
+        async function loadMemories() { document.getElementById('memory-gallery').innerText="読み込み中..."; const res = await fetch(GAS_URL, { method:"POST", body:JSON.stringify({ type:"web_app", action:"get_memories" }) }); const data = await res.json(); renderPhotos(data.items || [], 'memory-gallery'); }
+        function renderPhotos(photos, targetId) { const gal = document.getElementById(targetId); gal.innerHTML=""; if(photos.length===0) return gal.innerHTML="<p style='color:#999;text-align:center;'>写真がありません</p>"; photos.forEach(p => { const d=new Date(p.date); gal.innerHTML+=`<div class="photo-card"><img src="${p.url}" class="photo-img" loading="lazy"><div class="photo-meta"><div class="photo-date">${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}</div><div class="photo-memo">${p.memo}</div></div></div>`; }); }
+
+        async function submitAnger() { const item = document.getElementById('angry-item').value; if(!item) return; if(confirm("送信しますか？")) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_anger", item: item, owner: "maki" }) }); alert("送信しました。"); document.getElementById('angry-item').value=""; } }
+        async function submitBucket() { const item = document.getElementById('bucket-item').value; if(!item) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_bucket", item: item, owner: document.querySelector('input[name="bucket-owner"]:checked').value, limit: document.getElementById('bucket-limit').value, rank: document.getElementById('bucket-rank').value }) }); alert("追加しました！"); document.getElementById('bucket-item').value=""; loadBucketList(); }
+        async function loadBucketList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_bucket_list" }) }); const data = await res.json(); const ul = document.getElementById('bucket-ul'); ul.innerHTML=""; data.items.forEach(b => { let icon = "🏠"; if(b.owner==="naoki") icon="🐢"; if(b.owner==="maki") icon="🧸"; ul.innerHTML+=`<li><span>${icon} ${b.item} (${b.rank})</span><button class="delete-btn" onclick="deleteBucket('${b.item}')">達成</button></li>`; }); }
+        async function deleteBucket(item) { if(!confirm("達成しましたか？")) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "delete_bucket_item", item: item }) }); loadBucketList(); }
+
+        async function submitPayment() { const item = document.getElementById('pay-item').value; const amount = document.getElementById('pay-amount').value; if(!item||!amount) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_payment", item: item, amount: amount, payer: document.querySelector('input[name="payer"]:checked').value }) }); alert("記録しました"); document.getElementById('pay-item').value=""; document.getElementById('pay-amount').value=""; loadPaymentHistory(); }
+        async function loadPaymentHistory() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_payment_history" }) }); const data = await res.json(); const div = document.getElementById('pay-history'); div.innerHTML=""; if(data.items) { data.items.forEach(h => { const d=new Date(h.date); const done = (h.status==="完了"); div.innerHTML+=`<div class="history-item"><div style="${done?'text-decoration:line-through;color:#aaa;':'color:#555;'}"><strong>${d.getMonth()+1}/${d.getDate()}</strong> ${h.payer}:${h.amount}円<br><span style="font-size:11px;">(${h.item})</span></div><div>${done?`<span style="color:#56AB91;font-weight:bold;font-size:12px;">✅ 精算済</span>`:`<button class="btn-blue" style="padding:6px 12px;font-size:12px;width:auto;margin:0;border-radius:6px;" onclick="completePayment('${h.date}')">精算</button>`}</div></div>`; }); } }
+        async function completePayment(date) { if(!confirm("精算済みにしますか？")) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "complete_payment", date: date }) }); loadPaymentHistory(); }
+
+        async function addPoint(to) { if(confirm("感謝を伝えますか？")) { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_point", to: to }) }); const data = await res.json(); if(data.reward) alert(`🎉 祝！${data.total}ポイント達成！マッサージの刑執行です！`); else alert("感謝を伝えました！"); loadPoints(); } }
+        async function loadPoints() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_points" }) }); const data = await res.json(); document.getElementById('pt-naoki').innerText=data.naoki; document.getElementById('pt-maki').innerText=data.maki; }
+    </script>
 </body>
 </html>
