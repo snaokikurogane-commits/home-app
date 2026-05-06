@@ -7,185 +7,330 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
-    body { font-family: -apple-system, sans-serif; background-color: #f2f2f7; margin: 0; padding-bottom: 80px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background-color: #f2f2f7; margin: 0; padding-bottom: 70px; color: #333; }
     .container { padding: 15px; }
-    .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
-    h2 { text-align: center; font-size: 1.1rem; margin: 0 0 15px 0; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .card { background-color: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    h2 { text-align: center; font-size: 1.2rem; margin-top: 0; margin-bottom: 20px; color: #444; }
     
-    /* 共通UI */
-    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 10px; background: #fafafa; }
-    .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
-    .btn-green { background-color: #5ab48e; }
+    /* 入力フォーム共通 */
+    .input-group { margin-bottom: 15px; width: 100%; }
+    input[type="text"], input[type="date"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; background-color: #fafafa; }
     
-    /* タブ切り替え */
-    .view { display: none; }
-    .view.active { display: block; }
+    /* 予定登録用 */
+    .date-range-container { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+    .date-range-container input[type="date"] { flex: 1; }
+    .date-range-separator { margin: 0 10px; font-weight: bold; color: #666; }
+    .owner-selector { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 10px; }
+    .owner-btn { flex: 1; padding: 12px 0; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+    .owner-btn.active { background-color: #e6f0ff; border-color: #4a90e2; color: #005bb5; font-weight: bold; }
     
-    /* 体重管理専用デザイン */
+    /* 体重管理用 */
     .weight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    .person-card { background: #f8f9fa; border: 1px solid #eee; border-radius: 12px; padding: 10px; text-align: center; }
-    .person-card h3 { font-size: 0.9rem; margin: 0 0 8px 0; }
-    .goal-info { font-size: 0.75rem; color: #666; margin-top: 5px; }
-    .remaining { font-size: 0.85rem; color: #e74c3c; font-weight: bold; }
-    canvas { background: white; border-radius: 8px; margin-bottom: 15px; }
+    .person-card { background: #f8f9fa; border: 1px solid #eee; border-radius: 12px; padding: 15px 10px; text-align: center; }
+    .person-card h3 { font-size: 1rem; margin: 0 0 10px 0; }
+    .goal-input-row { display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #666; margin-top: 8px; gap: 5px;}
+    .goal-input-row input { width: 60px; padding: 5px; font-size: 0.9rem; text-align: center; }
+    .diff-text { font-size: 0.9rem; color: #e74c3c; font-weight: bold; margin-top: 8px; }
+    canvas { background: white; border-radius: 8px; margin-bottom: 15px; width: 100%; height: 250px; }
 
-    /* 予定登録専用デザイン */
-    .date-row { display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
-    .owner-select { display: flex; gap: 5px; margin-bottom: 15px; }
-    .owner-btn { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; font-size: 0.8rem; }
-    .owner-btn.active { background: #e6f0ff; border-color: #4a90e2; font-weight: bold; }
+    /* ボタン・その他 */
+    .submit-btn { width: 100%; padding: 15px; background-color: #5ab48e; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+    .schedule-list { font-size: 14px; color: #555; line-height: 1.6; }
 
-    /* フッターナビ */
-    nav { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-around; padding: 10px 0; }
-    .nav-item { border: none; background: none; font-size: 0.7rem; color: #888; text-align: center; flex: 1; }
-    .nav-item.active { color: #5ab48e; font-weight: bold; }
-    .nav-item i { display: block; font-size: 1.2rem; margin-bottom: 3px; }
+    /* ★ タブ切り替えの仕組み ★ */
+    .view-content { display: none; }
+    .view-content.active { display: block; animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* 通知トースト */
-    #toast { visibility: hidden; min-width: 250px; background: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 80px; transform: translateX(-50%); opacity: 0; transition: 0.3s; }
+    /* 下部ナビゲーションバー */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #fff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100;}
+    .nav-btn { background: none; border: none; font-size: 0.75rem; color: #888; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 25%; }
+    .nav-btn span { font-size: 1.4rem; }
+    .nav-btn.active { color: #5ab48e; font-weight: bold; }
+
+    /* トースト通知 */
+    #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 90px; transform: translateX(-50%); font-size: 15px; opacity: 0; transition: opacity 0.3s; }
     #toast.show { visibility: visible; opacity: 1; }
+    #toast.error { background-color: #e74c3c; }
+    #toast.success { background-color: #5ab48e; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  
-  <div id="weight" class="view">
+
+  <div id="view-schedule" class="view-content active">
     <div class="card">
-      <h2>⚖️ 体重管理</h2>
-      <canvas id="weightChart" width="400" height="250"></canvas>
-      
-      <div class="weight-grid">
-        <div class="person-card">
-          <h3>🐢 尚輝</h3>
-          <input type="number" id="w-naoki" placeholder="61.5" step="0.1">
-          <div class="goal-info">目標: <input type="number" id="g-naoki" placeholder="58.0" style="width:50px; padding:2px; margin:0;"> kg</div>
-          <div id="diff-naoki" class="remaining">目標まで -- kg</div>
-        </div>
-        <div class="person-card">
-          <h3>🧸 真輝</h3>
-          <input type="number" id="w-maki" placeholder="52.2" step="0.1">
-          <div class="goal-info">目標: <input type="number" id="g-maki" placeholder="50.0" style="width:50px; padding:2px; margin:0;"> kg</div>
-          <div id="diff-maki" class="remaining">目標まで -- kg</div>
-        </div>
+      <h2>🗓 予定登録</h2>
+      <div class="input-group">
+        <input type="text" id="event-name" placeholder="予定名 (例: ハワイ)">
       </div>
-      
-      <button class="btn btn-green" onclick="saveWeight()">✅ 本日のデータを記録</button>
+      <div class="input-group date-range-container">
+        <input type="date" id="event-start-date">
+        <span class="date-range-separator">〜</span>
+        <input type="date" id="event-end-date">
+      </div>
+      <div class="owner-selector">
+        <button class="owner-btn" data-owner="naoki" onclick="selectOwner('naoki')">🐢 尚輝</button>
+        <button class="owner-btn" data-owner="maki" onclick="selectOwner('maki')">🧸 真輝</button>
+        <button class="owner-btn active" data-owner="common" onclick="selectOwner('common')">🏠 2人</button>
+      </div>
+      <button class="submit-btn" onclick="registerSchedule()" id="submitBtn">予定を登録</button>
+      <hr style="border:0; border-top:1px dashed #ddd; margin: 20px 0;">
+      <div style="text-align:center; color:#888; font-size:14px; margin-bottom:10px;">今後の予定リスト</div>
+      <div id="schedule-display" class="schedule-list">読み込み中...</div>
     </div>
   </div>
 
-  <div id="schedule" class="view">
+  <div id="view-weight" class="view-content">
     <div class="card">
-      <h2>🗓 予定登録</h2>
-      <input type="text" id="event-name" placeholder="予定名 (例: ハワイ)">
-      <div class="date-row">
-        <input type="date" id="start-date"> <span>〜</span> <input type="date" id="end-date">
+      <h2>⚖️ 体重管理ダッシュボード</h2>
+      <canvas id="weightChart"></canvas>
+
+      <div class="weight-grid">
+        <div class="person-card">
+          <h3>🐢 尚輝</h3>
+          <input type="number" id="w-naoki" placeholder="現在の体重 (kg)" step="0.1">
+          <div class="goal-input-row">
+            ⚙️ 目標: <input type="number" id="g-naoki" placeholder="58.0" step="0.1"> kg
+          </div>
+          <div id="diff-naoki" class="diff-text">目標まで -- kg</div>
+        </div>
+        <div class="person-card">
+          <h3>🧸 真輝</h3>
+          <input type="number" id="w-maki" placeholder="現在の体重 (kg)" step="0.1">
+          <div class="goal-input-row">
+            ⚙️ 目標: <input type="number" id="g-maki" placeholder="50.0" step="0.1"> kg
+          </div>
+          <div id="diff-maki" class="diff-text">目標まで -- kg</div>
+        </div>
       </div>
-      <div class="owner-select">
-        <button class="owner-btn" id="btn-naoki" onclick="setOwner('naoki')">🐢 尚輝</button>
-        <button class="owner-btn" id="btn-maki" onclick="setOwner('maki')">🧸 真輝</button>
-        <button class="owner-btn active" id="btn-common" onclick="setOwner('common')">🏠 2人</button>
-      </div>
-      <button class="btn btn-green" onclick="saveEvent()">登録</button>
+      
+      <button class="submit-btn" onclick="saveWeight()" id="btnWeightSave">✅ 本日のデータを記録</button>
+    </div>
+  </div>
+
+  <div id="view-return" class="view-content">
+    <div class="card">
+      <h2>🏠 帰宅連絡</h2>
+      <p style="text-align:center; color:#666;">※LINEから直接「今から帰るよ」ボタンを押すか、ここで操作します。（現在UI準備中）</p>
+    </div>
+  </div>
+  
+  <div id="view-money" class="view-content">
+    <div class="card">
+      <h2>💰 家計簿・底値</h2>
+      <p style="text-align:center; color:#666;">（現在UI準備中）</p>
     </div>
   </div>
 
 </div>
 
-<nav>
-  <button class="nav-item" onclick="showTab('schedule')">🗓 予定</button>
-  <button class="nav-item" onclick="showTab('weight')">⚖️ 体重</button>
-  </nav>
+<div class="bottom-nav">
+  <button class="nav-btn" onclick="switchTab('return')" id="nav-return"><span>🏠</span>帰宅</button>
+  <button class="nav-btn active" onclick="switchTab('schedule')" id="nav-schedule"><span>🗓</span>予定</button>
+  <button class="nav-btn" onclick="switchTab('weight')" id="nav-weight"><span>⚖️</span>体重</button>
+  <button class="nav-btn" onclick="switchTab('money')" id="nav-money"><span>💰</span>家計簿</button>
+</div>
 
 <div id="toast"></div>
 
 <script>
-  const GAS_URL = "★あなたの新しいGASデプロイURL★";
+  // =========================================
+  // ★★★ 必ず最新のGASウェブアプリURLをここに貼り付けてください ★★★
+  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwLxEUf3F4dvPvBoHVeITw5FT74vviax7JA3FSov_i9BKY9K55eE4AOCCMiONIZg6N2/exec";
+  // =========================================
+
   let currentOwner = 'common';
-  let myChart;
+  let myChart = null; // グラフ用変数
 
-  // タブ切り替え
-  function showTab(tabId) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    if(tabId === 'weight') loadWeight();
-  }
-
-  // 通知表示
-  function showToast(msg) {
-    const t = document.getElementById("toast");
-    t.innerText = msg; t.className = "show";
-    setTimeout(() => t.className = "", 3000);
-  }
-
-  // 体重保存
-  async function saveWeight() {
-    const data = {
-      type: "web_app", action: "register_weight",
-      naoki: document.getElementById('w-naoki').value,
-      maki: document.getElementById('w-maki').value,
-      naokiGoal: document.getElementById('g-naoki').value,
-      makiGoal: document.getElementById('g-maki').value
-    };
-    await fetch(GAS_URL, { method: "POST", body: JSON.stringify(data) });
-    showToast("✅ 記録しました！");
-    loadWeight();
-  }
-
-  // 体重読み込み & グラフ描画
-  async function loadWeight() {
-    const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({type:"web_app", action:"get_weight_data"}) });
-    const data = await res.json();
-    const last = data.items[data.items.length - 1];
+  // -----------------------------------------
+  // 1. タブ切り替え処理（LINEから飛んできた時用）
+  // -----------------------------------------
+  function switchTab(tabId) {
+    // すべての画面とナビボタンをオフにする
+    document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
     
-    // 目標まであと何キロの計算
-    if(last) {
-      document.getElementById('diff-naoki').innerText = `目標まで あと ${(last.naoki - last.naokiGoal).toFixed(1)}kg`;
-      document.getElementById('diff-maki').innerText = `目標まで あと ${(last.maki - last.makiGoal).toFixed(1)}kg`;
-    }
+    // 指定された画面とナビボタンをオンにする
+    const targetView = document.getElementById('view-' + tabId);
+    const targetNav = document.getElementById('nav-' + tabId);
+    if (targetView) targetView.classList.add('active');
+    if (targetNav) targetNav.classList.add('active');
 
+    // 体重タブが開かれたらデータを読み込む
+    if (tabId === 'weight') {
+      loadWeightData();
+    }
+  }
+
+  // ページ読み込み時にURLの「?tab=〇〇」を見て画面を切り替える
+  window.onload = () => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab') || 'schedule'; // 指定がなければ予定を開く
+    switchTab(tab);
+    if(tab === 'schedule') loadSchedules();
+  };
+
+  // -----------------------------------------
+  // 2. 共通：トースト通知
+  // -----------------------------------------
+  function showToast(message, type) {
+    const toast = document.getElementById("toast");
+    toast.innerText = message;
+    toast.className = type + " show";
+    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+  }
+
+  // -----------------------------------------
+  // 3. 予定登録機能
+  // -----------------------------------------
+  function selectOwner(owner) {
+    currentOwner = owner;
+    document.querySelectorAll('.owner-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.owner-btn[data-owner="${owner}"]`).classList.add('active');
+  }
+
+  async function registerSchedule() {
+    const name = document.getElementById('event-name').value;
+    const startDate = document.getElementById('event-start-date').value;
+    const endDate = document.getElementById('event-end-date').value;
+    const btn = document.getElementById('submitBtn');
+
+    if (!name || !startDate) { showToast("⚠️ 予定名と開始日は必須です", "error"); return; }
+
+    btn.innerText = "登録中..."; btn.disabled = true;
+    try {
+      await fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ type: "web_app", action: "register_event", name: name, startDate: startDate, endDate: endDate, owner: currentOwner })
+      });
+      showToast("✅ 予定を登録しました！", "success");
+      document.getElementById('event-name').value = "";
+      document.getElementById('event-start-date').value = "";
+      document.getElementById('event-end-date').value = "";
+      loadSchedules();
+    } catch (e) {
+      showToast("❌ 通信エラー", "error");
+    } finally {
+      btn.innerText = "予定を登録"; btn.disabled = false;
+    }
+  }
+
+  async function loadSchedules() {
+    const display = document.getElementById('schedule-display');
+    try {
+      const res = await fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_schedules" }) });
+      const data = await res.json();
+      if (data.items && data.items.length > 0) {
+        display.innerHTML = data.items.map(e => {
+          const icon = e.owner === "naoki" ? "🐢" : e.owner === "maki" ? "🧸" : "🏠";
+          const start = new Date(e.startDate);
+          let dateStr = `${start.getMonth()+1}/${start.getDate()}`;
+          if (e.endDate) { const end = new Date(e.endDate); dateStr += `〜${end.getMonth()+1}/${end.getDate()}`; }
+          return `<div>${icon} ${dateStr} : <b>${e.name}</b></div>`;
+        }).join("");
+      } else { display.innerHTML = "予定はありません🍵"; }
+    } catch (e) { display.innerHTML = '<span style="color:#e74c3c;">エラーが発生しました</span>'; }
+  }
+
+  // -----------------------------------------
+  // 4. 体重管理機能（グラフと計算）
+  // -----------------------------------------
+  async function saveWeight() {
+    const wNaoki = document.getElementById('w-naoki').value;
+    const wMaki = document.getElementById('w-maki').value;
+    const gNaoki = document.getElementById('g-naoki').value;
+    const gMaki = document.getElementById('g-maki').value;
+    const btn = document.getElementById('btnWeightSave');
+
+    if(!wNaoki && !wMaki) { showToast("⚠️ 体重を入力してください", "error"); return; }
+
+    btn.innerText = "記録中..."; btn.disabled = true;
+    try {
+      await fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ type: "web_app", action: "register_weight", naoki: wNaoki, maki: wMaki, naokiGoal: gNaoki, makiGoal: gMaki })
+      });
+      showToast("✅ 体重を記録しました！", "success");
+      
+      // 入力された値を空にせず、再読み込みしてグラフを更新
+      loadWeightData();
+    } catch (e) {
+      showToast("❌ 通信エラー", "error");
+    } finally {
+      btn.innerText = "✅ 本日のデータを記録"; btn.disabled = false;
+    }
+  }
+
+  async function loadWeightData() {
+    try {
+      const res = await fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_weight_data" }) });
+      const data = await res.json();
+      
+      if (!data.items || data.items.length === 0) return; // データがない場合は何もしない
+
+      const items = data.items;
+      const latest = items[items.length - 1]; // 一番新しいデータ
+
+      // 画面の数値と「目標まであと〇〇kg」を更新
+      if(latest.naoki) document.getElementById('w-naoki').value = latest.naoki;
+      if(latest.naokiGoal) {
+        document.getElementById('g-naoki').value = latest.naokiGoal;
+        const diffN = (latest.naoki - latest.naokiGoal).toFixed(1);
+        document.getElementById('diff-naoki').innerText = `目標まで あと ${diffN}kg`;
+      }
+
+      if(latest.maki) document.getElementById('w-maki').value = latest.maki;
+      if(latest.makiGoal) {
+        document.getElementById('g-maki').value = latest.makiGoal;
+        const diffM = (latest.maki - latest.makiGoal).toFixed(1);
+        document.getElementById('diff-maki').innerText = `目標まで あと ${diffM}kg`;
+      }
+
+      // グラフの描画
+      drawChart(items);
+
+    } catch (e) {
+      console.error("グラフの読み込みに失敗しました", e);
+    }
+  }
+
+  function drawChart(items) {
     const ctx = document.getElementById('weightChart').getContext('2d');
-    if(myChart) myChart.destroy();
+    
+    // すでにグラフがあれば一旦消す（重複描画エラー防止）
+    if(myChart) { myChart.destroy(); }
+
+    const labels = items.map(i => i.date);
+    const naokiData = items.map(i => i.naoki);
+    const makiData = items.map(i => i.maki);
+    const naokiGoalData = items.map(i => i.naokiGoal);
+    const makiGoalData = items.map(i => i.makiGoal);
+
     myChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: data.items.map(i => i.date),
+        labels: labels,
         datasets: [
-          { label: '尚輝', data: data.items.map(i => i.naoki), borderColor: '#5ab48e', tension: 0.3 },
-          { label: '真輝', data: data.items.map(i => i.maki), borderColor: '#ff9500', tension: 0.3 },
-          { label: '尚輝目標', data: data.items.map(i => i.naokiGoal), borderDash: [5, 5], borderColor: '#5ab48e', fill: false, pointRadius:0 },
-          { label: '真輝目標', data: data.items.map(i => i.makiGoal), borderDash: [5, 5], borderColor: '#ff9500', fill: false, pointRadius:0 }
+          { label: '尚輝', data: naokiData, borderColor: '#5ab48e', backgroundColor: '#5ab48e', tension: 0.3 },
+          { label: '尚輝 目標', data: naokiGoalData, borderColor: '#5ab48e', borderDash: [5, 5], pointRadius: 0, fill: false },
+          { label: '真輝', data: makiData, borderColor: '#e67e22', backgroundColor: '#e67e22', tension: 0.3 },
+          { label: '真輝 目標', data: makiGoalData, borderColor: '#e67e22', borderDash: [5, 5], pointRadius: 0, fill: false }
         ]
       },
-      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+        scales: {
+          y: { suggestedMin: 45, suggestedMax: 65 } // グラフの縦軸の大体の範囲
+        }
+      }
     });
   }
-
-  // 初期化
-  window.onload = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tab = urlParams.get('tab') || 'schedule';
-    showTab(tab);
-  };
-
-  // 予定保存
-  function setOwner(o) {
-    currentOwner = o;
-    document.querySelectorAll('.owner-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('btn-'+o).classList.add('active');
-  }
-
-  async function saveEvent() {
-    const data = {
-      type: "web_app", action: "register_event",
-      name: document.getElementById('event-name').value,
-      startDate: document.getElementById('start-date').value,
-      endDate: document.getElementById('end-date').value,
-      owner: currentOwner
-    };
-    await fetch(GAS_URL, { method: "POST", body: JSON.stringify(data) });
-    showToast("🌴 予定を登録しました！");
-  }
 </script>
+
 </body>
 </html>
