@@ -6,54 +6,55 @@
     <title>山西町ライフ</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* ★ 突き抜け防止の魔法のコード ★ */
         *, *::before, *::after { box-sizing: border-box; }
-
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 0; padding-bottom: 90px; color: #333; }
-        
         .container { padding: 10px; display: none; }
         .active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
         .box { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 10px; }
         h3 { margin-top: 0; color: #444; font-size: 18px; text-align: center; margin-bottom: 15px; }
-        
         input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; background: #f9f9f9; }
-        
         button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         button:active { transform: scale(0.98); }
         button:disabled { opacity: 0.6; }
-        
         .btn-blue { background: #5D7EA7; color: white; }
         .btn-green { background: #56AB91; color: white; }
         .btn-red { background: #E07A5F; color: white; }
         .btn-black { background: #3D405B; color: white; }
-        
         .return-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .return-btn { padding: 15px 10px; border-radius: 15px; border: none; color: white; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .bg-naoki { background: linear-gradient(135deg, #6D8CAA, #486684); } 
         .bg-maki { background: linear-gradient(135deg, #F2C94C, #E0AA3E); color: #fff; }
-
         .radio-group { display: flex; gap: 5px; margin: 10px 0; }
         .radio-label { flex: 1; text-align: center; padding: 10px; border: 1px solid #eee; border-radius: 10px; background: #fff; font-size: 13px; }
         input[type="radio"] { display: none; }
         input[type="radio"]:checked + .radio-label { background: #EAF2F8; border-color: #6D8CAA; color: #486684; font-weight: bold; }
-
         .owner-selector { display: flex; justify-content: space-between; gap: 5px; }
         .owner-btn { flex: 1; padding: 10px 0; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; }
         .owner-btn.active { background-color: #e6f0ff; border-color: #4a90e2; color: #005bb5; font-weight: bold; }
-        
+        .menu-row { display: flex; align-items: center; margin-bottom: 8px; }
+        .menu-label { width: 30px; font-weight: bold; color: #777; font-size: 14px; }
+        .menu-input { flex: 1; }
+        .history-list { font-size: 13px; color: #555; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; line-height: 1.6; }
+        .history-item { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center; }
         #shopping-ul, #schedule-ul, #bucket-ul { list-style: none; padding: 0; }
         #shopping-ul li, #schedule-ul li, #bucket-ul li { background: #fff; border-bottom: 1px solid #f0f0f0; padding: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
         .delete-btn { background: #E07A5F; color: white; padding: 5px 10px; border-radius: 6px; font-size: 11px; width: auto; margin: 0; }
-
-        /* ナビゲーションバー */
+        .photo-card { background: white; border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .photo-img { width: 100%; height: 200px; object-fit: cover; }
+        .photo-meta { padding: 10px; }
+        .photo-date { font-size: 12px; color: #888; }
+        .photo-memo { font-weight: bold; color: #333; margin-top: 5px; }
+        #upload-status, #memory-upload-status { text-align:center; color:#56AB91; font-weight:bold; margin:10px 0; }
+        .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
+        .point-card { text-align: center; width: 45%; padding: 15px; background: #f8f9fa; border-radius: 12px; border: 1px solid #eee; }
+        .point-num { font-size: 36px; font-weight: bold; color: #F2C94C; display: block; margin-top: 5px; }
+        .price-list { margin-top: 10px; }
+        .price-item { background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 5px; font-size: 13px; }
         .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-between; padding: 5px 0; z-index: 1000; overflow-x: auto; }
         .nav-item { text-align: center; color: #999; font-size: 9px; min-width: 42px; padding: 0 2px; }
         .nav-item.active-tab { color: #486684; font-weight: bold; }
         .nav-icon { font-size: 18px; display: block; }
-
-        /* トースト */
         #toast { visibility: hidden; min-width: 200px; background: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 2000; left: 50%; bottom: 80px; transform: translateX(-50%); opacity: 0; transition: 0.3s; }
         #toast.show { visibility: visible; opacity: 1; }
     </style>
@@ -79,7 +80,6 @@
             <div style="height: 200px; margin-bottom: 10px;">
                 <canvas id="weightChart"></canvas>
             </div>
-            
             <div style="display:flex; gap:8px;">
                 <div style="flex:1; background:#f8f9fa; padding:10px; border-radius:12px; text-align:center;">
                     <h4 style="margin:0; font-size:14px;">🐢 尚輝</h4>
@@ -87,7 +87,6 @@
                     <div style="font-size:11px; color:#666;">目標: <input type="text" id="g-naoki" inputmode="decimal" placeholder="58.0" style="width:45px; padding:2px; text-align:center;"></div>
                     <div id="diff-naoki" style="font-size:12px; color:#e74c3c; font-weight:bold; margin-top:5px;">-- kg</div>
                 </div>
-                
                 <div style="flex:1; background:#f8f9fa; padding:10px; border-radius:12px; text-align:center;">
                     <h4 style="margin:0; font-size:14px;">🧸 真輝</h4>
                     <input type="text" id="w-maki" inputmode="decimal" placeholder="体重" style="text-align:center;">
@@ -118,16 +117,181 @@
         </div>
     </div>
 
-    <div id="tab-money" class="container"><div class="box"><h3>💰 瞬間・家計簿</h3><input type="text" id="quick-amount" placeholder="金額" inputmode="numeric"><button class="btn-green" onclick="submitQuickExpense()">✅ 記録</button></div></div>
-    <div id="tab-scan" class="container"><div class="box"><h3>🛒 底値登録</h3><input type="text" id="item" placeholder="商品名"><button class="btn-green" onclick="submitPrice()">登録</button></div></div>
-    <div id="tab-list" class="container"><div class="box"><h3>📝 買うものリスト</h3><ul id="shopping-ul"></ul></div></div>
-    <div id="tab-menu" class="container"><div class="box"><h3>🍳 今週の献立</h3><div id="menu-history" class="history-list"></div></div></div>
-    <div id="tab-photo" class="container"><div class="box"><h3>🍽 料理アルバム</h3><div id="photo-gallery"></div></div></div>
-    <div id="tab-memory" class="container"><div class="box"><h3>👫 思い出アルバム</h3><div id="memory-gallery"></div></div></div>
-    <div id="tab-angry" class="container"><div class="box"><h3>🧸 ムカッときたら</h3><textarea id="angry-item"></textarea><button class="btn-black" onclick="submitAnger()">送信</button></div></div>
-    <div id="tab-bucket" class="container"><div class="box"><h3>✨ やりたいこと</h3><ul id="bucket-ul"></ul></div></div>
-    <div id="tab-pay" class="container"><div class="box"><h3>💸 立替記録</h3><div id="pay-history"></div></div></div>
-    <div id="tab-love" class="container"><div class="box"><h3>❤️ 感謝</h3><div class="point-card">🐢尚輝<span id="pt-naoki" class="point-num">0</span></div><div class="point-card">🧸真輝<span id="pt-maki" class="point-num">0</span></div></div></div>
+    <div id="tab-money" class="container">
+        <div class="box">
+            <h3>💰 瞬間・家計簿</h3>
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <input type="datetime-local" id="quick-date" style="flex: 2;">
+                <div class="radio-group" style="flex: 1; margin: 0;">
+                    <input type="radio" name="quick-type" id="t-exp" value="支出" checked><label for="t-exp" class="radio-label">支出</label>
+                    <input type="radio" name="quick-type" id="t-inc" value="収入"><label for="t-inc" class="radio-label">収入</label>
+                </div>
+            </div>
+            <input type="text" id="quick-amount" placeholder="金額（円）" inputmode="numeric" style="font-size:20px; text-align:center; padding: 15px;">
+            <input type="text" id="quick-store" placeholder="店名 (任意)" style="text-align:center;">
+            <div class="radio-group">
+                <input type="radio" name="quick-owner" id="q-naoki" value="尚輝" checked><label for="q-naoki" class="radio-label">🐢尚輝</label>
+                <input type="radio" name="quick-owner" id="q-maki" value="真輝"><label for="q-maki" class="radio-label">🧸真輝</label>
+                <input type="radio" name="quick-owner" id="q-joint" value="共同"><label for="q-joint" class="radio-label">🏠共同</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" name="quick-method" id="m-cash" value="現金" checked><label for="m-cash" class="radio-label">💴現金</label>
+                <input type="radio" name="quick-method" id="m-card" value="クレジットカード"><label for="m-card" class="radio-label">💳カード</label>
+            </div>
+            <label style="font-size:12px; color:#666; margin-top:10px; display:block;">カテゴリを選択</label>
+            <div class="category-grid">
+                <button class="cat-btn" id="cat-food" onclick="selectCategory('食費', this)">🍔 食費</button>
+                <button class="cat-btn" id="cat-daily" onclick="selectCategory('日用品', this)">🧻 日用品</button>
+                <button class="cat-btn" id="cat-out" onclick="selectCategory('外食', this)">🍻 外食</button>
+                <button class="cat-btn" id="cat-other" onclick="selectCategory('その他', this)">💳 その他</button>
+            </div>
+            <button class="btn-green" style="margin-top:20px; font-size:18px;" onclick="submitQuickExpense()">✅ 記録する</button>
+        </div>
+    </div>
+
+    <div id="tab-scan" class="container">
+        <div class="box">
+            <h3>🛒 底値登録</h3>
+            <input type="text" id="item" placeholder="商品名を入力">
+            <input type="text" id="price" placeholder="価格" inputmode="numeric">
+            <input type="text" id="weight" placeholder="内容量(g)" inputmode="numeric">
+            <input type="text" id="store" placeholder="店名">
+            <div id="unit-result" style="text-align:center; margin:10px 0; color:#666;">単価：---</div>
+            <button class="btn-green" onclick="submitPrice()">登録</button>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <h4 style="text-align:center; color:#888; font-size:13px;">登録済みデータを検索</h4>
+            <input type="text" id="price-search" placeholder="🔍 商品名で検索" oninput="searchPrices()">
+            <div id="price-list" class="price-list"></div>
+        </div>
+    </div>
+
+    <div id="tab-list" class="container">
+        <div class="box">
+            <h3>📝 買うものリスト</h3>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="list-input" placeholder="牛乳、洗剤など">
+                <button class="btn-blue" style="width:30%; margin:8px 0;" onclick="addListItem()">追加</button>
+            </div>
+            <ul id="shopping-ul"></ul>
+        </div>
+    </div>
+
+    <div id="tab-menu" class="container">
+        <div class="box">
+            <h3>🍳 今週の献立</h3>
+            <div class="menu-row"><span class="menu-label">月</span><input type="text" id="menu-mon" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">火</span><input type="text" id="menu-tue" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">水</span><input type="text" id="menu-wed" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">木</span><input type="text" id="menu-thu" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">金</span><input type="text" id="menu-fri" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">土</span><input type="text" id="menu-sat" class="menu-input"></div>
+            <div class="menu-row"><span class="menu-label">日</span><input type="text" id="menu-sun" class="menu-input"></div>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn-green" onclick="submitMenu()">保存</button>
+                <button class="btn-red" style="background:#E07A5F;" onclick="clearMenuInputs()">クリア</button>
+            </div>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <div id="menu-history" class="history-list"></div>
+        </div>
+    </div>
+
+    <div id="tab-photo" class="container">
+        <div class="box">
+            <h3>🍽 料理アルバム</h3>
+            <label style="display:block; text-align:center; margin-bottom:10px; border: 2px dashed #ddd; padding: 20px; border-radius: 10px; background: #fafafa;">
+                <span style="font-size:40px; cursor:pointer;">📸</span><br>
+                <span style="font-size:14px; color:#5D7EA7; font-weight:bold;">撮影 または アルバムから選択</span>
+                <input type="file" id="camera-input" accept="image/*" style="display:none;" onchange="handleFileSelect(this)">
+            </label>
+            <div class="radio-group">
+                <input type="radio" name="photo-owner" id="p-naoki" value="naoki"><label for="p-naoki" class="radio-label">🐢尚輝</label>
+                <input type="radio" name="photo-owner" id="p-maki" value="maki"><label for="p-maki" class="radio-label">🧸真輝</label>
+                <input type="radio" name="photo-owner" id="p-common" value="common" checked><label for="p-common" class="radio-label">🏠2人</label>
+            </div>
+            <input type="text" id="photo-memo" placeholder="料理名・メモ (任意)">
+            <button class="btn-green" onclick="uploadPhoto()">保存する</button>
+            <div id="upload-status"></div>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <input type="text" id="photo-search" placeholder="🔍 過去の料理を検索..." oninput="filterPhotos()">
+            <div id="photo-gallery"></div>
+        </div>
+    </div>
+
+    <div id="tab-memory" class="container">
+        <div class="box">
+            <h3>👫 思い出アルバム</h3>
+            <label style="display:block; text-align:center; margin-bottom:10px; border: 2px dashed #ddd; padding: 20px; border-radius: 10px; background: #fafafa;">
+                <span style="font-size:40px; cursor:pointer;">📸</span><br>
+                <span style="font-size:14px; color:#E07A5F; font-weight:bold;">2人の写真を撮影・選択</span>
+                <input type="file" id="memory-camera-input" accept="image/*" style="display:none;" onchange="handleMemoryFileSelect(this)">
+            </label>
+            <input type="text" id="memory-memo" placeholder="場所・メモ (任意)">
+            <button class="btn-red" onclick="uploadMemory()">保存する</button>
+            <div id="memory-upload-status"></div>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <div id="memory-gallery"></div>
+        </div>
+    </div>
+
+    <div id="tab-angry" class="container">
+        <div class="box" style="border: 2px solid #3D405B;">
+            <h3>🧸 ムカッときたら…</h3>
+            <textarea id="angry-item" rows="4" placeholder="（例）靴下が脱ぎっぱなしです😡"></textarea>
+            <button class="btn-black" onclick="submitAnger()">送信する</button>
+        </div>
+    </div>
+
+    <div id="tab-bucket" class="container">
+        <div class="box">
+            <h3>✨ やりたいこと</h3>
+            <input type="text" id="bucket-item" placeholder="例：北海道でカニ">
+            <div style="display:flex; gap:10px;">
+                <input type="date" id="bucket-limit" style="flex:1;">
+                <select id="bucket-rank" style="flex:1;">
+                    <option value="★">★ 手軽</option>
+                    <option value="★★">★★ 普通</option>
+                    <option value="★★★">★★★ 挑戦</option>
+                </select>
+            </div>
+            <div class="radio-group">
+                <input type="radio" name="bucket-owner" id="b-naoki" value="naoki"><label for="b-naoki" class="radio-label">🐢尚輝</label>
+                <input type="radio" name="bucket-owner" id="b-maki" value="maki"><label for="b-maki" class="radio-label">🧸真輝</label>
+                <input type="radio" name="bucket-owner" id="b-common" value="common" checked><label for="b-common" class="radio-label">🏠2人</label>
+            </div>
+            <button class="btn-green" onclick="submitBucket()">リストに追加</button>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <ul id="bucket-ul"></ul>
+        </div>
+    </div>
+
+    <div id="tab-pay" class="container">
+        <div class="box">
+            <h3>💸 立替記録</h3>
+            <input type="text" id="pay-item" placeholder="何に使った？">
+            <input type="text" id="pay-amount" placeholder="金額" inputmode="numeric">
+            <div class="radio-group">
+                <input type="radio" name="payer" id="pay-naoki" value="尚輝" checked><label for="pay-naoki" class="radio-label">🐢尚輝払</label>
+                <input type="radio" name="payer" id="pay-maki" value="真輝"><label for="pay-maki" class="radio-label">🧸真輝払</label>
+            </div>
+            <button class="btn-green" onclick="submitPayment()">記録</button>
+            <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
+            <div id="pay-history" class="history-list"></div>
+        </div>
+    </div>
+
+    <div id="tab-love" class="container">
+        <div class="box">
+            <h3>❤️ 感謝ポイント</h3>
+            <div style="display:flex; gap:12px;">
+                <button class="btn-blue" onclick="addPoint('naoki')">🐢 尚輝へ</button>
+                <button class="btn-red" onclick="addPoint('maki')">🧸 真輝へ</button>
+            </div>
+            <div class="point-box">
+                <div class="point-card">🐢尚輝<span id="pt-naoki" class="point-num">0</span></div>
+                <div class="point-card">🧸真輝<span id="pt-maki" class="point-num">0</span></div>
+            </div>
+        </div>
+    </div>
 
     <div class="nav-bar">
         <div class="nav-item active-tab" onclick="switchTab('return')"><span class="nav-icon">🏠</span>帰</div>
@@ -171,6 +335,14 @@
 
             if(tabName === 'schedule') loadSchedules();
             if(tabName === 'weight') loadWeightData();
+            if(tabName === 'photo') loadPhotos(); 
+            if(tabName === 'memory') loadMemories(); 
+            if(tabName === 'pay') loadPaymentHistory(); 
+            if(tabName === 'bucket') loadBucketList();
+            if(tabName === 'scan') loadPriceList();
+            if(tabName === 'list') loadShoppingList();
+            if(tabName === 'menu') loadMenu();
+            if(tabName === 'love') loadPoints();
         }
 
         window.onload = function() {
@@ -235,14 +407,14 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: { 
-                        x: { ticks: { maxTicksLimit: 7 } }, // 横軸のメモリを最大7つに制限（突き抜け防止）
+                        x: { ticks: { maxTicksLimit: 7 } },
                         y: { min: 40, max: 80 } 
                     }
                 }
             });
         }
 
-        // --- 予定登録 ---
+        // --- その他機能の復元 ---
         let currentOwner = 'common';
         function selectOwner(o) { currentOwner = o; document.querySelectorAll('.owner-btn').forEach(b => b.classList.remove('active')); document.querySelector(`[data-owner="${o}"]`).classList.add('active'); }
         async function submitEvent() {
@@ -264,8 +436,33 @@
             });
         }
 
-        // --- その他関数 (略) ---
         function quickReturn(who, mode) { fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "quick_return", owner: who, mode }) }); showToast("🚀 送信完了"); }
+        
+        let selectedCategory = "";
+        function selectCategory(cat, btn) { selectedCategory = cat; document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active-cat')); btn.classList.add('active-cat'); }
+        async function submitQuickExpense() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "quick_expense", date: document.getElementById('quick-date').value, type: document.querySelector('input[name="quick-type"]:checked').value, amount: document.getElementById('quick-amount').value, category: selectedCategory, payer: document.querySelector('input[name="quick-owner"]:checked').value, method: document.querySelector('input[name="quick-method"]:checked').value, store: document.getElementById('quick-store').value }) }); showToast("✅ 記録完了"); }
+        
+        async function loadPriceList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_price_list" }) }); const data = await res.json(); document.getElementById('price-list').innerHTML = data.items.map(p => `<div class="price-item">${p.item} - ${p.price}円</div>`).join(''); }
+        async function submitPrice() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value }) }); showToast("✅ 登録完了"); }
+        
+        async function loadShoppingList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_shopping_list" }) }); const data = await res.json(); document.getElementById('shopping-ul').innerHTML = data.items.map(i => `<li>${i}</li>`).join(''); }
+        async function addListItem() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_shopping_item", item: document.getElementById('list-input').value }) }); loadShoppingList(); }
+        
+        async function loadMenu() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_menu" }) }); const data = await res.json(); if(data.menu) { ['mon','tue','wed','thu','fri','sat','sun'].forEach(d => document.getElementById('menu-'+d).value = data.menu[d] || ""); } }
+        async function submitMenu() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_menu", mon: document.getElementById('menu-mon').value, tue: document.getElementById('menu-tue').value, wed: document.getElementById('menu-wed').value, thu: document.getElementById('menu-thu').value, fri: document.getElementById('menu-fri').value, sat: document.getElementById('menu-sat').value, sun: document.getElementById('menu-sun').value }) }); showToast("✅ 保存完了"); }
+        
+        async function loadPhotos() { const res = await fetch(GAS_URL, { method:"POST", body:JSON.stringify({ type:"web_app", action:"get_photos" }) }); const data = await res.json(); document.getElementById('photo-gallery').innerHTML = data.items.map(p => `<div class="photo-card"><img src="${p.url}" class="photo-img"><div class="photo-meta">${p.memo}</div></div>`).join(''); }
+        async function loadMemories() { const res = await fetch(GAS_URL, { method:"POST", body:JSON.stringify({ type:"web_app", action:"get_memories" }) }); const data = await res.json(); document.getElementById('memory-gallery').innerHTML = data.items.map(p => `<div class="photo-card"><img src="${p.url}" class="photo-img"><div class="photo-meta">${p.memo}</div></div>`).join(''); }
+        
+        async function submitAnger() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_anger", item: document.getElementById('angry-item').value, owner: "maki" }) }); showToast("✅ 送信しました"); }
+        async function submitBucket() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_bucket", item: document.getElementById('bucket-item').value, owner: document.querySelector('input[name="bucket-owner"]:checked').value, limit: document.getElementById('bucket-limit').value, rank: document.getElementById('bucket-rank').value }) }); showToast("✅ 追加しました"); loadBucketList(); }
+        async function loadBucketList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_bucket_list" }) }); const data = await res.json(); document.getElementById('bucket-ul').innerHTML = data.items.map(b => `<li>${b.item} (${b.rank})</li>`).join(''); }
+        
+        async function loadPaymentHistory() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_payment_history" }) }); const data = await res.json(); document.getElementById('pay-history').innerHTML = data.items.map(h => `<div class="history-item">${h.payer} ${h.amount}円 (${h.item})</div>`).join(''); }
+        async function submitPayment() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_payment", item: document.getElementById('pay-item').value, amount: document.getElementById('pay-amount').value, payer: document.querySelector('input[name="payer"]:checked').value }) }); showToast("✅ 記録しました"); loadPaymentHistory(); }
+        
+        async function addPoint(to) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_point", to: to }) }); showToast("❤️ 感謝を伝えました"); loadPoints(); }
+        async function loadPoints() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_points" }) }); const data = await res.json(); document.getElementById('pt-naoki').innerText=data.naoki; document.getElementById('pt-maki').innerText=data.maki; }
     </script>
 </body>
 </html>
