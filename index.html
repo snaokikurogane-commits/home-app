@@ -43,8 +43,8 @@
         .photo-card { background: white; border-radius: 10px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .photo-img { width: 100%; height: 200px; object-fit: cover; }
         .photo-meta { padding: 10px; }
-        .photo-date { font-size: 12px; color: #888; }
-        .photo-memo { font-weight: bold; color: #333; margin-top: 5px; }
+        .photo-date { font-size: 12px; color: #888; font-weight: normal; margin-bottom: 3px; }
+        .photo-memo { font-weight: bold; color: #333; }
         #upload-status, #memory-upload-status { text-align:center; color:#56AB91; font-weight:bold; margin:10px 0; }
         .point-box { display: flex; justify-content: space-around; margin-top: 20px; }
         .point-card { text-align: center; width: 45%; padding: 15px; background: #f8f9fa; border-radius: 12px; border: 1px solid #eee; }
@@ -312,8 +312,10 @@
     <div id="toast"></div>
 
     <script>
-        // ★★★ 最新のGASウェブアプリURLに書き換えてください ★★★
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxQQPrl4EoPwhRrBodailYB-qWKn62jcp5eUQiQEi4RFs4tEV6tirHrhhGXwgpKKefj/exec";
+        // ==============================================================
+        // ★★★ 下のURLを、新しくデプロイして発行された最新URLに貼り替えてください ★★★
+        // ==============================================================
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxxIYRzwt1FQqMr6TsNWzHveA3UXFoUm94QMm5vI0IPnQYiu44GpsFNxMsG7mXqcKXx/exec";
 
         let myChart = null;
 
@@ -362,80 +364,74 @@
                 makiGoal: document.getElementById('g-maki').value
             };
             try {
-                await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+                const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+                if (!res.ok) throw new Error("Network response was not ok");
                 showToast("✅ 記録完了！");
                 loadWeightData();
-            } catch (e) { showToast("❌ 通信エラー"); }
-            finally { btn.disabled = false; btn.innerText = "✅ 記録"; }
+            } catch (e) { 
+                showToast("❌ 通信エラー"); 
+                console.error(e);
+            } finally { 
+                btn.disabled = false; btn.innerText = "✅ 記録"; 
+            }
         }
 
         async function loadWeightData() {
             try {
                 const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_weight_data" }) });
                 const data = await res.json();
+                
+                if(data.latestNaokiGoal) document.getElementById('g-naoki').value = data.latestNaokiGoal;
+                if(data.latestMakiGoal) document.getElementById('g-maki').value = data.latestMakiGoal;
+
                 if (!data.items || data.items.length === 0) return;
                 const latest = data.items[data.items.length - 1];
 
-                if(latest.naoki) document.getElementById('w-naoki').value = latest.naoki;
-                if(latest.maki) document.getElementById('w-maki').value = latest.maki;
-                if(latest.naokiGoal) {
-                    document.getElementById('g-naoki').value = latest.naokiGoal;
-                    if(latest.naoki) document.getElementById('diff-naoki').innerText = `あと ${(latest.naoki - latest.naokiGoal).toFixed(1)}kg`;
+                if(latest.naoki) {
+                    document.getElementById('w-naoki').value = latest.naoki;
+                    const gn = document.getElementById('g-naoki').value;
+                    if(gn) document.getElementById('diff-naoki').innerText = `あと ${(latest.naoki - gn).toFixed(1)}kg`;
                 }
-                if(latest.makiGoal) {
-                    document.getElementById('g-maki').value = latest.makiGoal;
-                    if(latest.maki) document.getElementById('diff-maki').innerText = `あと ${(latest.maki - latest.makiGoal).toFixed(1)}kg`;
+                if(latest.maki) {
+                    document.getElementById('w-maki').value = latest.maki;
+                    const gm = document.getElementById('g-maki').value;
+                    if(gm) document.getElementById('diff-maki').innerText = `あと ${(latest.maki - gm).toFixed(1)}kg`;
                 }
                 drawChart(data.items);
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("データ取得エラー:", e); }
         }
 
         function drawChart(items) {
             const ctx = document.getElementById('weightChart').getContext('2d');
             if(myChart) myChart.destroy();
+            const gN = document.getElementById('g-naoki').value;
+            const gM = document.getElementById('g-maki').value;
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: items.map(i => i.date),
                     datasets: [
                         { label: '尚輝', data: items.map(i => i.naoki), borderColor: '#5ab48e', tension: 0.3, spanGaps: true },
-                        { label: '真輝', data: items.map(i => i.maki), borderColor: '#F2C94C', tension: 0.3, spanGaps: true }
+                        { label: '尚輝目標', data: items.map(() => gN ? Number(gN) : null), borderColor: '#5ab48e', borderDash: [5, 5], pointRadius: 0, fill: false },
+                        { label: '真輝', data: items.map(i => i.maki), borderColor: '#F2C94C', tension: 0.3, spanGaps: true },
+                        { label: '真輝目標', data: items.map(() => gM ? Number(gM) : null), borderColor: '#F2C94C', borderDash: [5, 5], pointRadius: 0, fill: false }
                     ]
                 },
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { 
-                        x: { ticks: { maxTicksLimit: 7 } },
-                        y: { min: 40, max: 80 } 
-                    }
+                    scales: { x: { ticks: { maxTicksLimit: 7 } }, y: { min: 40, max: 80 } }
                 }
             });
         }
 
-        // --- その他機能の復元 ---
+        // --- その他機能 ---
         let currentOwner = 'common';
         function selectOwner(o) { currentOwner = o; document.querySelectorAll('.owner-btn').forEach(b => b.classList.remove('active')); document.querySelector(`[data-owner="${o}"]`).classList.add('active'); }
-        async function submitEvent() {
-            const name = document.getElementById('event-name').value;
-            const start = document.getElementById('event-start-date').value;
-            if (!name || !start) return showToast("⚠️ 入力不足");
-            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_event", name, startDate: start, endDate: document.getElementById('event-end-date').value, owner: currentOwner }) });
-            showToast("✅ 登録！"); loadSchedules();
-        }
-        async function loadSchedules() {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_schedules" }) });
-            const data = await res.json();
-            const ul = document.getElementById('schedule-ul'); ul.innerHTML = "";
-            (data.items || []).forEach(e => {
-                const li = document.createElement('li');
-                let icon = e.owner === "naoki" ? "🐢" : e.owner === "maki" ? "🧸" : "🏠";
-                li.innerHTML = `<span>${icon} ${e.name}</span>`;
-                ul.appendChild(li);
-            });
-        }
-
+        async function submitEvent() { const name = document.getElementById('event-name').value; const start = document.getElementById('event-start-date').value; if (!name || !start) return showToast("⚠️ 入力不足"); await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_event", name, startDate: start, endDate: document.getElementById('event-end-date').value, owner: currentOwner }) }); showToast("✅ 登録！"); loadSchedules(); }
+        async function loadSchedules() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_schedules" }) }); const data = await res.json(); const ul = document.getElementById('schedule-ul'); ul.innerHTML = ""; (data.items || []).forEach(e => { const li = document.createElement('li'); let icon = e.owner === "naoki" ? "🐢" : e.owner === "maki" ? "🧸" : "🏠"; li.innerHTML = `<span>${icon} ${e.name}</span>`; ul.appendChild(li); }); }
+        
         function quickReturn(who, mode) { fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "quick_return", owner: who, mode }) }); showToast("🚀 送信完了"); }
         
         let selectedCategory = "";
@@ -451,15 +447,32 @@
         async function loadMenu() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_menu" }) }); const data = await res.json(); if(data.menu) { ['mon','tue','wed','thu','fri','sat','sun'].forEach(d => document.getElementById('menu-'+d).value = data.menu[d] || ""); } }
         async function submitMenu() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_menu", mon: document.getElementById('menu-mon').value, tue: document.getElementById('menu-tue').value, wed: document.getElementById('menu-wed').value, thu: document.getElementById('menu-thu').value, fri: document.getElementById('menu-fri').value, sat: document.getElementById('menu-sat').value, sun: document.getElementById('menu-sun').value }) }); showToast("✅ 保存完了"); }
         
-        async function loadPhotos() { const res = await fetch(GAS_URL, { method:"POST", body:JSON.stringify({ type:"web_app", action:"get_photos" }) }); const data = await res.json(); document.getElementById('photo-gallery').innerHTML = data.items.map(p => `<div class="photo-card"><img src="${p.url}" class="photo-img"><div class="photo-meta">${p.memo}</div></div>`).join(''); }
-        async function loadMemories() { const res = await fetch(GAS_URL, { method:"POST", body:JSON.stringify({ type:"web_app", action:"get_memories" }) }); const data = await res.json(); document.getElementById('memory-gallery').innerHTML = data.items.map(p => `<div class="photo-card"><img src="${p.url}" class="photo-img"><div class="photo-meta">${p.memo}</div></div>`).join(''); }
+        function renderPhotos(photos, targetId) { 
+            const gal = document.getElementById(targetId); 
+            gal.innerHTML = ""; 
+            if(photos.length === 0) return gal.innerHTML = "<p style='color:#999;text-align:center;'>写真がありません</p>"; 
+            photos.forEach(p => { 
+                const d = new Date(p.date); 
+                const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+                gal.innerHTML += `<div class="photo-card"><img src="${p.url}" class="photo-img" loading="lazy"><div class="photo-meta"><div class="photo-date">${dateStr}</div><div class="photo-memo">${p.memo}</div></div></div>`; 
+            }); 
+        }
+        let selectedFileBase64 = null;
+        function handleFileSelect(input) { const file = input.files[0]; if(!file) return; document.getElementById('upload-status').innerText = "圧縮中..."; const reader = new FileReader(); reader.onload = e => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const MAX = 800; let w = img.width, h = img.height; if (w>h) { if(w>MAX){ h*=MAX/w; w=MAX; } } else { if(h>MAX){ w*=MAX/h; h=MAX; } } canvas.width=w; canvas.height=h; ctx.drawImage(img,0,0,w,h); selectedFileBase64 = canvas.toDataURL("image/jpeg",0.7).split(',')[1]; document.getElementById('upload-status').innerText="準備完了！"; }; img.src=e.target.result; }; reader.readAsDataURL(file); }
+        async function uploadPhoto() { if(!selectedFileBase64) return alert("写真を選択してください"); document.getElementById('upload-status').innerText="📤 保存中..."; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "upload_photo", image: selectedFileBase64, memo: document.getElementById('photo-memo').value, owner: document.querySelector('input[name="photo-owner"]:checked').value }) }); showToast("✅ 保存しました！"); document.getElementById('upload-status').innerText=""; document.getElementById('photo-memo').value=""; selectedFileBase64=null; loadPhotos(); }
+        async function loadPhotos() { const res = await fetch(GAS_URL, { method:"POST", body:JSON.stringify({ type:"web_app", action:"get_photos" }) }); const data = await res.json(); renderPhotos(data.items || [], 'photo-gallery'); }
         
-        async function submitAnger() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_anger", item: document.getElementById('angry-item').value, owner: "maki" }) }); showToast("✅ 送信しました"); }
-        async function submitBucket() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_bucket", item: document.getElementById('bucket-item').value, owner: document.querySelector('input[name="bucket-owner"]:checked').value, limit: document.getElementById('bucket-limit').value, rank: document.getElementById('bucket-rank').value }) }); showToast("✅ 追加しました"); loadBucketList(); }
+        let selectedMemoryBase64 = null;
+        function handleMemoryFileSelect(input) { const file = input.files[0]; if(!file) return; document.getElementById('memory-upload-status').innerText = "圧縮中..."; const reader = new FileReader(); reader.onload = e => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const MAX = 800; let w = img.width, h = img.height; if (w>h) { if(w>MAX){ h*=MAX/w; w=MAX; } } else { if(h>MAX){ w*=MAX/h; h=MAX; } } canvas.width=w; canvas.height=h; ctx.drawImage(img,0,0,w,h); selectedMemoryBase64 = canvas.toDataURL("image/jpeg",0.7).split(',')[1]; document.getElementById('memory-upload-status').innerText="準備完了！"; }; img.src=e.target.result; }; reader.readAsDataURL(file); }
+        async function uploadMemory() { if(!selectedMemoryBase64) return alert("写真を選択してください"); document.getElementById('memory-upload-status').innerText="📤 保存中..."; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "upload_memory", image: selectedMemoryBase64, memo: document.getElementById('memory-memo').value }) }); showToast("✅ 保存しました！"); document.getElementById('memory-upload-status').innerText=""; document.getElementById('memory-memo').value=""; selectedMemoryBase64=null; loadMemories(); }
+        async function loadMemories() { const res = await fetch(GAS_URL, { method:"POST", body:JSON.stringify({ type:"web_app", action:"get_memories" }) }); const data = await res.json(); renderPhotos(data.items || [], 'memory-gallery'); }
+        
+        async function submitAnger() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_anger", item: document.getElementById('angry-item').value, owner: "maki" }) }); showToast("✅ 送信しました"); document.getElementById('angry-item').value=""; }
+        async function submitBucket() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_bucket", item: document.getElementById('bucket-item').value, owner: document.querySelector('input[name="bucket-owner"]:checked').value, limit: document.getElementById('bucket-limit').value, rank: document.getElementById('bucket-rank').value }) }); showToast("✅ 追加しました"); document.getElementById('bucket-item').value=""; loadBucketList(); }
         async function loadBucketList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_bucket_list" }) }); const data = await res.json(); document.getElementById('bucket-ul').innerHTML = data.items.map(b => `<li>${b.item} (${b.rank})</li>`).join(''); }
         
         async function loadPaymentHistory() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_payment_history" }) }); const data = await res.json(); document.getElementById('pay-history').innerHTML = data.items.map(h => `<div class="history-item">${h.payer} ${h.amount}円 (${h.item})</div>`).join(''); }
-        async function submitPayment() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_payment", item: document.getElementById('pay-item').value, amount: document.getElementById('pay-amount').value, payer: document.querySelector('input[name="payer"]:checked').value }) }); showToast("✅ 記録しました"); loadPaymentHistory(); }
+        async function submitPayment() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_payment", item: document.getElementById('pay-item').value, amount: document.getElementById('pay-amount').value, payer: document.querySelector('input[name="payer"]:checked').value }) }); showToast("✅ 記録しました"); document.getElementById('pay-item').value=""; document.getElementById('pay-amount').value=""; loadPaymentHistory(); }
         
         async function addPoint(to) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_point", to: to }) }); showToast("❤️ 感謝を伝えました"); loadPoints(); }
         async function loadPoints() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_points" }) }); const data = await res.json(); document.getElementById('pt-naoki').innerText=data.naoki; document.getElementById('pt-maki').innerText=data.maki; }
