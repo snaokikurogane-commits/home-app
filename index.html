@@ -58,6 +58,8 @@
         #toast { visibility: hidden; min-width: 200px; background: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 2000; left: 50%; bottom: 80px; transform: translateX(-50%); opacity: 0; transition: 0.3s; }
         #toast.show { visibility: visible; opacity: 1; }
     </style>
+    <link rel="stylesheet" href="household.css">
+<script>if(new URLSearchParams(location.search).get("demo")==="1"){window.fetch=async function(){throw new Error("操作見本では外部への送信はできません。");};}</script>
 </head>
 <body>
 
@@ -118,36 +120,74 @@
     </div>
 
     <div id="tab-money" class="container">
-        <div class="box">
-            <h3>💰 瞬間・家計簿</h3>
-            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                <input type="datetime-local" id="quick-date" style="flex: 2;">
-                <div class="radio-group" style="flex: 1; margin: 0;">
-                    <input type="radio" name="quick-type" id="t-exp" value="支出" checked><label for="t-exp" class="radio-label">支出</label>
-                    <input type="radio" name="quick-type" id="t-inc" value="収入"><label for="t-inc" class="radio-label">収入</label>
-                </div>
-            </div>
-            <input type="text" id="quick-amount" placeholder="金額（円）" inputmode="numeric" style="font-size:20px; text-align:center; padding: 15px;">
-            <input type="text" id="quick-store" placeholder="店名 (任意)" style="text-align:center;">
-            <div class="radio-group">
-                <input type="radio" name="quick-owner" id="q-naoki" value="尚輝" checked><label for="q-naoki" class="radio-label">🐢尚輝</label>
-                <input type="radio" name="quick-owner" id="q-maki" value="真輝"><label for="q-maki" class="radio-label">🧸真輝</label>
-                <input type="radio" name="quick-owner" id="q-joint" value="共同"><label for="q-joint" class="radio-label">🏠共同</label>
-            </div>
-            <div class="radio-group">
-                <input type="radio" name="quick-method" id="m-cash" value="現金" checked><label for="m-cash" class="radio-label">💴現金</label>
-                <input type="radio" name="quick-method" id="m-card" value="クレジットカード"><label for="m-card" class="radio-label">💳カード</label>
-            </div>
-            <label style="font-size:12px; color:#666; margin-top:10px; display:block;">カテゴリを選択</label>
-            <div class="category-grid">
-                <button class="cat-btn" id="cat-food" onclick="selectCategory('食費', this)">🍔 食費</button>
-                <button class="cat-btn" id="cat-daily" onclick="selectCategory('日用品', this)">🧻 日用品</button>
-                <button class="cat-btn" id="cat-out" onclick="selectCategory('外食', this)">🍻 外食</button>
-                <button class="cat-btn" id="cat-other" onclick="selectCategory('その他', this)">💳 その他</button>
-            </div>
-            <button class="btn-green" style="margin-top:20px; font-size:18px;" onclick="submitQuickExpense()">✅ 記録する</button>
-        </div>
+      <div class="box hh-box">
+        <div class="hh-header"><h3>共同家計簿</h3><span class="hh-pill">愛媛銀行・共同</span></div>
+        <p class="hh-note">使った日で家計を集計し、引き落とし日は支払予定で確認できます。</p>
+        <div id="hh-demo" class="hh-demo" hidden>操作見本です。表示は架空の金額で、保存はできません。</div>
+        <details id="hh-connection"><summary>接続設定</summary>
+          <label class="hh-full">家計簿の接続キー<input id="hh-key" type="password" autocomplete="off"></label>
+          <p class="hh-note">このタブを開いている間だけ保存します。共有端末では使い終わったらタブを閉じてください。</p>
+          <button id="hh-connect" type="button">接続する</button>
+        </details>
+        <div class="hh-header"><label>集計月 <input type="month" id="hh-month"></label><button type="button" id="hh-refresh" style="width:auto">更新</button></div>
+        <div class="hh-kpis"><div class="hh-kpi">支出（返金差引）<strong id="hh-expense">—</strong></div><div class="hh-kpi">収入<strong id="hh-income">—</strong></div><div class="hh-kpi">収支差額<strong id="hh-balance">—</strong></div></div>
+        <p id="hh-coverage" class="hh-note">まだ読み込んでいません。集計額は口座残高とは異なります。</p>
+        <h4>費目別の支出</h4><div id="hh-categories" class="hh-chart"></div>
+        <details><summary>過去6か月の支出</summary><div id="hh-trends" class="hh-chart"></div></details>
+        <details><summary>記録済みの明細</summary><div id="hh-transactions" class="hh-scroll"></div></details>
+        <details><summary>集計から除いた要確認データ</summary><ul id="hh-issues"></ul></details>
+      </div>
+      <div class="box hh-box">
+        <h3>使ったお金を記録</h3>
+        <p class="hh-note">カード明細を取り込む場合、同じ買い物をここで重ねて入力する必要はありません。</p>
+        <form id="hh-entry">
+          <div class="hh-grid">
+            <label>利用日<input id="hh-date" type="date" required></label>
+            <label>収支区分<select id="hh-kind"><option>支出</option><option>収入</option><option>返金</option></select></label>
+            <label>金額（円）<input id="hh-amount" type="text" inputmode="numeric" placeholder="例：1,280" required></label>
+            <label>費目<select id="hh-category"><option>食費</option><option>日用雑貨</option><option>外食</option><option>家賃</option><option>水道代</option><option>電気代</option><option>通信費</option><option>交通費</option><option>医療費</option><option>娯楽</option><option>給与</option><option>支出その他</option><option>収入その他</option><option>未分類</option></select></label>
+            <label>支払方法<select id="hh-method"><option>現金</option><option>クレジットカード</option><option>口座振替</option><option>銀行振込</option></select></label>
+            <label>共同カード<select id="hh-card" disabled><option>楽天（共同）</option><option>Amazon（共同）</option><option>PayPay（共同）</option></select></label>
+          </div>
+          <label class="hh-full">店舗・支払先<input id="hh-merchant" maxlength="200" placeholder="例：スーパー、オクトパスエナジー"></label>
+          <label class="hh-full">商品・内容（任意）<input id="hh-item" maxlength="500"></label>
+          <label class="hh-full">補足（任意）<input id="hh-note" maxlength="500"></label>
+          <button class="btn-green" id="hh-save" type="submit">共同家計に記録する</button>
+          <p id="hh-save-status" class="hh-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+      <div class="box hh-box">
+        <h3>共同カードの明細取込</h3>
+        <p class="hh-note">2025年12月22日以降の利用日が対象です。まず照合し、登録済みの候補を確認してから追加します。</p>
+        <details><summary>対応している明細</summary><p class="hh-note">楽天・Amazonマスター・PayPayカードのCSVを直接読み込めます。UTF-8とShift-JISに対応しています。費目は店名による候補を表示し、取込前に修正できます。分割・リボ・手数料・調整額のある明細とPDFは個別の確認が必要です。同じ明細を再取込するときは、明細IDと行IDを変えないでください。</p><a class="hh-link" href="statement-template.csv" download>共通CSVの見出しをダウンロード</a></details>
+        <div class="hh-grid"><label>共同カード<select id="hh-import-card"><option>楽天（共同）</option><option>Amazon（共同）</option><option>PayPay（共同）</option></select></label><label>明細ID<input id="hh-source-id" placeholder="例：2026年1月請求分" maxlength="180"></label></div>
+        <label class="hh-full">カード明細のCSV<input id="hh-file" type="file" accept=".csv,text/csv"></label>
+        <button type="button" id="hh-preview">取込前に照合する</button>
+        <p id="hh-import-status" class="hh-status" role="status"></p>
+        <button type="button" id="hh-claim-to-payment" hidden>明細の支払欄合計を予定の入力欄へ</button>
+        <div id="hh-import-table" class="hh-scroll"></div>
+        <label class="hh-check"><input id="hh-import-checked" type="checkbox">照合候補を確認し、同じ買い物を重ねて追加しないことを確認しました。</label>
+        <button class="btn-green" type="button" id="hh-commit" disabled>選んだ明細を取り込む</button>
+      </div>
+      <div class="box hh-box">
+        <h3>口座からの支払予定</h3>
+        <p class="hh-note">選択した月の予定です。ここへの登録は支出に加算されません。楽天の請求額には通信費を含めて登録します。</p>
+        <p id="hh-payment-total" class="hh-note">まだ読み込んでいません。</p>
+        <div id="hh-payments" class="hh-scroll"></div>
+        <details id="hh-payment-editor"><summary>予定を追加・修正</summary>
+          <form id="hh-payment-form"><input id="hh-payment-id" type="hidden">
+            <div class="hh-grid"><label>引き落とし予定日<input id="hh-payment-date" type="date" required></label><label>状態<select id="hh-payment-status"><option>見込み</option><option>確定</option><option>支払済</option></select></label>
+              <label>項目<select id="hh-payment-name"><option>家賃</option><option>水道代</option><option>電気代</option><option>楽天（共同）</option><option>Amazon（共同）</option><option>PayPay（共同）</option><option>その他</option></select></label><label>金額（円）<input id="hh-payment-amount" type="text" inputmode="numeric" value="69125" required></label></div>
+            <label class="hh-full">補足<input id="hh-payment-note" maxlength="500" placeholder="請求書で確認済み、概算など"></label>
+            <p class="hh-note">家賃は月69,125円。水道代は隔月6,000～7,000円が目安です。日付や金額が未確定なら「見込み」で登録してください。</p>
+            <div class="hh-actions"><button type="submit" id="hh-payment-save">予定を保存</button><button type="button" id="hh-payment-new">新しい予定に切り替え</button></div>
+            <p id="hh-payment-message" class="hh-status" role="status"></p>
+          </form>
+        </details>
+      </div>
+      <p id="hh-status" class="hh-status" role="status" aria-live="polite"></p>
     </div>
+
 
     <div id="tab-scan" class="container">
         <div class="box">
@@ -436,7 +476,6 @@
         
         let selectedCategory = "";
         function selectCategory(cat, btn) { selectedCategory = cat; document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active-cat')); btn.classList.add('active-cat'); }
-        async function submitQuickExpense() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "quick_expense", date: document.getElementById('quick-date').value, type: document.querySelector('input[name="quick-type"]:checked').value, amount: document.getElementById('quick-amount').value, category: selectedCategory, payer: document.querySelector('input[name="quick-owner"]:checked').value, method: document.querySelector('input[name="quick-method"]:checked').value, store: document.getElementById('quick-store').value }) }); showToast("✅ 記録完了"); }
         
         async function loadPriceList() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_price_list" }) }); const data = await res.json(); document.getElementById('price-list').innerHTML = data.items.map(p => `<div class="price-item">${p.item} - ${p.price}円</div>`).join(''); }
         async function submitPrice() { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "register_price", item: document.getElementById('item').value, price: document.getElementById('price').value, weight: document.getElementById('weight').value, store: document.getElementById('store').value }) }); showToast("✅ 登録完了"); }
@@ -477,5 +516,9 @@
         async function addPoint(to) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_point", to: to }) }); showToast("❤️ 感謝を伝えました"); loadPoints(); }
         async function loadPoints() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_points" }) }); const data = await res.json(); document.getElementById('pt-naoki').innerText=data.naoki; document.getElementById('pt-maki').innerText=data.maki; }
     </script>
+    <script src="household-rules.js"></script>
+    <script src="household-core.js"></script>
+    <script src="card-csv.js"></script>
+    <script src="household.js"></script>
 </body>
 </html>
