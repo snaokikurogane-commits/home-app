@@ -24,6 +24,7 @@ var CardCsv = (function () {
     if(/^ドラ[ッツ]グストアモリ|^レデ[ィイ](?:薬局|ヤ[ッツ]キ[ョヨ]ク)/.test(merchant))return '日用雑貨';
     if(/ニツトウシヨクセン|ギヨウムス-パ-|ギョウムス-パ-|マツクスバリユ/.test(s))return '食費';
     if(/太陽石油|イデミツ|シンイデミツ/.test(s))return '交通費';
+    if(/^コスモ(?:石油|セキユ)|^(?:国道九四フェリー|コクドウキ[ュユ]ウシフ[ェエ]リ[ー-])$/.test(merchant))return '交通費';
     return '未分類';
   }
   function parse(text,filename,selectedCard){
