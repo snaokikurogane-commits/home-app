@@ -6,12 +6,15 @@ var CardCsv = (function () {
   function date(s){const m=/^(20\d{2})\/(\d{1,2})\/(\d{1,2})$/.exec(normalize(s));if(!m)throw Error('利用日を読み取れません。');return HouseholdCore.date(m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0'));}
   function category(store){
     const s=normalize(store).replace(/\s/g,'').toUpperCase();
+    const merchant=s.replace(/^(?:VISA|JCB)(?:国内|海外)利用(?:VS|QP)?/,'');
     // Defaults agreed for this joint household; the merchant may differ from the card.
     if(/AMAZON|アマゾン/.test(s))return '日用雑貨';
     if(/YAHOO[!！]?ショッピング|ヤフーショッピング/.test(s))return '食費';
     if(/GMOとくとくBB/i.test(s))return '通信費';
     if(/マクドナルド|ハマズシ|リンガ-ハツト|リンガーハット|ホツトモツト|ゴンチ[ャヤ]|スシロ[ー-]|モスバ[ー-]ガ[ー-]|ナカウ|なか卯|テンドンテンヤ|天丼てんや|ヤキニク|焼肉/.test(s))return '外食';
-    if(/ニツトウシヨクセン|ギヨウムス-パ-|ギョウムス-パ-|マツクスバリユ|フジマツエテン/.test(s))return '食費';
+    if(/^フジ(?:マツエテン)?$|^セブンスタ[ー-]/.test(merchant))return '食費';
+    if(/^ドラ[ッツ]グストアモリ|^レデ[ィイ](?:薬局|ヤ[ッツ]キ[ョヨ]ク)/.test(merchant))return '日用雑貨';
+    if(/ニツトウシヨクセン|ギヨウムス-パ-|ギョウムス-パ-|マツクスバリユ/.test(s))return '食費';
     if(/太陽石油|イデミツ|シンイデミツ/.test(s))return '交通費';
     return '未分類';
   }
