@@ -13,6 +13,7 @@ var CardCsv = (function () {
     if(/GMOとくとくBB/i.test(s))return '通信費';
     if(/^(?:ロ[ー-]ソン|LAWSON)(?!チケ|TICKET|銀行|BANK)|^フ[ァア]ミリ[ー-]マ[ー-]ト|^セブン[・ー-]?イレブン|^(?:COKEON(?:PAY)?|コ[ー-]クオン(?:ペイ)?)(?:\/APPLEPAY?)?$/.test(merchant))return '食費';
     if(/^テンテンマル(?:イヨマサキテン)?$/.test(merchant))return '外食';
+    if(/^(?:カルビ(?:ヤダイフク|屋大福)|タイシ[ュユ]ウサカバマルハチ|大衆酒場まるはち|(?:ビ[ッツ]クリ|びっくり)ドンキ[ー-]|ホネ[ッツ]キドリツボヤ|骨付鳥つぼや|フ[ー-]ドコ[ー-]ト|ミスタ[ー-]ド[ー-]ナ[ッツ]|シ[ャヤ]トレ[ー-]ゼ)/.test(merchant))return '外食';
     if(/^(?:ニトリ|NITORI)(?:$|.*(?:店|テン)$|\/NFC$)|^(?:無印良品|ムジルシリ[ョヨ]ウヒン)/.test(merchant))return '日用雑貨';
     if(/^(?:(?:ザ[・･]?)?ダイソ[ー-]|セリア|キ[ャヤ]ンド[ゥウ]|デ[ィイ][ー-]シ[ー-]エム\(?キ[ャヤ]ンド[ゥウ])/.test(merchant))return '日用雑貨';
     if(/^(?:ANA(?:WEB)?|エ[ー-]エヌエ[ー-]ウ[ェエ]ブ|リムジンバス(?:ウ[ェエ]ブ)?|NIPPONRENTACAR(?:\/TA)?|HONOLULUHOLOCARD)$/.test(merchant))return '交通費';
