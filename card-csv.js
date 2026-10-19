@@ -14,13 +14,13 @@ var CardCsv = (function () {
     if(/^(?:ロ[ー-]ソン|LAWSON)(?!チケ|TICKET|銀行|BANK)|^フ[ァア]ミリ[ー-]マ[ー-]ト|^セブン[・ー-]?イレブン|^(?:COKEON(?:PAY)?|コ[ー-]クオン(?:ペイ)?)(?:\/APPLEPAY?)?$/.test(merchant))return '食費';
     if(/^テンテンマル(?:イヨマサキテン)?$/.test(merchant))return '外食';
     if(/^(?:ニトリ|NITORI)(?:$|.*(?:店|テン)$|\/NFC$)|^(?:無印良品|ムジルシリ[ョヨ]ウヒン)/.test(merchant))return '日用雑貨';
-    if(/^(?:(?:ザ[・･]?)?ダイソ[ー-]|セリア|キ[ャヤ]ンド[ゥウ]|デ[ィイ][ー-]シ[ー-]エム\(キ[ャヤ]ンド[ゥウ])/.test(merchant))return '日用雑貨';
+    if(/^(?:(?:ザ[・･]?)?ダイソ[ー-]|セリア|キ[ャヤ]ンド[ゥウ]|デ[ィイ][ー-]シ[ー-]エム\(?キ[ャヤ]ンド[ゥウ])/.test(merchant))return '日用雑貨';
     if(/^(?:ANA(?:WEB)?|エ[ー-]エヌエ[ー-]ウ[ェエ]ブ|リムジンバス(?:ウ[ェエ]ブ)?|NIPPONRENTACAR(?:\/TA)?|HONOLULUHOLOCARD)$/.test(merchant))return '交通費';
     if(/^(?:AGODA(?:\.COM)?|アゴダ|WAIKIKIRESORTHOTEL|VIVEHOTELWAIKIKI|楽天トラベル国内宿泊)$/.test(merchant))return '宿泊費';
     if(/^CAPTAINBRUCE(?:利用国US)?$/.test(merchant))return '娯楽';
     if(/^ソニ[ー-](?:ソンポカイガイリ[ョヨ]コウホ(?:ケン)?|損保海外旅行保険)$/.test(merchant))return '保険料';
     if(/マクドナルド|ハマズシ|リンガ-ハツト|リンガーハット|ホツトモツト|ゴンチ[ャヤ]|スシロ[ー-]|モスバ[ー-]ガ[ー-]|ナカウ|なか卯|テンドンテンヤ|天丼てんや|ヤキニク|焼肉/.test(s))return '外食';
-    if(/^フジ(?:マツエテン)?$|^セブンスタ[ー-]/.test(merchant))return '食費';
+    if(/^フジ(?:マツエテン|アンジ[ョヨ]ウジテン|ワケテン|グランエミフルマサキ)?$|^セブンスタ[ー-]/.test(merchant))return '食費';
     if(/^ドラ[ッツ]グストアモリ|^レデ[ィイ](?:薬局|ヤ[ッツ]キ[ョヨ]ク)/.test(merchant))return '日用雑貨';
     if(/ニツトウシヨクセン|ギヨウムス-パ-|ギョウムス-パ-|マツクスバリユ/.test(s))return '食費';
     if(/太陽石油|イデミツ|シンイデミツ/.test(s))return '交通費';
