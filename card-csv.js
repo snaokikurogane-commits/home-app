@@ -11,6 +11,7 @@ var CardCsv = (function () {
     if(/AMAZON|アマゾン/.test(s))return '日用雑貨';
     if(/YAHOO[!！]?ショッピング|ヤフーショッピング/.test(s))return '食費';
     if(/GMOとくとくBB/i.test(s))return '通信費';
+    if(/^(?:ニトリ|NITORI)(?:$|.*(?:店|テン)$|\/NFC$)|^(?:無印良品|ムジルシリ[ョヨ]ウヒン)/.test(merchant))return '日用雑貨';
     if(/^(?:(?:ザ[・･]?)?ダイソ[ー-]|セリア|キ[ャヤ]ンド[ゥウ]|デ[ィイ][ー-]シ[ー-]エム\(キ[ャヤ]ンド[ゥウ])/.test(merchant))return '日用雑貨';
     if(/^(?:ANA(?:WEB)?|エ[ー-]エヌエ[ー-]ウ[ェエ]ブ|リムジンバス(?:ウ[ェエ]ブ)?|NIPPONRENTACAR(?:\/TA)?|HONOLULUHOLOCARD)$/.test(merchant))return '交通費';
     if(/^(?:AGODA(?:\.COM)?|アゴダ|WAIKIKIRESORTHOTEL|VIVEHOTELWAIKIKI|楽天トラベル国内宿泊)$/.test(merchant))return '宿泊費';
