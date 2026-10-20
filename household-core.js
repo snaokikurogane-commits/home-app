@@ -29,6 +29,28 @@ var HHClientCore = (function () {
     if(result.status!=='success')throw Error(result.message || '保存できませんでした。');
     return result;
   }
-  return {csv,csvRows,makeRequest,send};
+  function connectionStore(session,device){
+    const name='hh.key',read=store=>{try{return (store.getItem(name)||'').trim();}catch(e){return '';}};
+    const remove=store=>{try{store.removeItem(name);}catch(e){if(read(store))throw e;}};
+    let active=read(session)||read(device),remember=!!active && read(device)===active;
+    return {
+      key:()=>active,remembered:()=>remember,
+      async connect(value,keep,verify){
+        const key=String(value||'').trim();if(!key)throw Error('接続キーを入力してください。');
+        const result=await verify(key),target=keep?device:session,other=keep?session:device,prior=read(target);
+        try{target.setItem(name,key);remove(other);}
+        catch(e){try{if(prior)target.setItem(name,prior);else target.removeItem(name);}catch(ignored){}throw Error('接続キーを保存できません。「今回だけ」を選ぶか、ブラウザーの保存設定をご確認ください。');}
+        active=key;remember=!!keep;return result;
+      },
+      disconnect(){try{remove(session);remove(device);}catch(e){throw Error('保存したキーを解除できません。ブラウザーの保存設定をご確認ください。');}active='';remember=false;}
+    };
+  }
+  function dashboardOverview(data,month){
+    const date=new Date(month+'-01T00:00:00Z');date.setUTCMonth(date.getUTCMonth()-1);
+    const previous=(data.trends||[]).find(r=>r.month===date.toISOString().slice(0,7));
+    const payments=(data.payments||[]).filter(p=>p.date.slice(0,7)===month && ['確定','見込み'].includes(p.status));
+    return {difference:previous?data.summary.expense-previous.expense:null,unpaid:payments.reduce((n,p)=>n+p.amount,0),estimated:payments.filter(p=>p.status==='見込み').reduce((n,p)=>n+p.amount,0)};
+  }
+  return {csv,csvRows,makeRequest,send,connectionStore,dashboardOverview};
 })();
 if(typeof module!=='undefined')module.exports=HHClientCore;

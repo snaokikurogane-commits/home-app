@@ -83,7 +83,7 @@ var CardCsv = (function () {
     if(format==='Amazon'&&(footerTotal===null||footerTotal!==paymentTotal))throw Error('Amazon明細の利用合計と末尾の合計が一致しません。');
     if(paymentDates.size>1)throw Error('引き落とし日が複数あるCSVは分けてください。');
     if(format==='楽天' && monthMatch && Number(header[payColumn].match(/^\d+/)[0])!==Number(monthMatch[2]))throw Error('ファイル名の月と支払金額の月が違います。');
-    warnings.push('費目は店名による候補です。Amazonなど商品が分からない利用先は未分類です。');
+    warnings.push('費目は店舗ルールによる候補です。購入内容が異なるときは、取込前に修正してください。');
     if(!sourceId)warnings.push('ファイル名から請求月を読み取れません。明細IDを入力してください。');
     return {format,card,rows,warnings,paymentTotal,paymentDate:[...paymentDates][0]||'',sourceId,categorySuggestions:true};
   }

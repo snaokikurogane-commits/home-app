@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>山西町ライフ</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -58,7 +58,7 @@
         #toast { visibility: hidden; min-width: 200px; background: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 2000; left: 50%; bottom: 80px; transform: translateX(-50%); opacity: 0; transition: 0.3s; }
         #toast.show { visibility: visible; opacity: 1; }
     </style>
-    <link rel="stylesheet" href="household.css?v=20261019-mobile">
+    <link rel="stylesheet" href="household.css?v=899dd95e5a9f">
 <script>if(new URLSearchParams(location.search).get("demo")==="1"){window.fetch=async function(){throw new Error("操作見本では外部への送信はできません。");};}</script>
 </head>
 <body>
@@ -120,74 +120,63 @@
     </div>
 
     <div id="tab-money" class="container">
-      <div class="box hh-box">
-        <div class="hh-header"><h3>共同家計簿</h3><span class="hh-pill">愛媛銀行・共同</span></div>
-        <p class="hh-note">使った日で家計を集計し、引き落とし日は支払予定で確認できます。</p>
-        <div id="hh-demo" class="hh-demo" hidden>操作見本です。表示は架空の金額で、保存はできません。</div>
-        <details id="hh-connection"><summary>接続設定</summary>
-          <label class="hh-full">家計簿の接続キー<input id="hh-key" type="password" autocomplete="off"></label>
-          <p class="hh-note">このタブを開いている間だけ保存します。共有端末では使い終わったらタブを閉じてください。</p>
-          <button id="hh-connect" type="button">接続する</button>
-        </details>
-        <div class="hh-header"><label>集計月 <input type="month" id="hh-month"></label><button type="button" id="hh-refresh" style="width:auto">更新</button></div>
-        <div class="hh-kpis"><div class="hh-kpi">支出（返金差引）<strong id="hh-expense">—</strong></div><div class="hh-kpi">収入<strong id="hh-income">—</strong></div><div class="hh-kpi">収支差額<strong id="hh-balance">—</strong></div></div>
-        <p id="hh-coverage" class="hh-note">まだ読み込んでいません。集計額は口座残高とは異なります。</p>
-        <h4>費目別の支出</h4><div id="hh-categories" class="hh-chart"></div>
-        <details><summary>過去6か月の支出</summary><div id="hh-trends" class="hh-chart"></div></details>
-        <details><summary>記録済みの明細</summary><div id="hh-transactions" class="hh-scroll"></div></details>
-        <details><summary>集計から除いた要確認データ</summary><ul id="hh-issues"></ul></details>
-      </div>
-      <div class="box hh-box">
-        <h3>使ったお金を記録</h3>
-        <p class="hh-note">カード明細を取り込む場合、同じ買い物をここで重ねて入力する必要はありません。</p>
-        <form id="hh-entry">
-          <div class="hh-grid">
-            <label>利用日<input id="hh-date" type="date" required></label>
-            <label>収支区分<select id="hh-kind"><option>支出</option><option>収入</option><option>返金</option></select></label>
-            <label>金額（円）<input id="hh-amount" type="text" inputmode="numeric" placeholder="例：1,280" required></label>
-            <label>費目<select id="hh-category"><option>食費</option><option>日用雑貨</option><option>外食</option><option>家賃</option><option>水道代</option><option>電気代</option><option>通信費</option><option>交通費</option><option>宿泊費</option><option>保険料</option><option>医療費</option><option>娯楽</option><option>給与</option><option>支出その他</option><option>収入その他</option><option>未分類</option></select></label>
-            <label>支払方法<select id="hh-method"><option>現金</option><option>クレジットカード</option><option>口座振替</option><option>銀行振込</option></select></label>
-            <label>共同カード<select id="hh-card" disabled><option>楽天（共同）</option><option>Amazon（共同）</option><option>PayPay（共同）</option></select></label>
-          </div>
-          <label class="hh-full">店舗・支払先<input id="hh-merchant" maxlength="200" placeholder="例：スーパー、オクトパスエナジー"></label>
-          <label class="hh-full">商品・内容（任意）<input id="hh-item" maxlength="500"></label>
-          <label class="hh-full">補足（任意）<input id="hh-note" maxlength="500"></label>
-          <button class="btn-green" id="hh-save" type="submit">共同家計に記録する</button>
-          <p id="hh-save-status" class="hh-status" role="status" aria-live="polite"></p>
-        </form>
-      </div>
-      <div class="box hh-box">
-        <h3>共同カードの明細取込</h3>
-        <p class="hh-note">2025年12月22日以降の利用日が対象です。まず照合し、登録済みの候補を確認してから追加します。</p>
-        <details><summary>対応している明細</summary><p class="hh-note">楽天・Amazonマスター・PayPayカードのCSVを直接読み込めます。UTF-8とShift-JISに対応しています。費目は店名による候補を表示し、取込前に修正できます。分割・リボ・手数料・調整額のある明細とPDFは個別の確認が必要です。同じ明細を再取込するときは、明細IDと行IDを変えないでください。</p><a class="hh-link" href="statement-template.csv" download>共通CSVの見出しをダウンロード</a></details>
-        <div class="hh-grid"><label>共同カード<select id="hh-import-card"><option>楽天（共同）</option><option>Amazon（共同）</option><option>PayPay（共同）</option></select></label><label>明細ID<input id="hh-source-id" placeholder="例：2026年1月請求分" maxlength="180"></label></div>
-        <label class="hh-full">カード明細のCSV<input id="hh-file" type="file" accept=".csv,text/csv"></label>
-        <button type="button" id="hh-preview">取込前に照合する</button>
-        <p id="hh-import-status" class="hh-status" role="status"></p>
-        <button type="button" id="hh-claim-to-payment" hidden>明細の支払欄合計を予定の入力欄へ</button>
-        <div id="hh-import-table" class="hh-scroll"></div>
-        <label class="hh-check"><input id="hh-import-checked" type="checkbox">照合候補を確認し、同じ買い物を重ねて追加しないことを確認しました。</label>
-        <button class="btn-green" type="button" id="hh-commit" disabled>選んだ明細を取り込む</button>
-      </div>
-      <div class="box hh-box">
-        <h3>口座からの支払予定</h3>
-        <p class="hh-note">選択した月の予定です。ここへの登録は支出に加算されません。楽天の請求額には通信費を含めて登録します。</p>
-        <p id="hh-payment-total" class="hh-note">まだ読み込んでいません。</p>
-        <div id="hh-payments" class="hh-scroll"></div>
-        <details id="hh-payment-editor"><summary>予定を追加・修正</summary>
-          <form id="hh-payment-form"><input id="hh-payment-id" type="hidden">
-            <div class="hh-grid"><label>引き落とし予定日<input id="hh-payment-date" type="date" required></label><label>状態<select id="hh-payment-status"><option>見込み</option><option>確定</option><option>支払済</option></select></label>
-              <label>項目<select id="hh-payment-name"><option>家賃</option><option>水道代</option><option>電気代</option><option>楽天（共同）</option><option>Amazon（共同）</option><option>PayPay（共同）</option><option>その他</option></select></label><label>金額（円）<input id="hh-payment-amount" type="text" inputmode="numeric" value="69125" required></label></div>
-            <label class="hh-full">補足<input id="hh-payment-note" maxlength="500" placeholder="請求書で確認済み、概算など"></label>
-            <p class="hh-note">家賃は月69,125円。水道代は隔月6,000～7,000円が目安です。日付や金額が未確定なら「見込み」で登録してください。</p>
-            <div class="hh-actions"><button type="submit" id="hh-payment-save">予定を保存</button><button type="button" id="hh-payment-new">新しい予定に切り替え</button></div>
-            <p id="hh-payment-message" class="hh-status" role="status"></p>
-          </form>
-        </details>
-      </div>
+      <header class="hh-masthead">
+        <div><p class="hh-eyebrow">山西町の暮らし</p><h2>共同家計簿</h2><p class="hh-subtitle">ふたりの毎日を、少し見やすく。</p></div>
+        <svg class="hh-season-art" aria-hidden="true" viewBox="0 0 100 100"><use id="hh-season-shape" href="#life-autumn"></use></svg>
+      </header>
+      <div id="hh-demo" class="hh-demo" hidden>操作見本・架空の金額です。保存はできません。</div>
+      <div class="hh-topline"><span class="hh-pill">愛媛銀行・共同</span><button id="hh-connection-state" class="hh-text-button" type="button" data-hh-view="manage">接続設定</button></div>
+      <nav class="hh-view-tabs" aria-label="家計簿の画面" role="tablist">
+        <button type="button" id="hh-tab-overview" role="tab" aria-selected="true" aria-controls="hh-view-overview" data-hh-view="overview">見る</button>
+        <button type="button" id="hh-tab-record" role="tab" aria-selected="false" aria-controls="hh-view-record" data-hh-view="record">記録する</button>
+        <button type="button" id="hh-tab-manage" role="tab" aria-selected="false" aria-controls="hh-view-manage" data-hh-view="manage">管理する</button>
+      </nav>
+      <section class="hh-view" id="hh-view-overview" role="tabpanel" aria-labelledby="hh-tab-overview">
+        <div class="box hh-box hh-summary-box">
+          <div class="hh-month-bar"><label for="hh-month">集計月</label><input type="month" id="hh-month"><button type="button" id="hh-refresh" class="hh-icon-button" aria-label="集計を更新"><svg aria-hidden="true"><use href="#life-refresh"></use></svg></button></div>
+          <div class="hh-total"><p>記録済みの支出 <span>返金差引</span></p><strong id="hh-expense">—</strong></div>
+          <div class="hh-kpis"><div class="hh-kpi">前月との差<strong id="hh-month-diff">—</strong><small>記録済み分の比較</small></div><div class="hh-kpi">今月の引落予定<strong id="hh-upcoming">—</strong><small id="hh-upcoming-note">登録済みの未払い分</small></div></div>
+          <details class="hh-income-details"><summary>入金と収支を見る</summary><div class="hh-kpis"><div class="hh-kpi">収入<strong id="hh-income">—</strong></div><div class="hh-kpi">収支差額<strong id="hh-balance">—</strong></div></div></details>
+          <p id="hh-coverage" class="hh-note">接続すると、記録済みの共同家計を表示します。収支差額は口座残高とは異なります。</p>
+          <button type="button" id="hh-start-connect" class="hh-secondary" data-hh-view="manage">接続して家計を見る</button>
+        </div>
+        <div class="box hh-box"><div class="hh-section-heading"><h3>何に使った？</h3><span>費目別の支出</span></div><div id="hh-categories" class="hh-chart"></div><details><summary>過去6か月の推移</summary><div id="hh-trends" class="hh-chart"></div></details></div>
+        <div class="box hh-box"><div class="hh-section-heading"><h3>口座からの支払予定</h3><button type="button" class="hh-text-button" id="hh-open-payments">追加・修正</button></div><p class="hh-note">ここへの登録は、支出に重ねて加算されません。</p><p id="hh-payment-total" class="hh-note">まだ読み込んでいません。</p><div id="hh-payments" class="hh-scroll"></div></div>
+        <div class="box hh-box"><details><summary>記録済みの明細</summary><div id="hh-transactions"></div></details><details><summary>集計から除いた要確認データ</summary><ul id="hh-issues"></ul></details></div>
+      </section>
+      <section class="hh-view" id="hh-view-record" role="tabpanel" aria-labelledby="hh-tab-record" hidden>
+        <div class="box hh-box"><h3>使ったお金を記録</h3><p class="hh-note">現金など、明細にない支払いを記録します。カード明細で取り込む買い物は、重ねて入力しなくて大丈夫です。</p>
+          <form id="hh-entry"><div class="hh-grid">
+            <label>利用日<input id="hh-date" type="date" required></label><label>収支区分<select id="hh-kind"><option>支出</option><option>収入</option><option>返金</option></select></label>
+            <label>金額（円）<input id="hh-amount" type="text" inputmode="numeric" placeholder="例：1,280" required></label><label>費目<select id="hh-category"><option>食費</option><option>日用雑貨</option><option>外食</option><option>家賃</option><option>水道代</option><option>電気代</option><option>通信費</option><option>交通費</option><option>宿泊費</option><option>保険料</option><option>医療費</option><option>娯楽</option><option>給与</option><option>支出その他</option><option>収入その他</option><option>未分類</option></select></label>
+            <label>支払方法<select id="hh-method"><option>現金</option><option>クレジットカード</option><option>口座振替</option><option>銀行振込</option></select></label><label>共同カード<select id="hh-card" disabled><option>楽天（共同）</option><option>Amazon（共同）</option><option>PayPay（共同）</option></select></label>
+          </div><label class="hh-full">店舗・支払先<input id="hh-merchant" maxlength="200" placeholder="例：スーパー"></label>
+          <details><summary>商品やメモを追加（任意）</summary><label class="hh-full">商品・内容<input id="hh-item" maxlength="500"></label><label class="hh-full">補足<input id="hh-note" maxlength="500"></label></details>
+          <button class="btn-green" id="hh-save" type="submit">共同家計に記録する</button><p id="hh-save-status" class="hh-status" role="status" aria-live="polite"></p></form>
+        </div>
+      </section>
+      <section class="hh-view" id="hh-view-manage" role="tabpanel" aria-labelledby="hh-tab-manage" hidden>
+        <div class="box hh-box"><details id="hh-connection"><summary>家計簿への接続</summary>
+          <label class="hh-full">家計簿の接続キー<input id="hh-key" type="password" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
+          <label class="hh-full">接続の保存方法<select id="hh-remember"><option value="session">今回だけ</option><option value="device">この端末に記憶する</option></select></label>
+          <p class="hh-note">自分のスマホでは「この端末に記憶する」で次回の入力を省けます。共有端末では「今回だけ」を選んでください。</p>
+          <div class="hh-actions"><button id="hh-connect" type="button" class="btn-green">接続する</button><button id="hh-disconnect" type="button" class="hh-secondary" hidden>接続を解除</button></div><p id="hh-connection-message" class="hh-status" role="status"></p>
+        </details></div>
+        <div class="box hh-box"><h3>共同カードの明細取込</h3><p class="hh-note">CSVを選ぶと、登録済みの明細と照合します。2025年12月22日以降の利用日が対象です。</p>
+          <details><summary>対応している明細</summary><p class="hh-note">楽天・Amazonマスター・PayPayカードのCSVに対応。費目の候補は取込前に修正できます。分割・リボ・手数料・調整額のある明細とPDFは個別確認が必要です。同じ明細の再取込では、明細IDと行IDを変えないでください。</p><a class="hh-link" href="statement-template.csv" download>共通CSVの見出しをダウンロード</a></details>
+          <label class="hh-full">共同カード<select id="hh-import-card"><option>楽天（共同）</option><option>Amazon（共同）</option><option>PayPay（共同）</option></select></label>
+          <label class="hh-full">カード明細のCSV<input id="hh-file" type="file" accept=".csv,text/csv"></label>
+          <details><summary>明細IDを確認・変更</summary><label class="hh-full">明細ID<input id="hh-source-id" placeholder="ファイル名から請求月を読み取ります" maxlength="180"></label></details>
+          <button type="button" id="hh-preview" class="hh-secondary">取込前に照合する</button><p id="hh-import-status" class="hh-status" role="status"></p><button type="button" id="hh-claim-to-payment" class="hh-secondary" hidden>明細の支払欄合計を予定の入力欄へ</button><div id="hh-import-table" class="hh-scroll"></div>
+          <label class="hh-check"><input id="hh-import-checked" type="checkbox">照合候補を確認し、同じ買い物を重ねて追加しないことを確認しました。</label><button class="btn-green" type="button" id="hh-commit" disabled>選んだ明細を取り込む</button>
+        </div>
+        <div class="box hh-box"><details id="hh-payment-editor"><summary>支払予定を追加・修正</summary><p class="hh-note">楽天の請求額には通信費を含めます。家賃は月69,125円、水道代の見込みは隔月5,000円。未確定なら「見込み」で登録します。</p>
+          <form id="hh-payment-form"><input id="hh-payment-id" type="hidden"><div class="hh-grid"><label>引き落とし予定日<input id="hh-payment-date" type="date" required></label><label>状態<select id="hh-payment-status"><option>見込み</option><option>確定</option><option>支払済</option></select></label><label>項目<select id="hh-payment-name"><option>家賃</option><option>水道代</option><option>電気代</option><option>楽天（共同）</option><option>Amazon（共同）</option><option>PayPay（共同）</option><option>その他</option></select></label><label>金額（円）<input id="hh-payment-amount" type="text" inputmode="numeric" value="69125" required></label></div>
+          <label class="hh-full">補足<input id="hh-payment-note" maxlength="500" placeholder="請求書で確認済み、概算など"></label><div class="hh-actions"><button type="submit" id="hh-payment-save" class="btn-green">予定を保存</button><button type="button" id="hh-payment-new" class="hh-secondary">新しい予定</button></div><p id="hh-payment-message" class="hh-status" role="status"></p></form>
+        </details></div>
+      </section>
       <p id="hh-status" class="hh-status" role="status" aria-live="polite"></p>
     </div>
-
 
     <div id="tab-scan" class="container">
         <div class="box">
@@ -333,21 +322,50 @@
         </div>
     </div>
 
-    <div class="nav-bar">
-        <div class="nav-item active-tab" onclick="switchTab('return')"><span class="nav-icon">🏠</span>帰</div>
-        <div class="nav-item" onclick="switchTab('money')"><span class="nav-icon">💰</span>金</div>
-        <div class="nav-item" onclick="switchTab('scan')"><span class="nav-icon">🛒</span>底</div>
-        <div class="nav-item" onclick="switchTab('list')"><span class="nav-icon">📝</span>買</div>
-        <div class="nav-item" onclick="switchTab('menu')"><span class="nav-icon">🍳</span>献</div>
-        <div class="nav-item" onclick="switchTab('photo')"><span class="nav-icon">📸</span>食</div>
-        <div class="nav-item" onclick="switchTab('memory')"><span class="nav-icon">👫</span>思</div>
-        <div class="nav-item" onclick="switchTab('angry')"><span class="nav-icon">🧸</span>怒</div>
-        <div class="nav-item" onclick="switchTab('schedule')"><span class="nav-icon">📅</span>予</div>
-        <div class="nav-item" onclick="switchTab('weight')"><span class="nav-icon">⚖️</span>体</div>
-        <div class="nav-item" onclick="switchTab('bucket')"><span class="nav-icon">✨</span>夢</div>
-        <div class="nav-item" onclick="switchTab('pay')"><span class="nav-icon">💸</span>立</div>
-        <div class="nav-item" onclick="switchTab('love')"><span class="nav-icon">❤️</span>感</div>
+    <svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden" focusable="false"><defs>
+      <symbol id="life-wallet" viewBox="0 0 24 24"><path d="M4 6.5V5a2 2 0 0 1 2-2h12v4M4 6.5h15a1 1 0 0 1 1 1V20H6a2 2 0 0 1-2-2V6.5Z"/><path d="M20 11h-5v5h5M17 13.5h.1"/></symbol>
+      <symbol id="life-bag" viewBox="0 0 24 24"><path d="m5 7-1 14h16L19 7H5Zm3 0V5a4 4 0 0 1 8 0v2"/><path d="M8 10v1m8-1v1"/></symbol>
+      <symbol id="life-meal" viewBox="0 0 24 24"><path d="M6 3v7m-3-7v4a3 3 0 0 0 6 0V3M6 10v11m12 0V3c-4 2-5 7-3 9h3"/></symbol>
+      <symbol id="life-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-13 5h.1m4 0h.1m4 0h.1"/></symbol>
+      <symbol id="life-more" viewBox="0 0 24 24"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="15" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="15" width="6" height="6" rx="1.5"/><rect x="15" y="15" width="6" height="6" rx="1.5"/></symbol>
+      <symbol id="life-home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8M5 10v11h14V10M9 21v-7h6v7"/></symbol>
+      <symbol id="life-tag" viewBox="0 0 24 24"><path d="M3 3h9l9 9-9 9-9-9V3Z"/><circle cx="7.5" cy="7.5" r="1"/></symbol>
+      <symbol id="life-camera" viewBox="0 0 24 24"><path d="M8 5 9 3h6l1 2h4a1 1 0 0 1 1 1v14H3V6a1 1 0 0 1 1-1h4Z"/><circle cx="12" cy="12" r="4"/></symbol>
+      <symbol id="life-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m3 16 5-5 6 6 3-3 4 4"/><circle cx="16" cy="8" r="1.5"/></symbol>
+      <symbol id="life-weight" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7 8a7 7 0 0 1 10 0l-2 4H9L7 8Zm5 1 2-2"/></symbol>
+      <symbol id="life-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.8 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.7l6.2-.9L12 3Z"/></symbol>
+      <symbol id="life-split" viewBox="0 0 24 24"><path d="M12 21v-8m0 0L5 6m7 7 7-7M5 11V5h6m2 0h6v6"/></symbol>
+      <symbol id="life-heart" viewBox="0 0 24 24"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-3 4 0 8 8 15 8-7 11-11 8-15Z"/></symbol>
+      <symbol id="life-cloud" viewBox="0 0 24 24"><path d="M6 17a4 4 0 0 1-1-8 7 7 0 0 1 13-2 5 5 0 0 1 0 10H6Zm3 3h6"/></symbol>
+      <symbol id="life-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9a8 8 0 1 0 0 6M20 4v5h-5"/></g></symbol>
+      <symbol id="life-autumn" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M25 89Q53 63 67 17M45 69q-19-4-24-25 23 2 26 22Zm10-17q-3-21 14-32 9 24-11 33Zm-9 19q20 1 32-17-26-4-32 17Z" fill="currentColor" fill-opacity=".08"/><path d="m25 44 20 24m24-48L57 53m21 1L48 71M18 24l2-6m64 26 5-2m-7 38-4 4"/><circle cx="34" cy="22" r="2"/><circle cx="82" cy="16" r="1"/></g></symbol>
+      <symbol id="life-spring" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M24 88 69 23M44 60 25 38m30 6 25 2"/><g fill="currentColor" fill-opacity=".09"><circle cx="25" cy="30" r="9"/><circle cx="17" cy="38" r="9"/><circle cx="32" cy="40" r="9"/><circle cx="69" cy="17" r="9"/><circle cx="61" cy="25" r="9"/><circle cx="76" cy="27" r="9"/></g><circle cx="25" cy="36" r="2"/><circle cx="69" cy="23" r="2"/><path d="M55 45q11-11 27-2-10 12-25 5M16 70l4 4m64-10-2 5"/></g></symbol>
+      <symbol id="life-summer" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M24 89Q54 57 59 18M43 66Q15 62 18 38q30 3 27 27Zm9-22Q47 19 67 12q14 23-13 34Zm-7 22q18-22 39-15-11 27-36 18Z" fill="currentColor" fill-opacity=".08"/><path d="m18 38 25 28m24-54L54 44m30 7L47 68"/><circle cx="20" cy="18" r="7"/><path d="m20 6 1-3M7 18H4m16 12v3m12-15h3"/></g></symbol>
+      <symbol id="life-winter" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M48 20v60M22 35l52 30M22 65l52-30M40 24l8 8 8-8M40 76l8-8 8 8M23 45l12-3-3-12M64 70l-3-12 12-3M23 55l12 3-3 12m32-40-3 12 12 3"/><circle cx="80" cy="18" r="2"/><circle cx="19" cy="82" r="2"/><circle cx="82" cy="83" r="1"/></g></symbol>
+    </defs></svg>
+    <div id="tab-more" class="container">
+      <header class="life-more-title"><h2>その他のメニュー</h2><p>暮らしの記録や写真はこちらから。</p></header>
+      <div class="life-more-grid">
+        <button class="life-more-card" type="button" onclick="switchTab('return')"><svg aria-hidden="true"><use href="#life-home"></use></svg>帰宅連絡</button>
+        <button class="life-more-card" type="button" onclick="switchTab('scan')"><svg aria-hidden="true"><use href="#life-tag"></use></svg>底値を比べる</button>
+        <button class="life-more-card" type="button" onclick="switchTab('photo')"><svg aria-hidden="true"><use href="#life-camera"></use></svg>料理の写真</button>
+        <button class="life-more-card" type="button" onclick="switchTab('memory')"><svg aria-hidden="true"><use href="#life-image"></use></svg>思い出の写真</button>
+        <button class="life-more-card" type="button" onclick="switchTab('weight')"><svg aria-hidden="true"><use href="#life-weight"></use></svg>体重の記録</button>
+        <button class="life-more-card" type="button" onclick="switchTab('bucket')"><svg aria-hidden="true"><use href="#life-star"></use></svg>やりたいこと</button>
+        <button class="life-more-card" type="button" onclick="switchTab('pay')"><svg aria-hidden="true"><use href="#life-split"></use></svg>立替の記録</button>
+      </div>
+      <details class="life-older"><summary>普段使わない機能</summary><p>下部のメニューからは外しています。以前の記録はそのまま確認できます。</p><div class="life-more-grid">
+        <button class="life-more-card" type="button" onclick="switchTab('angry')"><svg aria-hidden="true"><use href="#life-cloud"></use></svg>気持ちの記録</button>
+        <button class="life-more-card" type="button" onclick="switchTab('love')"><svg aria-hidden="true"><use href="#life-heart"></use></svg>感謝ポイント</button>
+      </div></details>
     </div>
+    <nav class="nav-bar" aria-label="暮らしのメニュー">
+      <button type="button" class="nav-item" data-tab="money" onclick="switchTab('money')"><span class="nav-icon"><svg aria-hidden="true"><use href="#life-wallet"></use></svg></span>家計簿</button>
+      <button type="button" class="nav-item" data-tab="list" onclick="switchTab('list')"><span class="nav-icon"><svg aria-hidden="true"><use href="#life-bag"></use></svg></span>買い物</button>
+      <button type="button" class="nav-item" data-tab="menu" onclick="switchTab('menu')"><span class="nav-icon"><svg aria-hidden="true"><use href="#life-meal"></use></svg></span>献立</button>
+      <button type="button" class="nav-item" data-tab="schedule" onclick="switchTab('schedule')"><span class="nav-icon"><svg aria-hidden="true"><use href="#life-calendar"></use></svg></span>予定</button>
+      <button type="button" class="nav-item" data-tab="more" onclick="switchTab('more')"><span class="nav-icon"><svg aria-hidden="true"><use href="#life-more"></use></svg></span>その他</button>
+    </nav>
 
     <div id="toast"></div>
 
@@ -371,9 +389,12 @@
             const target = document.getElementById('tab-' + tabName);
             if(target) target.classList.add('active');
             
-            const tabs = ['return','money','scan','list','menu','photo','memory','angry','schedule','weight','bucket','pay','love'];
-            const idx = tabs.indexOf(tabName);
-            if(idx >= 0) document.querySelectorAll('.nav-item')[idx].classList.add('active-tab');
+            const navTab = ['money','list','menu','schedule'].includes(tabName) ? tabName : 'more';
+            document.querySelectorAll('.nav-item[data-tab]').forEach(el => {
+                const active = el.dataset.tab === navTab;
+                el.classList.toggle('active-tab', active);
+                if(active) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
+            });
 
             if(tabName === 'schedule') loadSchedules();
             if(tabName === 'weight') loadWeightData();
@@ -389,7 +410,7 @@
 
         window.onload = function() {
             const params = new URLSearchParams(window.location.search);
-            switchTab(params.get('tab') || 'return');
+            switchTab(params.get('tab') || 'money');
         }
 
         // --- 体重管理ロジック ---
@@ -516,9 +537,9 @@
         async function addPoint(to) { await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "add_point", to: to }) }); showToast("❤️ 感謝を伝えました"); loadPoints(); }
         async function loadPoints() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_points" }) }); const data = await res.json(); document.getElementById('pt-naoki').innerText=data.naoki; document.getElementById('pt-maki').innerText=data.maki; }
     </script>
-    <script src="household-rules.js"></script>
-    <script src="household-core.js"></script>
-    <script src="card-csv.js"></script>
-    <script src="household.js"></script>
+    <script src="household-rules.js?v=a2548a90b4ad"></script>
+    <script src="household-core.js?v=df5250ba7774"></script>
+    <script src="card-csv.js?v=6f8ba7d318dd"></script>
+    <script src="household.js?v=777a66bf2903"></script>
 </body>
 </html>
