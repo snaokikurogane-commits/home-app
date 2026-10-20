@@ -1,0 +1,15 @@
+{
+  "id": "./",
+  "name": "共同家計簿",
+  "short_name": "家計簿",
+  "lang": "ja",
+  "start_url": "./?tab=money",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f4ef",
+  "theme_color": "#426b58",
+  "icons": [
+    { "src": "icons/household-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/household-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
