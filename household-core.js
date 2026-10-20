@@ -51,6 +51,13 @@ var HHClientCore = (function () {
     const payments=(data.payments||[]).filter(p=>p.date.slice(0,7)===month && ['確定','見込み'].includes(p.status));
     return {difference:previous?data.summary.expense-previous.expense:null,unpaid:payments.reduce((n,p)=>n+p.amount,0),estimated:payments.filter(p=>p.status==='見込み').reduce((n,p)=>n+p.amount,0)};
   }
-  return {csv,csvRows,makeRequest,send,connectionStore,dashboardOverview};
+  function categoryDetails(rows,month,category){
+    const transactions=rows.filter(r=>r.scope==='共同' && r.date.slice(0,7)===month && r.category===category && ['支出','返金'].includes(r.kind))
+      .sort((a,b)=>b.date.localeCompare(a.date));
+    const expense=transactions.filter(r=>r.kind==='支出').reduce((n,r)=>n+r.amount,0);
+    const refund=transactions.filter(r=>r.kind==='返金').reduce((n,r)=>n+r.amount,0);
+    return {transactions,expense,refund,net:expense-refund};
+  }
+  return {csv,csvRows,makeRequest,send,connectionStore,dashboardOverview,categoryDetails};
 })();
 if(typeof module!=='undefined')module.exports=HHClientCore;

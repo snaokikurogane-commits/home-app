@@ -26,6 +26,20 @@
     items.forEach(r=>{const box=node('div',r.name+'　'+money(r.amount));box.className='hh-bar';box.dataset.negative=String(r.amount<0);const track=node('div'),bar=node('i');bar.style.width=(100*Math.abs(r.amount)/max)+'%';track.append(bar);box.append(track);$(target).append(box);});
     if(!items.length)$(target).append(node('p','この月はまだ記録がありません。'));
   }
+  function categoryBars(items,rows,month){
+    const target=$('hh-categories'),max=Math.max(1,...items.map(r=>Math.abs(r.amount)));target.replaceChildren();target.setAttribute('aria-busy','false');
+    items.forEach((r,index)=>{
+      const detail=HHClientCore.categoryDetails(rows,month,r.name),box=node('details'),toggle=node('summary'),heading=node('span'),amount=node('strong',money(r.amount)),chevron=node('span');
+      box.className='hh-category';box.dataset.negative=String(r.amount<0);toggle.id='hh-category-toggle-'+index;heading.className='hh-category-heading';amount.className='hh-category-amount';chevron.className='hh-category-chevron';chevron.setAttribute('aria-hidden','true');
+      heading.append(node('span',r.name),amount,chevron);const track=node('span'),bar=node('i');track.className='hh-category-track';bar.style.width=(100*Math.abs(r.amount)/max)+'%';track.setAttribute('aria-hidden','true');track.append(bar);toggle.append(heading,track);
+      const list=node('div');list.className='hh-category-list';list.setAttribute('role','group');list.setAttribute('aria-labelledby',toggle.id);
+      const count=node('p',detail.transactions.length+'件の明細'+(detail.refund?'（支出 '+money(detail.expense)+' − 返金 '+money(detail.refund)+'）':''));count.className='hh-note';list.append(count);
+      detail.transactions.forEach(t=>list.append(transactionCard(t)));
+      if(!detail.transactions.length)list.append(node('p','表示できる明細がありません。更新して確認してください。'));
+      const close=node('button','内訳を閉じる');close.type='button';close.className='hh-text-button';close.onclick=()=>{box.open=false;toggle.focus();};list.append(close);box.append(toggle,list);target.append(box);
+    });
+    if(!items.length)target.append(node('p','この月はまだ記録がありません。'));
+  }
   function setView(name){
     if(!['overview','record','manage'].includes(name))return;
     document.querySelectorAll('.hh-view').forEach(panel=>panel.hidden=panel.id!=='hh-view-'+name);
@@ -36,20 +50,26 @@
     $('hh-disconnect').hidden=!connection.key();$('hh-start-connect').hidden=!!connection.key();
     $('hh-key').placeholder=connection.key()?'変更する場合だけ入力してください':'初回の接続キーを入力';
   }
+  function transactionCard(r){
+    const card=node('article');card.className='hh-transaction';const head=node('div');head.className='hh-transaction-head';head.append(node('strong',r.merchant||r.item||r.category),node('strong',(r.kind==='返金'?'−':'')+money(r.amount)));card.append(head,node('p',[r.date,r.kind,r.category,r.card||r.method].filter(Boolean).join(' · ')));if(r.item&&r.merchant)card.append(node('p',r.item));
+    if(Number.isInteger(r.row))card.append(node('small','元の記録：Data '+r.row+'行'));
+    return card;
+  }
   function transactions(rows){
     const target=$('hh-transactions');target.replaceChildren();
     if(!rows.length){target.append(node('p','この月の記録はまだありません。'));return;}
-    rows.forEach(r=>{const card=node('article');card.className='hh-transaction';const head=node('div');head.className='hh-transaction-head';head.append(node('strong',r.merchant||r.item||r.category),node('strong',(r.kind==='返金'?'−':'')+money(r.amount)));card.append(head,node('p',[r.date,r.kind,r.category,r.card||r.method].filter(Boolean).join(' · ')));if(r.item&&r.merchant)card.append(node('p',r.item));const source=node('small','元の記録：Data '+r.row+'行');card.append(source);target.append(card);});
+    rows.forEach(r=>target.append(transactionCard(r)));
   }
   async function refresh(validated){
     const request=++refreshNumber, month=$('hh-month').value;
     message('hh-status','共同家計を読み込んでいます…');
+    $('hh-categories').replaceChildren(node('p','内訳を読み込んでいます…'));$('hh-categories').setAttribute('aria-busy','true');
     try{
       const data=validated && validated.month===month && validated.data?validated.data:await api('hh_dashboard',{month});if(request!==refreshNumber)return;
       const s=data.summary;$('hh-expense').textContent=money(s.expense);$('hh-income').textContent=money(s.income);$('hh-balance').textContent=money(s.balance);
       const overview=HHClientCore.dashboardOverview(data,month);$('hh-month-diff').textContent=overview.difference===null?'—':(overview.difference>0?'+':'')+money(overview.difference);$('hh-upcoming').textContent=money(overview.unpaid);$('hh-upcoming-note').textContent=overview.estimated?'うち見込み '+money(overview.estimated):'登録済みの未払い分';
       $('hh-coverage').textContent=data.coverage+' 収支差額は口座残高ではありません。';
-      bars('hh-categories',s.categories);bars('hh-trends',data.trends.map(r=>({name:r.month,amount:r.expense})));
+      categoryBars(s.categories,data.transactions,month);bars('hh-trends',data.trends.map(r=>({name:r.month,amount:r.expense})));
       transactions(data.transactions);
       $('hh-issues').replaceChildren(...data.issues.map(r=>node('li','Data '+r.row+'行：'+r.message)));
       if(!data.issues.length)$('hh-issues').append(node('li','除外した共同取引はありません。'));
@@ -61,7 +81,7 @@
       message('hh-status',demo?'架空データの操作見本を表示しています。':s.count+'件を集計しました。');
     }catch(e){if(request===refreshNumber){clearDashboard();message('hh-status',e.message,true);}}
   }
-  function clearDashboard(){['hh-expense','hh-income','hh-balance','hh-month-diff','hh-upcoming'].forEach(id=>$(id).textContent='—');['hh-categories','hh-trends','hh-transactions','hh-payments','hh-issues'].forEach(id=>$(id).replaceChildren());$('hh-upcoming-note').textContent='登録済みの未払い分';$('hh-payment-total').textContent='読込未完了';$('hh-coverage').textContent='読み込めなかったため、金額を表示していません。';}
+  function clearDashboard(){$('hh-categories').setAttribute('aria-busy','false');['hh-expense','hh-income','hh-balance','hh-month-diff','hh-upcoming'].forEach(id=>$(id).textContent='—');['hh-categories','hh-trends','hh-transactions','hh-payments','hh-issues'].forEach(id=>$(id).replaceChildren());$('hh-upcoming-note').textContent='登録済みの未払い分';$('hh-payment-total').textContent='読込未完了';$('hh-coverage').textContent='読み込めなかったため、金額を表示していません。';}
   async function connect(){
     const key=$('hh-key').value.trim()||connection.key(),keep=$('hh-remember').value==='device',month=$('hh-month').value;
     $('hh-connect').disabled=true;$('hh-disconnect').disabled=true;message('hh-connection-message','接続を確認しています…');
@@ -131,7 +151,17 @@
     try{const p={};['id','date','name','amount','status','note'].forEach(k=>p[k]=$('hh-payment-'+k).value);await api('hh_payment_save',{payment:p});message('hh-payment-message','予定を保存しました。支出には加算していません。');await refresh();}
     catch(err){message('hh-payment-message',err.message,true);}finally{$('hh-payment-save').disabled=demo;}
   }
-  function demoDashboard(month){const categories=[{name:'家賃',amount:69125},{name:'食費',amount:32580},{name:'電気代',amount:12400},{name:'日用雑貨',amount:6830}];return {summary:{expense:120935,income:150000,balance:29065,count:4,categories},trends:Array.from({length:6},(_,i)=>{const d=new Date(month+'-01T00:00:00Z');d.setUTCMonth(d.getUTCMonth()-5+i);return{month:d.toISOString().slice(0,7),expense:[115420,134100,109980,125500,117300,120935][i]};}),coverage:'操作見本の架空データです。本当の支出・収入ではありません。',transactions:[],issues:[],payments:[{id:'demo',date:month+'-27',name:'家賃',amount:69125,status:'見込み',note:'操作見本'}]};}
+  function demoDashboard(month){
+    const transactions=[
+      {date:month+'-01',kind:'支出',category:'家賃',merchant:'家賃',amount:69125,method:'口座振替'},
+      {date:month+'-03',kind:'支出',category:'食費',merchant:'スーパー',amount:20640,method:'クレジットカード',card:'楽天（共同）'},
+      {date:month+'-07',kind:'支出',category:'食費',merchant:'スーパー',amount:11940,method:'クレジットカード',card:'楽天（共同）'},
+      {date:month+'-10',kind:'支出',category:'電気代',merchant:'電気代',amount:12400,method:'口座振替'},
+      {date:month+'-11',kind:'支出',category:'日用雑貨',merchant:'Amazon',item:'洗剤・消耗品',amount:4360,method:'クレジットカード',card:'Amazon（共同）'},
+      {date:month+'-13',kind:'支出',category:'日用雑貨',merchant:'ドラッグストア',item:'生活用品',amount:2470,method:'現金'},
+      {date:month+'-01',kind:'収入',category:'生活費入金',merchant:'共同口座への入金',amount:150000,method:'口座入金'}
+    ].map((r,i)=>({...r,id:'demo:'+i,scope:'共同'}));
+    const categories=[{name:'家賃',amount:69125},{name:'食費',amount:32580},{name:'電気代',amount:12400},{name:'日用雑貨',amount:6830}];return {summary:{expense:120935,income:150000,balance:29065,count:transactions.length,categories},trends:Array.from({length:6},(_,i)=>{const d=new Date(month+'-01T00:00:00Z');d.setUTCMonth(d.getUTCMonth()-5+i);return{month:d.toISOString().slice(0,7),expense:[115420,134100,109980,125500,117300,120935][i]};}),coverage:'操作見本の架空データです。本当の支出・収入ではありません。',transactions,issues:[],payments:[{id:'demo',date:month+'-27',name:'家賃',amount:69125,status:'見込み',note:'操作見本'}]};}
   $('hh-month').value=today().slice(0,7);$('hh-date').value=today();$('hh-date').max=today();$('hh-remember').value=connection.remembered()?'device':'session';connectionState();
   $('hh-connect').onclick=connect;$('hh-disconnect').onclick=disconnect;
   document.querySelectorAll('[data-hh-view]').forEach(button=>button.onclick=()=>{setView(button.dataset.hhView);if(button.id==='hh-connection-state'||button.id==='hh-start-connect')$('hh-connection').open=true;});
