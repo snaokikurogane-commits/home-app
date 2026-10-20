@@ -68,7 +68,7 @@
         #toast { visibility: hidden; min-width: 200px; background: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 2000; left: 50%; bottom: 80px; transform: translateX(-50%); opacity: 0; transition: 0.3s; }
         #toast.show { visibility: visible; opacity: 1; }
     </style>
-    <link rel="stylesheet" href="household.css?v=ce259c812c9d">
+    <link rel="stylesheet" href="household.css?v=9866a38444bf">
 <script>if(new URLSearchParams(location.search).get("demo")==="1"){window.fetch=async function(){throw new Error("操作見本では外部への送信はできません。");};}</script>
 </head>
 <body>
@@ -132,20 +132,6 @@
     <div id="tab-money" class="container">
       <header class="hh-masthead">
         <h2>共同家計簿</h2>
-        <svg class="hh-season-flowers" aria-hidden="true" focusable="false" viewBox="0 0 108 72">
-          <defs>
-            <path id="hh-cosmos-petal" d="M0-3C-5-6-9-12-5-16C-3-18-1-17 0-16C2-18 5-17 6-14C8-9 4-5 2-3Z"/>
-            <g id="hh-cosmos-bloom" fill="#f0dbe1" stroke="#ac7787" stroke-width=".9" stroke-linejoin="round"><use href="#hh-cosmos-petal"/><use href="#hh-cosmos-petal" transform="rotate(45)"/><use href="#hh-cosmos-petal" transform="rotate(90)"/><use href="#hh-cosmos-petal" transform="rotate(135)"/><use href="#hh-cosmos-petal" transform="rotate(180)"/><use href="#hh-cosmos-petal" transform="rotate(225)"/><use href="#hh-cosmos-petal" transform="rotate(270)"/><use href="#hh-cosmos-petal" transform="rotate(315)"/><circle r="3.2" fill="#c5a763" stroke="none"/></g>
-            <path id="hh-sakura-petal" d="M0-3C-10-6-9-17-2-15L0-12L2-15C9-17 10-6 0-3Z"/>
-            <g id="hh-sakura-bloom" fill="#f8e9eb" stroke="#bc8790" stroke-width=".85" stroke-linejoin="round"><use href="#hh-sakura-petal"/><use href="#hh-sakura-petal" transform="rotate(72)"/><use href="#hh-sakura-petal" transform="rotate(144)"/><use href="#hh-sakura-petal" transform="rotate(216)"/><use href="#hh-sakura-petal" transform="rotate(288)"/><circle r="2.5" fill="#bc8790" stroke="none"/></g>
-            <g id="hh-hydrangea-floret" fill="#e3e8f2" stroke="#8495b0" stroke-width=".7"><ellipse cy="-3.4" rx="3" ry="4"/><ellipse cx="3.4" rx="4" ry="3"/><ellipse cy="3.4" rx="3" ry="4"/><ellipse cx="-3.4" rx="4" ry="3"/><circle r="1" fill="#c4b06e" stroke="none"/></g>
-            <g id="hh-camellia-bloom" fill="#ecd0c8" stroke="#ad746b" stroke-width=".9"><ellipse cy="-6" rx="6.5" ry="8"/><ellipse cy="-6" rx="6.5" ry="8" transform="rotate(72)"/><ellipse cy="-6" rx="6.5" ry="8" transform="rotate(144)"/><ellipse cy="-6" rx="6.5" ry="8" transform="rotate(216)"/><ellipse cy="-6" rx="6.5" ry="8" transform="rotate(288)"/><circle r="4" fill="#d5b574" stroke="none"/><path d="M-2-2L-1 2M1-3L1 2M3-1L2 2" fill="none" stroke="#a98a43" stroke-width=".75"/></g>
-          </defs>
-          <g data-flower="spring"><path d="M24 63Q49 43 80 18M45 47L42 29" fill="none" stroke="#8a806c" stroke-width="1.5" stroke-linecap="round"/><path d="M52 43Q48 29 61 29Q66 38 52 43Z" fill="#c5d0bc" stroke="#83917c" stroke-width=".8"/><use href="#hh-sakura-bloom" transform="translate(41 29) rotate(-14) scale(.88)"/><use href="#hh-sakura-bloom" transform="translate(78 20) rotate(20) scale(.58)"/></g>
-          <g data-flower="summer"><path d="M54 62L52 31" fill="none" stroke="#7b8c72" stroke-width="1.4" stroke-linecap="round"/><path d="M54 53Q33 54 30 39Q47 33 54 53ZM54 53Q72 55 80 39Q63 33 54 53Z" fill="#c4d0bd" stroke="#819278" stroke-width=".85"/><use href="#hh-hydrangea-floret" transform="translate(40 20)"/><use href="#hh-hydrangea-floret" transform="translate(52 15) rotate(8)"/><use href="#hh-hydrangea-floret" transform="translate(64 20) rotate(-12)"/><use href="#hh-hydrangea-floret" transform="translate(34 31) rotate(10)"/><use href="#hh-hydrangea-floret" transform="translate(47 28) rotate(-8)"/><use href="#hh-hydrangea-floret" transform="translate(60 30)"/><use href="#hh-hydrangea-floret" transform="translate(72 30) rotate(12)"/><use href="#hh-hydrangea-floret" transform="translate(47 39) rotate(15)"/><use href="#hh-hydrangea-floret" transform="translate(59 40) rotate(-8)"/></g>
-          <g data-flower="autumn"><path d="M47 63Q48 43 42 29M48 59Q67 42 76 22M47 52L35 45M59 47L70 44" fill="none" stroke="#84917c" stroke-width="1.25" stroke-linecap="round"/><path d="M39 50L33 42M40 48L28 47M63 46L72 39M65 45L77 45" fill="none" stroke="#9aa88f" stroke-width=".9" stroke-linecap="round"/><use href="#hh-cosmos-bloom" transform="translate(42 27) rotate(-12) scale(.91)"/><use href="#hh-cosmos-bloom" transform="translate(77 21) rotate(15) scale(.6)"/></g>
-          <g data-flower="winter"><path d="M27 62Q51 47 78 31M49 49L50 31" fill="none" stroke="#8b806b" stroke-width="1.5" stroke-linecap="round"/><path d="M43 54Q26 48 31 35Q47 35 43 54ZM60 45Q67 30 82 39Q77 52 60 45Z" fill="#9cae98" stroke="#71876b" stroke-width=".85"/><use href="#hh-camellia-bloom" transform="translate(50 28) rotate(-10)"/><ellipse cx="80" cy="29" rx="4.5" ry="6" transform="rotate(32 80 29)" fill="#c99185" stroke="#ad746b" stroke-width=".9"/></g>
-        </svg>
       </header>
       <div id="hh-demo" class="hh-demo" hidden>操作見本・架空の金額です。保存はできません。</div>
       <div class="hh-topline"><span class="hh-pill">愛媛銀行・共同</span><button id="hh-connection-state" class="hh-text-button" type="button" data-hh-view="manage">接続設定</button></div>
