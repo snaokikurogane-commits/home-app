@@ -135,7 +135,7 @@
         <div class="box hh-box hh-summary-box">
           <div class="hh-month-bar"><label for="hh-month">集計月</label><input type="month" id="hh-month"><button type="button" id="hh-refresh" class="hh-icon-button" aria-label="集計を更新"><svg aria-hidden="true"><use href="#life-refresh"></use></svg></button></div>
           <div class="hh-total"><p>記録済みの支出 <span>返金差引</span></p><strong id="hh-expense">—</strong></div>
-          <div class="hh-kpis"><div class="hh-kpi">前月との差<strong id="hh-month-diff">—</strong><small>記録済み分の比較</small></div><div class="hh-kpi">今月の引落予定<strong id="hh-upcoming">—</strong><small id="hh-upcoming-note">登録済みの未払い分</small></div></div>
+          <div class="hh-kpis"><div class="hh-kpi">前月との差<strong id="hh-month-diff">—</strong><small>記録済み分の比較</small></div><div class="hh-kpi">選択月の引落予定<strong id="hh-upcoming">—</strong><small id="hh-upcoming-note">登録済みの未払い分</small></div></div>
           <details class="hh-income-details"><summary>入金と収支を見る</summary><div class="hh-kpis"><div class="hh-kpi">収入<strong id="hh-income">—</strong></div><div class="hh-kpi">収支差額<strong id="hh-balance">—</strong></div></div></details>
           <p id="hh-coverage" class="hh-note">接続すると、記録済みの共同家計を表示します。収支差額は口座残高とは異なります。</p>
           <button type="button" id="hh-start-connect" class="hh-secondary" data-hh-view="manage">接続して家計を見る</button>
@@ -177,6 +177,7 @@
       </section>
       <p id="hh-status" class="hh-status" role="status" aria-live="polite"></p>
     </div>
+
 
     <div id="tab-scan" class="container">
         <div class="box">
