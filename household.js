@@ -137,7 +137,7 @@
   document.querySelectorAll('[data-hh-view]').forEach(button=>button.onclick=()=>{setView(button.dataset.hhView);if(button.id==='hh-connection-state'||button.id==='hh-start-connect')$('hh-connection').open=true;});
   document.querySelectorAll('.hh-view-tabs button').forEach((button,index,buttons)=>button.onkeydown=event=>{let next;if(event.key==='ArrowRight')next=(index+1)%buttons.length;else if(event.key==='ArrowLeft')next=(index+buttons.length-1)%buttons.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=buttons.length-1;else return;event.preventDefault();buttons[next].click();buttons[next].focus();});
   $('hh-open-payments').onclick=()=>{setView('manage');$('hh-payment-editor').open=true;$('hh-payment-editor').scrollIntoView({block:'start',behavior:'smooth'});};
-  const seasonMonth=Number(today().slice(5,7)),season=seasonMonth>=3&&seasonMonth<=5?'spring':seasonMonth>=6&&seasonMonth<=8?'summer':seasonMonth>=9&&seasonMonth<=11?'autumn':'winter';$('tab-money').dataset.season=season;
+  const seasonMonth=Number(today().slice(5,7)),season=seasonMonth>=3&&seasonMonth<=5?'spring':seasonMonth>=6&&seasonMonth<=8?'summer':seasonMonth>=9&&seasonMonth<=11?'autumn':'winter';$('tab-money').dataset.season=season;document.documentElement.dataset.hhSeason=season;
   $('hh-refresh').onclick=refresh;$('hh-month').onchange=refresh;$('hh-entry').onsubmit=save;$('hh-method').onchange=()=>$('hh-card').disabled=$('hh-method').value!=='クレジットカード';
   $('hh-preview').onclick=importPreview;$('hh-commit').onclick=importCommit;['hh-file','hh-source-id','hh-import-card'].forEach(id=>$(id).onchange=resetPreview);
   $('hh-file').onchange=()=>{resetPreview();$('hh-source-id').value='';};
