@@ -1,14 +1,10 @@
-/* Seasonal accents stay on controls; financial figures and charts retain their stable colors. */
-:root{--hh-ink:#263d35;--hh-muted:#64726b;--hh-accent:#775d68;--hh-accent-soft:#f0e7ec;--hh-accent-line:#dccbd4;--hh-tab-track:#eee9eb;--hh-soft:#eaf0e9;--hh-line:#e1e6de}
-[data-hh-season=spring]{--hh-accent:#805464;--hh-accent-soft:#f3e7eb;--hh-accent-line:#ddc8d0;--hh-tab-track:#eee9e9}
-[data-hh-season=summer]{--hh-accent:#5d6481;--hh-accent-soft:#e9ebf3;--hh-accent-line:#cdd1e0;--hh-tab-track:#e9ebf0}
-[data-hh-season=autumn]{--hh-accent:#775d68;--hh-accent-soft:#f0e7ec;--hh-accent-line:#dccbd4;--hh-tab-track:#eee9eb}
-[data-hh-season=winter]{--hh-accent:#774d50;--hh-accent-soft:#f2e7e5;--hh-accent-line:#dec9c6;--hh-tab-track:#eee9e6}
+:root{--hh-ink:#263d35;--hh-muted:#64726b;--hh-accent:#426b58;--hh-accent-soft:#eaf0e9;--hh-accent-line:#cddaca;--hh-tab-track:#e8ece5;--hh-soft:#eaf0e9;--hh-line:#e1e6de}
 body{background:#f4f4ef;padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(94px + env(safe-area-inset-bottom,0px))}
 #tab-money,#tab-more{max-width:980px;margin:0 auto;padding:20px 18px 28px;color:var(--hh-ink)}
 #tab-money [hidden]{display:none!important}
-.hh-masthead{padding:6px 4px 12px}
+.hh-masthead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 4px 12px}
 .hh-masthead h2{margin:0;font-size:26px;letter-spacing:.02em;line-height:1.4;font-weight:700}
+.hh-masthead-dots{width:88px;height:46px;flex:none;background:radial-gradient(circle at 12px 13px,#a9beae 0 7px,transparent 7.5px),radial-gradient(circle at 40px 7px,#d5c39c 0 4px,transparent 4.5px),radial-gradient(circle at 71px 18px,#aec2ca 0 6px,transparent 6.5px),radial-gradient(circle at 31px 36px,#d5b4a5 0 5px,transparent 5.5px),radial-gradient(circle at 62px 40px,#bcc7ae 0 3px,transparent 3.5px)}
 .hh-masthead h2::before{content:"";display:inline-block;width:4px;height:23px;margin-right:10px;vertical-align:-2px;background:var(--hh-accent)}
 .hh-topline,.hh-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .hh-topline{margin:8px 4px 16px}.hh-pill{display:inline-block;padding:5px 10px;background:var(--hh-accent-soft);border-radius:20px;color:var(--hh-accent);font-size:11px;white-space:nowrap}

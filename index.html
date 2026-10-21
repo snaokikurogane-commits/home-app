@@ -68,7 +68,7 @@
         #toast { visibility: hidden; min-width: 200px; background: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 2000; left: 50%; bottom: 80px; transform: translateX(-50%); opacity: 0; transition: 0.3s; }
         #toast.show { visibility: visible; opacity: 1; }
     </style>
-    <link rel="stylesheet" href="household.css?v=68383b157064">
+    <link rel="stylesheet" href="household.css?v=c4f0b8671e6b">
 <script>if(new URLSearchParams(location.search).get("demo")==="1"){window.fetch=async function(){throw new Error("操作見本では外部への送信はできません。");};}</script>
 </head>
 <body>
@@ -132,6 +132,7 @@
     <div id="tab-money" class="container">
       <header class="hh-masthead">
         <h2>共同家計簿</h2>
+        <span class="hh-masthead-dots" aria-hidden="true"></span>
       </header>
       <div id="hh-demo" class="hh-demo" hidden>操作見本・架空の金額です。保存はできません。</div>
       <div class="hh-topline"><span class="hh-pill">愛媛銀行・共同</span><button id="hh-connection-state" class="hh-text-button" type="button" data-hh-view="manage">接続設定</button></div>
@@ -549,7 +550,7 @@
     </script>
     <script src="household-rules.js?v=a2548a90b4ad"></script>
     <script src="household-core.js?v=7efa33ed03ba"></script>
-    <script src="card-csv.js?v=6f8ba7d318dd"></script>
-    <script src="household.js?v=656b9580ac09"></script>
+    <script src="card-csv.js?v=f96f7374efc9"></script>
+    <script src="household.js?v=e4ae90b6d1d8"></script>
 </body>
 </html>
