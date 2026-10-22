@@ -58,6 +58,12 @@ var HHClientCore = (function () {
     const refund=transactions.filter(r=>r.kind==='返金').reduce((n,r)=>n+r.amount,0);
     return {transactions,expense,refund,net:expense-refund};
   }
-  return {csv,csvRows,makeRequest,send,connectionStore,dashboardOverview,categoryDetails};
+  function statementClaim(parsed,sourceId,card,filename){
+    if(parsed.paymentTotal===null||parsed.paymentTotal<0)return null;
+    if(!/^20\d\d-(0[1-9]|1[0-2])請求$/.test(sourceId)||parsed.sourceId&&parsed.sourceId!==sourceId)throw Error('請求月を確認してください。明細IDはファイル名と同じ「2026-10請求」の形式で指定します。');
+    if(parsed.paymentDate&&parsed.paymentDate.slice(0,7)!==sourceId.slice(0,7))throw Error('請求月と明細の引落日が一致しません。');
+    return {card,sourceId,month:sourceId.slice(0,7),amount:parsed.paymentTotal,date:parsed.paymentDate||'',filename};
+  }
+  return {csv,csvRows,makeRequest,send,connectionStore,dashboardOverview,categoryDetails,statementClaim};
 })();
 if(typeof module!=='undefined')module.exports=HHClientCore;

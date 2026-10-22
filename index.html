@@ -68,7 +68,7 @@
         #toast { visibility: hidden; min-width: 200px; background: #333; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 2000; left: 50%; bottom: 80px; transform: translateX(-50%); opacity: 0; transition: 0.3s; }
         #toast.show { visibility: visible; opacity: 1; }
     </style>
-    <link rel="stylesheet" href="household.css?v=c4f0b8671e6b">
+    <link rel="stylesheet" href="household.css?v=7a5ab03837dd">
 <script>if(new URLSearchParams(location.search).get("demo")==="1"){window.fetch=async function(){throw new Error("操作見本では外部への送信はできません。");};}</script>
 </head>
 <body>
@@ -143,17 +143,26 @@
       </nav>
       <section class="hh-view" id="hh-view-overview" role="tabpanel" aria-labelledby="hh-tab-overview">
         <div class="box hh-box hh-summary-box">
-          <div class="hh-month-bar"><label for="hh-month">集計月</label><input type="month" id="hh-month"><button type="button" id="hh-refresh" class="hh-icon-button" aria-label="集計を更新"><svg aria-hidden="true"><use href="#life-refresh"></use></svg></button></div>
+          <div class="hh-month-bar"><label for="hh-month">家計の月</label><input type="month" id="hh-month"><button type="button" id="hh-refresh" class="hh-icon-button" aria-label="集計を更新"><svg aria-hidden="true"><use href="#life-refresh"></use></svg></button></div>
           <div class="hh-total-heading"><h3>この月の収支</h3><a class="hh-chart-link" href="#hh-breakdown">グラフを見る ↓</a></div>
           <div class="hh-cash-summary" aria-label="収入・支出合計・収支差額">
             <div class="hh-cash-row"><span>収入</span><strong id="hh-income">—</strong></div>
             <div class="hh-cash-row hh-cash-expense"><span>支出合計<small>返金差引</small></span><strong id="hh-expense">—</strong></div>
             <div class="hh-cash-row hh-cash-balance"><span>収支差額<small>収入 − 支出</small></span><strong id="hh-balance">—</strong></div>
           </div>
-          <div class="hh-kpis"><div class="hh-kpi">前月との差<strong id="hh-month-diff">—</strong><small>記録済み分の比較</small></div><div class="hh-kpi">選択月の引落予定<strong id="hh-upcoming">—</strong><small id="hh-upcoming-note">登録済みの未払い分</small></div></div>
+          <div class="hh-kpis"><div class="hh-kpi">前月との差<strong id="hh-month-diff">—</strong><small>記録済み分の比較</small></div><div class="hh-kpi">手動登録の支払予定<strong id="hh-upcoming">—</strong><small id="hh-upcoming-note">選択月の未払い分</small></div></div>
+          <p class="hh-note">支出は使った日、収入は入金日で集計します。カードの請求額は下の欄で確認できます。</p>
           <details class="hh-coverage-details"><summary>集計の対象と注意点</summary><p id="hh-coverage" class="hh-note">接続すると、記録済みの共同家計を表示します。収支差額は口座残高とは異なります。</p></details>
           <button type="button" id="hh-start-connect" class="hh-secondary" data-hh-view="manage">接続して家計を見る</button>
         </div>
+        <section class="box hh-box hh-billing" aria-labelledby="hh-billing-title">
+          <div class="hh-section-heading"><h3 id="hh-billing-title">カードの請求額</h3><span>請求月で確認</span></div>
+          <div class="hh-month-bar"><label for="hh-billing-month">請求月</label><select id="hh-billing-month" disabled></select></div>
+          <div id="hh-billing-cards"></div>
+          <div class="hh-bill-total"><span id="hh-billing-total-label">明細額の合計</span><strong id="hh-billing-total">—</strong></div>
+          <p id="hh-billing-status" class="hh-note" role="status" aria-live="polite">接続するとカード別に表示します。</p>
+          <p class="hh-note">取込時点の明細額です。未取込は0円として扱いません。家賃・水道光熱費は含みません。利用月の支出へ重ねて加算されることはありません。</p>
+        </section>
         <section class="box hh-box hh-charts" id="hh-breakdown" aria-labelledby="hh-breakdown-title"><div class="hh-section-heading"><h3 id="hh-breakdown-title">支出の内訳</h3><span>費目別</span></div><p class="hh-note hh-category-hint">費目をタップすると、その月の買い物の明細が開きます。</p><div id="hh-categories" class="hh-chart" aria-busy="false"></div><div class="hh-trend-section"><h3>過去6か月の支出</h3><p class="hh-note">各月の記録済み分を比較しています。</p><div id="hh-trends" class="hh-chart"></div></div></section>
         <div class="box hh-box"><div class="hh-section-heading"><h3>口座からの支払予定</h3><button type="button" class="hh-text-button" id="hh-open-payments">追加・修正</button></div><p class="hh-note">ここへの登録は、支出に重ねて加算されません。</p><p id="hh-payment-total" class="hh-note">まだ読み込んでいません。</p><div id="hh-payments" class="hh-scroll"></div></div>
         <div class="box hh-box"><details><summary>記録済みの明細</summary><div id="hh-transactions"></div></details><details><summary>集計から除いた要確認データ</summary><ul id="hh-issues"></ul></details></div>
@@ -549,8 +558,8 @@
         async function loadPoints() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "web_app", action: "get_points" }) }); const data = await res.json(); document.getElementById('pt-naoki').innerText=data.naoki; document.getElementById('pt-maki').innerText=data.maki; }
     </script>
     <script src="household-rules.js?v=a2548a90b4ad"></script>
-    <script src="household-core.js?v=7efa33ed03ba"></script>
+    <script src="household-core.js?v=3a58e2d8ea44"></script>
     <script src="card-csv.js?v=f96f7374efc9"></script>
-    <script src="household.js?v=e4ae90b6d1d8"></script>
+    <script src="household.js?v=c8418eed7be0"></script>
 </body>
 </html>

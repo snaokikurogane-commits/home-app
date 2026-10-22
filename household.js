@@ -4,7 +4,7 @@
   const demo=new URLSearchParams(location.search).get('demo')==='1';
   const storage=kind=>({getItem:key=>window[kind].getItem(key),setItem:(key,value)=>window[kind].setItem(key,value),removeItem:key=>window[kind].removeItem(key)});
   const connection=HHClientCore.connectionStore(storage('sessionStorage'),storage('localStorage'));
-  let preview=null, importRequest=null, latestClaim=null, busy=false, refreshNumber=0, knownPayments=[];
+  let preview=null, importRequest=null, latestClaim=null, busy=false, refreshNumber=0, knownPayments=[],billing=null;
   const today=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
   const uuid=()=>crypto.randomUUID();
   function message(id,text,error=false){$(id).textContent=text;$(id).dataset.error=String(error);}
@@ -60,6 +60,17 @@
     if(!rows.length){target.append(node('p','この月の記録はまだありません。'));return;}
     rows.forEach(r=>target.append(transactionCard(r)));
   }
+  function renderBilling(data){
+    const select=$('hh-billing-month'),selected=select.value;billing=data;select.replaceChildren();select.disabled=!data;
+    if(data){data.months.forEach(m=>{const o=node('option',m.slice(0,4)+'年'+Number(m.slice(5))+'月');o.value=m;select.append(o);});select.value=data.months.includes(selected)?selected:data.currentMonth;}
+    drawBilling();
+  }
+  function drawBilling(){
+    const s=billing?.summaries[$('hh-billing-month').value],target=$('hh-billing-cards');target.replaceChildren();$('hh-billing-total').textContent=s&&s.total!==null?money(s.total):'—';$('hh-billing-total-label').textContent=s&&!s.complete?'取込済みの小計':'明細額の合計';
+    if(!s){$('hh-billing-status').textContent='請求情報はまだ読み込めていません。';return;}
+    s.cards.forEach(c=>{const row=node('div'),label=node('div'),date=node('small',c.amount===null?'明細未取込':c.date?'引落日 '+c.date.replaceAll('-','/'):'引落日 未確認');row.className='hh-bill-row';label.append(node('span',c.card),date);row.append(label,node('strong',c.amount===null?'—':money(c.amount)));target.append(row);});
+    $('hh-billing-status').textContent=s.complete?'全'+s.cards.length+'枚の明細を取込済みです。カード会社の確定額・引落日とあわせてご確認ください。':s.known+'／'+s.cards.length+'枚を取込済み。未取込のカードがあるため、全カードの請求合計は未確定です。';
+  }
   async function refresh(validated){
     const request=++refreshNumber, month=$('hh-month').value;
     message('hh-status','共同家計を読み込んでいます…');
@@ -67,13 +78,13 @@
     try{
       const data=validated && validated.month===month && validated.data?validated.data:await api('hh_dashboard',{month});if(request!==refreshNumber)return;
       const s=data.summary;$('hh-expense').textContent=money(s.expense);$('hh-income').textContent=money(s.income);$('hh-balance').textContent=money(s.balance);
-      const overview=HHClientCore.dashboardOverview(data,month);$('hh-month-diff').textContent=overview.difference===null?'—':(overview.difference>0?'+':'')+money(overview.difference);$('hh-upcoming').textContent=money(overview.unpaid);$('hh-upcoming-note').textContent=overview.estimated?'うち見込み '+money(overview.estimated):'登録済みの未払い分';
+      const overview=HHClientCore.dashboardOverview(data,month);$('hh-month-diff').textContent=overview.difference===null?'—':(overview.difference>0?'+':'')+money(overview.difference);$('hh-upcoming').textContent=money(overview.unpaid);$('hh-upcoming-note').textContent=overview.estimated?'うち見込み '+money(overview.estimated):'選択月の未払い分';
       $('hh-coverage').textContent=data.coverage+' 収支差額は口座残高ではありません。';
       categoryBars(s.categories,data.transactions,month);bars('hh-trends',data.trends.map(r=>({name:r.month,amount:r.expense})));
       transactions(data.transactions);
       $('hh-issues').replaceChildren(...data.issues.map(r=>node('li','Data '+r.row+'行：'+r.message)));
       if(!data.issues.length)$('hh-issues').append(node('li','除外した共同取引はありません。'));
-      knownPayments=data.payments;
+      knownPayments=data.payments;renderBilling(data.billing);
       const payments=data.payments.filter(r=>r.date.slice(0,7)===month).sort((a,b)=>a.date.localeCompare(b.date));
       table('hh-payments',['日付','項目','金額','状態','修正'],payments.map(p=>{const b=node('button','修正');b.type='button';b.onclick=()=>editPayment(p);return[p.date,p.name,money(p.amount),p.status,b];}));
       const total=status=>payments.filter(p=>p.status===status).reduce((s,p)=>s+p.amount,0);
@@ -81,7 +92,7 @@
       message('hh-status',demo?'架空データの操作見本を表示しています。':s.count+'件を集計しました。');
     }catch(e){if(request===refreshNumber){clearDashboard();message('hh-status',e.message,true);}}
   }
-  function clearDashboard(){$('hh-categories').setAttribute('aria-busy','false');['hh-expense','hh-income','hh-balance','hh-month-diff','hh-upcoming'].forEach(id=>$(id).textContent='—');['hh-categories','hh-trends','hh-transactions','hh-payments','hh-issues'].forEach(id=>$(id).replaceChildren());$('hh-upcoming-note').textContent='登録済みの未払い分';$('hh-payment-total').textContent='読込未完了';$('hh-coverage').textContent='読み込めなかったため、金額を表示していません。';}
+  function clearDashboard(){renderBilling(null);$('hh-categories').setAttribute('aria-busy','false');['hh-expense','hh-income','hh-balance','hh-month-diff','hh-upcoming'].forEach(id=>$(id).textContent='—');['hh-categories','hh-trends','hh-transactions','hh-payments','hh-issues'].forEach(id=>$(id).replaceChildren());$('hh-upcoming-note').textContent='選択月の未払い分';$('hh-payment-total').textContent='読込未完了';$('hh-coverage').textContent='読み込めなかったため、金額を表示していません。';}
   async function connect(){
     const key=$('hh-key').value.trim()||connection.key(),keep=$('hh-remember').value==='device',month=$('hh-month').value;
     $('hh-connect').disabled=true;$('hh-disconnect').disabled=true;message('hh-connection-message','接続を確認しています…');
@@ -100,7 +111,7 @@
       else {t=current;sessionStorage.setItem('hh.pending',JSON.stringify(t));}
       message('hh-save-status','保存しています…');await api('hh_save',{transaction:t});sessionStorage.removeItem('hh.pending');
       $('hh-amount').value='';$('hh-merchant').value='';$('hh-item').value='';$('hh-note').value='';message('hh-save-status','記録しました。');await refresh();
-    }catch(e){message('hh-save-status',e.message+' 入力内容を保持しています。',true);}
+    }catch(e){clearDashboard();message('hh-save-status',e.message+' 入力内容を保持しています。',true);}
     finally{busy=false;$('hh-save').disabled=demo;}
   }
   function resetPreview(){preview=null;importRequest=null;latestClaim=null;$('hh-claim-to-payment').hidden=true;$('hh-import-table').replaceChildren();$('hh-commit').disabled=true;$('hh-import-checked').checked=false;}
@@ -111,6 +122,7 @@
       const parsed=CardCsv.parse(CardCsv.decode(await file.arrayBuffer()),file.name,$('hh-import-card').value);
       if(!$('hh-source-id').value.trim())$('hh-source-id').value=parsed.sourceId;
       const body={card:$('hh-import-card').value,sourceId:$('hh-source-id').value.trim(),rows:parsed.rows};
+      const claim=HHClientCore.statementClaim(parsed,body.sourceId,body.card,file.name);if(claim)body.claim=claim;
       message('hh-import-status','既存記録と照合しています…');const result=await api('hh_import_preview',body);
       preview={body,rows:result.rows};
       if(parsed.paymentTotal!==null && parsed.paymentTotal>=0){latestClaim={card:body.card,sourceId:body.sourceId,amount:parsed.paymentTotal,date:parsed.paymentDate,filename:file.name};$('hh-claim-to-payment').hidden=false;}
@@ -136,7 +148,7 @@
       if(!$('hh-import-checked').checked)throw Error('照合結果の確認にチェックを入れてください。');
       if(!importRequest){const decisions={},review={};$('hh-import-table').querySelectorAll('select[data-id]').forEach(s=>{decisions[s.dataset.id]=s.value;});if(Object.values(decisions).some(v=>!v))throw Error('すべての行で追加・除外を選んでください。');preview.rows.forEach(p=>review[p.id]=p.matchIds||[]);importRequest={...preview.body,decisions,review};}
       message('hh-import-status','取り込んでいます…');const r=await api('hh_import_commit',importRequest);resetPreview();message('hh-import-status',r.added+'件を追加、'+r.skipped+'件を除外・登録済みとして処理しました。');await refresh();
-    }catch(e){message('hh-import-status',e.message+' 途中で通信が切れた場合も、同じ内容で再実行すると登録済みの行は追加されません。',true);$('hh-commit').disabled=false;}
+    }catch(e){clearDashboard();message('hh-import-status',e.message+' 途中で通信が切れた場合も、同じ内容で再実行すると登録済みの行は追加されません。',true);$('hh-commit').disabled=false;}
   }
   function editPayment(p){['id','date','name','amount','status','note'].forEach(k=>$('hh-payment-'+k).value=p[k]??'');setView('manage');$('hh-payment-editor').open=true;}
   function newPayment(){editPayment({id:uuid(),date:'',name:'家賃',amount:69125,status:'見込み',note:''});}
@@ -149,7 +161,7 @@
   }
   async function savePayment(e){e.preventDefault();$('hh-payment-save').disabled=true;
     try{const p={};['id','date','name','amount','status','note'].forEach(k=>p[k]=$('hh-payment-'+k).value);await api('hh_payment_save',{payment:p});message('hh-payment-message','予定を保存しました。支出には加算していません。');await refresh();}
-    catch(err){message('hh-payment-message',err.message,true);}finally{$('hh-payment-save').disabled=demo;}
+    catch(err){clearDashboard();message('hh-payment-message',err.message,true);}finally{$('hh-payment-save').disabled=demo;}
   }
   function demoDashboard(month){
     const transactions=[
@@ -161,9 +173,9 @@
       {date:month+'-13',kind:'支出',category:'日用雑貨',merchant:'ドラッグストア',item:'生活用品',amount:2470,method:'現金'},
       {date:month+'-01',kind:'収入',category:'生活費入金',merchant:'共同口座への入金',amount:150000,method:'口座入金'}
     ].map((r,i)=>({...r,id:'demo:'+i,scope:'共同'}));
-    const categories=[{name:'家賃',amount:69125},{name:'食費',amount:32580},{name:'電気代',amount:12400},{name:'日用雑貨',amount:6830}];return {summary:{expense:120935,income:150000,balance:29065,count:transactions.length,categories},trends:Array.from({length:6},(_,i)=>{const d=new Date(month+'-01T00:00:00Z');d.setUTCMonth(d.getUTCMonth()-5+i);return{month:d.toISOString().slice(0,7),expense:[115420,134100,109980,125500,117300,120935][i]};}),coverage:'操作見本の架空データです。本当の支出・収入ではありません。',transactions,issues:[],payments:[{id:'demo',date:month+'-27',name:'家賃',amount:69125,status:'見込み',note:'操作見本'}]};}
+    const categories=[{name:'家賃',amount:69125},{name:'食費',amount:32580},{name:'電気代',amount:12400},{name:'日用雑貨',amount:6830}];return {summary:{expense:120935,income:150000,balance:29065,count:transactions.length,categories},trends:Array.from({length:6},(_,i)=>{const d=new Date(month+'-01T00:00:00Z');d.setUTCMonth(d.getUTCMonth()-5+i);return{month:d.toISOString().slice(0,7),expense:[115420,134100,109980,125500,117300,120935][i]};}),billing:{currentMonth:today().slice(0,7),months:[today().slice(0,7)],summaries:{[today().slice(0,7)]:{known:3,complete:true,total:36940,cards:[{card:'楽天（共同）',amount:32580,date:today().slice(0,7)+'-27'},{card:'Amazon（共同）',amount:4360,date:''},{card:'PayPay（共同）',amount:0,date:today().slice(0,7)+'-27'}]}}},coverage:'操作見本の架空データです。本当の支出・収入ではありません。',transactions,issues:[],payments:[{id:'demo',date:month+'-27',name:'家賃',amount:69125,status:'見込み',note:'操作見本'}]};}
   $('hh-month').value=today().slice(0,7);$('hh-date').value=today();$('hh-date').max=today();$('hh-remember').value=connection.remembered()?'device':'session';connectionState();
-  $('hh-connect').onclick=connect;$('hh-disconnect').onclick=disconnect;
+  $('hh-connect').onclick=connect;$('hh-disconnect').onclick=disconnect;$('hh-billing-month').onchange=drawBilling;
   document.querySelectorAll('[data-hh-view]').forEach(button=>button.onclick=()=>{setView(button.dataset.hhView);if(button.id==='hh-connection-state'||button.id==='hh-start-connect')$('hh-connection').open=true;});
   document.querySelectorAll('.hh-view-tabs button').forEach((button,index,buttons)=>button.onkeydown=event=>{let next;if(event.key==='ArrowRight')next=(index+1)%buttons.length;else if(event.key==='ArrowLeft')next=(index+buttons.length-1)%buttons.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=buttons.length-1;else return;event.preventDefault();buttons[next].click();buttons[next].focus();});
   $('hh-open-payments').onclick=()=>{setView('manage');$('hh-payment-editor').open=true;$('hh-payment-editor').scrollIntoView({block:'start',behavior:'smooth'});};
