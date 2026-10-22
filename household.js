@@ -66,9 +66,9 @@
     drawBilling();
   }
   function drawBilling(){
-    const s=billing?.summaries[$('hh-billing-month').value],target=$('hh-billing-cards');target.replaceChildren();$('hh-billing-total').textContent=s&&s.total!==null?money(s.total):'—';$('hh-billing-total-label').textContent=s&&!s.complete?'取込済みの小計':'明細額の合計';
+    const s=billing?.summaries[$('hh-billing-month').value],target=$('hh-billing-cards');target.replaceChildren();$('hh-billing-total').textContent=s&&s.total!=null?money(s.total):'—';$('hh-billing-total-label').textContent=s&&!s.complete?'取込済みの小計':'明細額の合計';
     if(!s){$('hh-billing-status').textContent='請求情報はまだ読み込めていません。';return;}
-    s.cards.forEach(c=>{const row=node('div'),label=node('div'),date=node('small',c.amount===null?'明細未取込':c.date?'引落日 '+c.date.replaceAll('-','/'):'引落日 未確認');row.className='hh-bill-row';label.append(node('span',c.card),date);row.append(label,node('strong',c.amount===null?'—':money(c.amount)));target.append(row);});
+    s.cards.forEach(c=>{const row=node('div'),label=node('div'),date=node('small',c.amount==null?'明細未取込':c.date?'引落日 '+c.date.replaceAll('-','/'):'引落日 未確認');row.className='hh-bill-row';label.append(node('span',c.card),date);row.append(label,node('strong',c.amount==null?'—':money(c.amount)));target.append(row);});
     $('hh-billing-status').textContent=s.complete?'全'+s.cards.length+'枚の明細を取込済みです。カード会社の確定額・引落日とあわせてご確認ください。':s.known+'／'+s.cards.length+'枚を取込済み。未取込のカードがあるため、全カードの請求合計は未確定です。';
   }
   async function refresh(validated){
