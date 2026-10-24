@@ -106,7 +106,7 @@
     $('hh-forecast-recorded').textContent=money(result.recorded);
     $('hh-forecast-pending').textContent=money(result.pending);
     $('hh-forecast-badge').textContent=result.unknown.length?'未確認あり':'参考額';
-    $('hh-forecast-caption').textContent=result.unknown.length?'いま分かっている分の合計':'記録済み＋未記録の固定費';
+    $('hh-forecast-caption').textContent=!result.hasSpendingRecords?'支出は未記録・固定費のみの見込み':result.unknown.length?'いま分かっている分の合計':'記録済み＋未記録の固定費';
     $('hh-forecast-unknown').textContent=result.unknown.length?'未確認：'+result.unknown.join('・')+'。この分は合計に含めていません。':'固定費は実績が記録されると、予定分を差し引きます。';
     result.rows.forEach(r=>{
       const row=node('div'),heading=node('div'),description=node('small',r.basis);

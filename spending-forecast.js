@@ -39,7 +39,7 @@
     });
     const pending=rows.reduce((s,r)=>s+(r.pending===null?0:r.pending),0),total=recorded+pending;
     amount(total,true);
-    return {month,recorded,pending,total,rows,unknown:rows.filter(r=>r.expected===null).map(r=>r.name)};
+    return {month,recorded,pending,total,rows,unknown:rows.filter(r=>r.expected===null).map(r=>r.name),hasSpendingRecords:transactions.some(t=>['支出','返金'].includes(t.kind))};
   }
   return {build};
 });
