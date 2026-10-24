@@ -3,9 +3,10 @@
   'use strict';
   const $=id=>doc.getElementById(id),days=['mon','tue','wed','thu','fri','sat','sun'],labels=['月','火','水','木','金','土','日'];
   const people={naoki:'尚輝',maki:'真輝',common:'2人'};
+  const portraits={naoki:'bear',maki:'rabbit',common:'common'};
   const node=(tag,text,cls)=>{const e=doc.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;};
   const dateLabel=value=>{const d=LifeCore.day(value);return d?Number(d.slice(5,7))+'/'+Number(d.slice(8,10)):'日付未確認';};
-  function person(owner){owner=people[owner]?owner:'common';const wrap=node('span',undefined,'life-person');const image=node('img');image.src='assets/people/'+owner+'.png';image.alt='';image.width=image.height=22;wrap.append(image,node('span',people[owner]));return wrap;}
+  function person(owner){owner=people[owner]?owner:'common';const wrap=node('span',undefined,'life-person');const image=node('img');image.src='assets/people/'+portraits[owner]+'.png';image.alt='';image.width=image.height=22;wrap.append(image,node('span',people[owner]));return wrap;}
   function notice(text){root.showToast(text);}
   async function request(action,extra){
     const res=await fetch(GAS_URL,{method:'POST',body:JSON.stringify(Object.assign({type:'web_app',action:action},extra||{}))});
@@ -68,7 +69,7 @@
   let searchTimer;function filterPhotos(){clearTimeout(searchTimer);galleries['photo-gallery'].epoch++;searchTimer=setTimeout(()=>loadGallery('photo-gallery',false),250);}
   function replaceOwnerEmoji(parent){
     if(!parent||!parent.querySelectorAll)return;const walker=doc.createTreeWalker(parent,NodeFilter.SHOW_TEXT);const textNodes=[];while(walker.nextNode()){const n=walker.currentNode;if(/[🐢🧸🏠]/u.test(n.textContent)&&!['SCRIPT','STYLE','TEXTAREA','OPTION'].includes(n.parentElement.tagName))textNodes.push(n);}
-    textNodes.forEach(n=>{const parts=n.textContent.split(/(🐢|🧸|🏠)/u),fragment=doc.createDocumentFragment();parts.forEach(p=>{const owner={'🐢':'naoki','🧸':'maki','🏠':'common'}[p];if(owner){const image=node('img');image.className='life-person-icon';image.src='assets/people/'+owner+'.png';image.alt='';image.width=image.height=24;fragment.append(image);}else fragment.append(doc.createTextNode(p));});n.replaceWith(fragment);});
+    textNodes.forEach(n=>{const parts=n.textContent.split(/(🐢|🧸|🏠)/u),fragment=doc.createDocumentFragment();parts.forEach(p=>{const owner={'🐢':'naoki','🧸':'maki','🏠':'common'}[p];if(owner){const image=node('img');image.className='life-person-icon';image.src='assets/people/'+portraits[owner]+'.png';image.alt='';image.width=image.height=24;fragment.append(image);}else fragment.append(doc.createTextNode(p));});n.replaceWith(fragment);});
   }
   const observer=new MutationObserver(mutations=>{for(const mutation of mutations)for(const added of mutation.addedNodes)replaceOwnerEmoji(added.nodeType===3?added.parentElement:added);});doc.querySelectorAll('.life-page').forEach(page=>observer.observe(page,{childList:true,subtree:true}));
   Object.assign(root,{loadSchedules:loadSchedules,submitEvent:submitEvent,loadMenu:loadMenu,submitMenu:submitMenu,loadPhotos:()=>loadGallery('photo-gallery',false),loadMemories:()=>loadGallery('memory-gallery',false),filterPhotos:filterPhotos});
