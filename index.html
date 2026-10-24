@@ -70,7 +70,7 @@
         #toast.show { visibility: visible; opacity: 1; }
     </style>
     <link rel="stylesheet" href="household.css?v=7a5ab03837dd">
-    <link rel="stylesheet" href="nordic-household.css?v=77488cdf88d5">
+    <link rel="stylesheet" href="nordic-household.css?v=c5ca0a4e80a4">
     <link rel="stylesheet" href="nordic-life.css?v=f273c9ce095e">
     <link rel="stylesheet" href="life-records.css?v=779c6f69db61">
     <link rel="stylesheet" href="character-navigation.css?v=afb5a780d190">
@@ -150,10 +150,19 @@
       <section class="hh-view" id="hh-view-overview" role="tabpanel" aria-labelledby="hh-tab-overview">
         <div class="box hh-box hh-summary-box">
           <div class="hh-month-bar hh-household-month"><label for="hh-month">家計の月</label><input type="month" id="hh-month"><button type="button" id="hh-refresh" class="hh-icon-button" aria-label="集計を更新"><svg aria-hidden="true"><use href="#life-refresh"></use></svg></button></div>
-          <div class="hh-total-heading"><h3>この月の収支</h3><a class="hh-chart-link" href="#hh-breakdown">グラフを見る ↓</a></div>
+          <section class="hh-forecast" aria-labelledby="hh-forecast-title">
+            <div class="hh-forecast-heading"><h3 id="hh-forecast-title">この月の支出見込み</h3><span id="hh-forecast-badge">参考額</span></div>
+            <p id="hh-forecast-caption" class="hh-note">記録済みの支出に、未記録の固定費を足します。</p>
+            <strong id="hh-forecast-total" class="hh-forecast-total" aria-live="polite">—</strong>
+            <div class="hh-forecast-equation"><span>記録済み支出<strong id="hh-forecast-recorded">—</strong></span><span aria-hidden="true">＋</span><span>未記録の固定費<strong id="hh-forecast-pending">—</strong></span></div>
+            <p id="hh-forecast-unknown" class="hh-forecast-unknown" role="status">接続すると見込みを表示します。</p>
+            <details class="hh-forecast-details"><summary>計算の内訳・固定費の予定</summary><div id="hh-forecast-rows"></div><button type="button" id="hh-forecast-edit" class="hh-text-button">固定費の予定を追加・修正</button><p class="hh-note">今月の支払がないと確認できた項目は、0円の予定を登録できます。</p></details>
+            <p class="hh-note hh-forecast-disclaimer">利用月の見込みです。カード請求額は重ねて足しません。未取込分・これからの買い物は含みません。</p>
+          </section>
+          <div class="hh-total-heading"><h3>記録済みの収支</h3><a class="hh-chart-link" href="#hh-breakdown">グラフを見る ↓</a></div>
           <div class="hh-cash-summary" aria-label="収入・支出合計・収支差額">
             <div class="hh-cash-row"><span>収入</span><strong id="hh-income">—</strong></div>
-            <div class="hh-cash-row hh-cash-expense"><span>支出合計<small>返金差引</small></span><strong id="hh-expense">—</strong></div>
+            <div class="hh-cash-row hh-cash-expense"><span>記録済み支出<small>返金差引</small></span><strong id="hh-expense">—</strong></div>
             <div class="hh-cash-row hh-cash-balance"><span>収支差額<small>収入 − 支出</small></span><strong id="hh-balance">—</strong></div>
           </div>
           <div class="hh-kpis"><div class="hh-kpi">前月との差<strong id="hh-month-diff">—</strong><small>記録済み分の比較</small></div><div class="hh-kpi">手動登録の支払予定<strong id="hh-upcoming">—</strong><small id="hh-upcoming-note">選択月の未払い分</small></div></div>
@@ -172,7 +181,7 @@
           <p class="hh-note">取込時点の明細額です。未取込は0円として扱いません。家賃・水道光熱費は含みません。利用月の支出へ重ねて加算されることはありません。</p>
         </section>
         <section class="box hh-box hh-trends-box"><h3>過去6か月の支出</h3><p class="hh-note">各月の記録済み分を比較しています。</p><div id="hh-trends" class="hh-chart"></div></section>
-        <div class="box hh-box"><div class="hh-section-heading"><h3>口座からの支払予定</h3><button type="button" class="hh-text-button" id="hh-open-payments">追加・修正</button></div><p class="hh-note">ここへの登録は、支出に重ねて加算されません。</p><p id="hh-payment-total" class="hh-note">まだ読み込んでいません。</p><div id="hh-payments" class="hh-scroll"></div></div>
+        <div class="box hh-box"><div class="hh-section-heading"><h3>口座からの支払予定</h3><button type="button" class="hh-text-button" id="hh-open-payments">追加・修正</button></div><p class="hh-note">実績の支出には加算しません。家賃・電気代・水道代の予定は、同じ月の「支出見込み」に使います。</p><p id="hh-payment-total" class="hh-note">まだ読み込んでいません。</p><div id="hh-payments" class="hh-scroll"></div></div>
         <div class="box hh-box"><details><summary>記録済みの明細</summary><div id="hh-transactions"></div></details><details><summary>集計から除いた要確認データ</summary><ul id="hh-issues"></ul></details></div>
         <div class="hh-story-footer"><img src="assets/illustrations/hug.webp" width="273" height="280" alt="くまとうさぎのハグ" loading="lazy"><span>ふたりのくらしを、<br>ふたりのペースで。</span></div>
       </section>
@@ -203,7 +212,7 @@
           <button type="button" id="hh-preview" class="hh-secondary">取込前に照合する</button><p id="hh-import-status" class="hh-status" role="status"></p><button type="button" id="hh-claim-to-payment" class="hh-secondary" hidden>明細の支払欄合計を予定の入力欄へ</button><div id="hh-import-table" class="hh-scroll"></div>
           <label class="hh-check"><input id="hh-import-checked" type="checkbox">照合候補を確認し、同じ買い物を重ねて追加しないことを確認しました。</label><button class="btn-green" type="button" id="hh-commit" disabled>選んだ明細を取り込む</button>
         </div>
-        <div class="box hh-box"><details id="hh-payment-editor"><summary>支払予定を追加・修正</summary><p class="hh-note">楽天の請求額には通信費を含めます。家賃は月69,125円、水道代の見込みは隔月5,000円。未確定なら「見込み」で登録します。</p>
+        <div class="box hh-box"><details id="hh-payment-editor"><summary>支払予定を追加・修正</summary><p class="hh-note">家賃は月69,125円です。電気代・水道代は請求書などで確認し、未確定なら「見込み」で登録してください。固定費の予定は利用月の支出見込みに使うため、家計に含めたい月で登録します。カードの予定は請求月の確認用です。</p>
           <form id="hh-payment-form"><input id="hh-payment-id" type="hidden"><div class="hh-grid"><label>引き落とし予定日<input id="hh-payment-date" type="date" required></label><label>状態<select id="hh-payment-status"><option>見込み</option><option>確定</option><option>支払済</option></select></label><label>項目<select id="hh-payment-name"><option>家賃</option><option>水道代</option><option>電気代</option><option>楽天（共同）</option><option>Amazon（共同）</option><option>PayPay（共同）</option><option>その他</option></select></label><label>金額（円）<input id="hh-payment-amount" type="text" inputmode="numeric" value="69125" required></label></div>
           <label class="hh-full">補足<input id="hh-payment-note" maxlength="500" placeholder="請求書で確認済み、概算など"></label><div class="hh-actions"><button type="submit" id="hh-payment-save" class="btn-green">予定を保存</button><button type="button" id="hh-payment-new" class="hh-secondary">新しい予定</button></div><p id="hh-payment-message" class="hh-status" role="status"></p></form>
         </details></div>
@@ -583,7 +592,8 @@
     <script src="household-core.js?v=3a58e2d8ea44"></script>
     <script src="card-csv.js?v=f96f7374efc9"></script>
     <script src="household-visuals.js?v=169aed52ddee"></script>
-    <script src="household.js?v=b5b0defd533d"></script>
+    <script src="spending-forecast.js?v=9a01058fef45"></script>
+    <script src="household.js?v=8afb72d6314c"></script>
     <script src="character-navigation.js?v=5b4529385055"></script>
     <script src="life-core.js?v=a0ded204dd71"></script>
     <script src="life-records.js?v=a88d12a13094"></script>

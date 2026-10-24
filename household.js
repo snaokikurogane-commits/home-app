@@ -90,13 +90,41 @@
     s.cards.forEach(c=>{const row=node('div'),label=node('div'),date=node('small',c.amount==null?'明細未取込':c.date?'引落日 '+c.date.replaceAll('-','/'):'引落日 未確認');row.className='hh-bill-row';label.append(node('span',c.card),date);row.append(label,node('strong',c.amount==null?'—':money(c.amount)));target.append(row);});
     $('hh-billing-status').textContent=s.complete?'全'+s.cards.length+'枚の明細を取込済みです。カード会社の確定額・引落日とあわせてご確認ください。':s.known+'／'+s.cards.length+'枚を取込済み。未取込のカードがあるため、全カードの請求合計は未確定です。';
   }
+  function renderForecast(data,month,loading=false){
+    const title=/^\d{4}-\d{2}$/.test(month)?Number(month.slice(5))+'月':'この月';
+    $('hh-forecast-title').textContent=title+'の支出見込み';
+    $('hh-forecast-rows').replaceChildren();
+    if(!data){
+      ['hh-forecast-total','hh-forecast-recorded','hh-forecast-pending'].forEach(id=>$(id).textContent='—');
+      $('hh-forecast-badge').textContent=loading?'読込中':'参考額';
+      $('hh-forecast-caption').textContent='記録済みの支出に、未記録の固定費を足します。';
+      $('hh-forecast-unknown').textContent=loading?'固定費の予定を確認しています…':'まだ読み込めていないため、見込みは表示していません。';
+      return;
+    }
+    const result=HHSpendingForecast.build(data,month,today().slice(0,7));
+    $('hh-forecast-total').textContent=money(result.total);
+    $('hh-forecast-recorded').textContent=money(result.recorded);
+    $('hh-forecast-pending').textContent=money(result.pending);
+    $('hh-forecast-badge').textContent=result.unknown.length?'未確認あり':'参考額';
+    $('hh-forecast-caption').textContent=result.unknown.length?'いま分かっている分の合計':'記録済み＋未記録の固定費';
+    $('hh-forecast-unknown').textContent=result.unknown.length?'未確認：'+result.unknown.join('・')+'。この分は合計に含めていません。':'固定費は実績が記録されると、予定分を差し引きます。';
+    result.rows.forEach(r=>{
+      const row=node('div'),heading=node('div'),description=node('small',r.basis);
+      row.className='hh-forecast-row';heading.append(node('span',r.name),node('strong',r.expected===null?'未確認':money(r.expected)));
+      row.append(heading,description);
+      if(r.expected!==null)row.append(node('small','記録済み '+money(r.actual)+' ／ 追加予定 '+money(r.pending)));
+      $('hh-forecast-rows').append(row);
+    });
+  }
   async function refresh(validated){
     const request=++refreshNumber, month=$('hh-month').value;
+    renderForecast(null,month,true);
     message('hh-status','共同家計を読み込んでいます…');
     $('hh-categories').replaceChildren(node('p','内訳を読み込んでいます…'));$('hh-categories').setAttribute('aria-busy','true');
     try{
       const data=validated && validated.month===month && validated.data?validated.data:await api('hh_dashboard',{month});if(request!==refreshNumber)return;
       const s=data.summary;$('hh-expense').textContent=money(s.expense);$('hh-income').textContent=money(s.income);$('hh-balance').textContent=money(s.balance);
+      renderForecast(data,month);
       const overview=HHClientCore.dashboardOverview(data,month);$('hh-month-diff').textContent=overview.difference===null?'—':(overview.difference>0?'+':'')+money(overview.difference);$('hh-upcoming').textContent=money(overview.unpaid);$('hh-upcoming-note').textContent=overview.estimated?'うち見込み '+money(overview.estimated):'選択月の未払い分';
       $('hh-coverage').textContent=data.coverage+' 収支差額は口座残高ではありません。';
       categoryBars(s.categories,data.transactions,month);chartState={categories:s.categories,expense:s.expense};renderCategoryChart();bars('hh-trends',data.trends.map(r=>({name:r.month,amount:r.expense})));
@@ -111,7 +139,7 @@
       message('hh-status',demo?'架空データの操作見本を表示しています。':s.count+'件を集計しました。');
     }catch(e){if(request===refreshNumber){clearDashboard();message('hh-status',e.message,true);}}
   }
-  function clearDashboard(){renderBilling(null);chartState=null;renderCategoryChart();$('hh-categories').setAttribute('aria-busy','false');['hh-expense','hh-income','hh-balance','hh-month-diff','hh-upcoming'].forEach(id=>$(id).textContent='—');['hh-categories','hh-trends','hh-transactions','hh-payments','hh-issues'].forEach(id=>$(id).replaceChildren());$('hh-upcoming-note').textContent='選択月の未払い分';$('hh-payment-total').textContent='読込未完了';$('hh-coverage').textContent='読み込めなかったため、金額を表示していません。';}
+  function clearDashboard(){renderForecast(null,$('hh-month').value);renderBilling(null);chartState=null;renderCategoryChart();$('hh-categories').setAttribute('aria-busy','false');['hh-expense','hh-income','hh-balance','hh-month-diff','hh-upcoming'].forEach(id=>$(id).textContent='—');['hh-categories','hh-trends','hh-transactions','hh-payments','hh-issues'].forEach(id=>$(id).replaceChildren());$('hh-upcoming-note').textContent='選択月の未払い分';$('hh-payment-total').textContent='読込未完了';$('hh-coverage').textContent='読み込めなかったため、金額を表示していません。';}
   async function connect(){
     const key=$('hh-key').value.trim()||connection.key(),keep=$('hh-remember').value==='device',month=$('hh-month').value;
     $('hh-connect').disabled=true;$('hh-disconnect').disabled=true;message('hh-connection-message','接続を確認しています…');
@@ -199,13 +227,13 @@
   renderCategoryChart();
   document.querySelectorAll('[data-hh-view]').forEach(button=>button.onclick=()=>{setView(button.dataset.hhView);if(button.id==='hh-connection-state'||button.id==='hh-start-connect')$('hh-connection').open=true;});
   document.querySelectorAll('.hh-view-tabs button').forEach((button,index,buttons)=>button.onkeydown=event=>{let next;if(event.key==='ArrowRight')next=(index+1)%buttons.length;else if(event.key==='ArrowLeft')next=(index+buttons.length-1)%buttons.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=buttons.length-1;else return;event.preventDefault();buttons[next].click();buttons[next].focus();});
-  $('hh-open-payments').onclick=()=>{setView('manage');$('hh-payment-editor').open=true;$('hh-payment-editor').scrollIntoView({block:'start',behavior:'smooth'});};
+  $('hh-open-payments').onclick=$('hh-forecast-edit').onclick=()=>{newPayment();$('hh-payment-date').value=$('hh-month').value+'-27';$('hh-payment-editor').scrollIntoView({block:'start',behavior:'smooth'});};
   $('hh-refresh').onclick=refresh;$('hh-month').onchange=refresh;$('hh-entry').onsubmit=save;$('hh-method').onchange=()=>$('hh-card').disabled=$('hh-method').value!=='クレジットカード';
   $('hh-preview').onclick=importPreview;$('hh-commit').onclick=importCommit;['hh-file','hh-source-id','hh-import-card'].forEach(id=>$(id).onchange=resetPreview);
   $('hh-file').onchange=()=>{resetPreview();$('hh-source-id').value='';};
   $('hh-payment-form').onsubmit=savePayment;$('hh-payment-new').onclick=newPayment;
   $('hh-claim-to-payment').onclick=claimToPayment;
-  $('hh-payment-name').onchange=()=>{$('hh-payment-amount').value=({'家賃':'69125','水道代':'5000'})[$('hh-payment-name').value]||'';};
+  $('hh-payment-name').onchange=()=>{$('hh-payment-amount').value=({'家賃':'69125'})[$('hh-payment-name').value]||'';};
   // Do not suggest a precise water/electricity amount without a statement.
   $('hh-payment-id').value=uuid();const prior=pending();if(prior){restoreTransaction(prior);message('hh-save-status','保存結果が未確認の入力を復元しました。同じ内容で記録すると登録済みか確認できます。');}
   if(demo){$('hh-demo').hidden=false;['hh-save','hh-preview','hh-commit','hh-payment-save','hh-connect'].forEach(id=>$(id).disabled=true);}

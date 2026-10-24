@@ -433,6 +433,25 @@ body {
   outline-offset: 3px;
 }
 
+.hh-forecast { margin: 16px 0 22px; padding: 16px; border: 1px solid var(--hh-accent-line); border-radius: 16px; background: var(--hh-accent-soft); }
+.hh-forecast-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#tab-money .hh-forecast-heading h3 { margin: 0; font-size: 17px; }
+.hh-forecast-heading > span { flex-shrink: 0; padding: 2px 7px; border-radius: 6px; background: var(--hh-card); color: var(--hh-muted); font-size: 10px; }
+#tab-money .hh-forecast .hh-note { margin: 7px 0; font-size: 11px; }
+#tab-money .hh-forecast-total { display: block; margin: 8px 0 14px; color: var(--hh-accent); font-family: var(--hh-amount-font); font-size: clamp(30px,8vw,40px); line-height: 1.2; font-variant-numeric: tabular-nums; letter-spacing: -.025em; overflow-wrap: anywhere; }
+.hh-forecast-equation { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 8px; padding-top: 12px; border-top: 1px solid var(--hh-accent-line); color: var(--hh-muted); font-size: 10px; }
+.hh-forecast-equation strong { display: block; margin-top: 3px; color: var(--hh-ink); font-family: var(--hh-amount-font); font-size: clamp(16px,4.8vw,20px); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+#tab-money .hh-forecast-unknown { margin: 12px 0; color: #766043; font-size: 11px; line-height: 1.6; }
+.hh-forecast-details { font-size: 12px; }
+.hh-forecast-details summary { min-height: 32px; padding: 5px 0; cursor: pointer; }
+.hh-forecast-row { padding: 10px 0; border-bottom: 1px solid var(--hh-accent-line); }
+.hh-forecast-row > div { display: flex; justify-content: space-between; gap: 8px; }
+.hh-forecast-row strong { font-family: var(--hh-amount-font); }
+.hh-forecast-row small { display: block; margin-top: 3px; color: var(--hh-muted); font-size: 11px; }
+.hh-forecast-details .hh-text-button { min-height: 40px; margin-top: 4px; text-align: left; }
+#tab-money .hh-forecast .hh-forecast-disclaimer { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--hh-accent-line); }
+@media (max-width:360px) { #tab-money .hh-forecast { padding: 12px; } #tab-money .hh-forecast-heading h3 { font-size: 15px; } }
+
 @keyframes hh-nordic-appear {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
