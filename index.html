@@ -71,7 +71,7 @@
     </style>
     <link rel="stylesheet" href="household.css?v=7a5ab03837dd">
     <link rel="stylesheet" href="nordic-household.css?v=c5ca0a4e80a4">
-    <link rel="stylesheet" href="nordic-life.css?v=f273c9ce095e">
+    <link rel="stylesheet" href="nordic-life.css?v=3f8f05764bc3">
     <link rel="stylesheet" href="life-records.css?v=779c6f69db61">
     <link rel="stylesheet" href="character-navigation.css?v=afb5a780d190">
 <script>if(new URLSearchParams(location.search).get("demo")==="1"){window.fetch=async function(){throw new Error("操作見本では外部への送信はできません。");};}</script>
@@ -82,10 +82,10 @@
         <div class="box">
             <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>今すぐ帰ります</h3></div><img src="assets/illustrations/hero.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <div class="return-grid">
-                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'TRANSIT')"><img class="life-person-icon" src="assets/people/bear.png" width="24" height="24" alt="" loading="lazy" decoding="async">🚃 尚輝 電車</button>
-                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'DRIVING')"><img class="life-person-icon" src="assets/people/bear.png" width="24" height="24" alt="" loading="lazy" decoding="async">🚗 尚輝 車</button>
-                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'DRIVING')"><img class="life-person-icon" src="assets/people/rabbit.png" width="24" height="24" alt="" loading="lazy" decoding="async">🏍 真輝 バイク</button>
-                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'TRANSIT')"><img class="life-person-icon" src="assets/people/rabbit.png" width="24" height="24" alt="" loading="lazy" decoding="async">🚃 真輝 電車</button>
+                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'TRANSIT')"><img class="life-person-icon" src="assets/people/bear.png" width="24" height="24" alt="" loading="lazy" decoding="async"> 尚輝 電車</button>
+                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'DRIVING')"><img class="life-person-icon" src="assets/people/bear.png" width="24" height="24" alt="" loading="lazy" decoding="async"> 尚輝 車</button>
+                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'DRIVING')"><img class="life-person-icon" src="assets/people/rabbit.png" width="24" height="24" alt="" loading="lazy" decoding="async"> 真輝 バイク</button>
+                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'TRANSIT')"><img class="life-person-icon" src="assets/people/rabbit.png" width="24" height="24" alt="" loading="lazy" decoding="async"> 真輝 電車</button>
             </div>
             <div id="return-status" style="text-align:center; margin-top:10px; font-size:14px;"></div>
         </div>
@@ -97,6 +97,7 @@
             <div style="height: 200px; margin-bottom: 10px;">
                 <canvas id="weightChart"></canvas>
             </div>
+            <div class="life-weight-legend"><span class="life-weight-series life-weight-series-naoki">尚輝</span><span class="life-weight-series life-weight-series-maki">真輝</span><small>破線は目標</small></div>
             <div style="display:flex; gap:8px;">
                 <div class="life-weight-person" style="flex:1; background:#f8f9fa; padding:10px; border-radius:12px; text-align:center;">
                     <h4 style="margin:0; font-size:14px;"><img class="life-person-icon" src="assets/people/bear.png" width="24" height="24" alt="" loading="lazy" decoding="async"> 尚輝</h4>
@@ -111,7 +112,7 @@
                     <div id="diff-maki" style="font-size:12px; color:#e74c3c; font-weight:bold; margin-top:5px;">-- kg</div>
                 </div>
             </div>
-            <button class="btn-green" onclick="saveWeight()" id="btn-save-weight" style="margin-top:10px;">✅ 記録</button>
+            <button class="btn-green" onclick="saveWeight()" id="btn-save-weight" style="margin-top:10px;"><img class="life-check-icon" src="assets/ui/check.webp?v=8735aa19aa21" width="32" height="32" alt="" decoding="async"><span>記録</span></button>
         </div>
     </div>
 
@@ -151,22 +152,23 @@
         <div class="box hh-box hh-summary-box">
           <div class="hh-month-bar hh-household-month"><label for="hh-month">家計の月</label><input type="month" id="hh-month"><button type="button" id="hh-refresh" class="hh-icon-button" aria-label="集計を更新"><svg aria-hidden="true"><use href="#life-refresh"></use></svg></button></div>
           <section class="hh-forecast" aria-labelledby="hh-forecast-title">
-            <div class="hh-forecast-heading"><h3 id="hh-forecast-title">この月の支出見込み</h3><span id="hh-forecast-badge">参考額</span></div>
-            <p id="hh-forecast-caption" class="hh-note">記録済みの支出に、未記録の固定費を足します。</p>
+            <div class="hh-forecast-heading"><h3 id="hh-forecast-title">この月の支払見込み</h3><span id="hh-forecast-badge">参考額</span></div>
+            <p id="hh-forecast-caption" class="hh-note">この月に口座から出る分をまとめます。</p>
             <strong id="hh-forecast-total" class="hh-forecast-total" aria-live="polite">—</strong>
-            <div class="hh-forecast-equation"><span>記録済み支出<strong id="hh-forecast-recorded">—</strong></span><span aria-hidden="true">＋</span><span>未記録の固定費<strong id="hh-forecast-pending">—</strong></span></div>
+            <div class="hh-forecast-equation"><span>カード請求<strong id="hh-forecast-recorded">—</strong></span><span aria-hidden="true">＋</span><span>口座振替など<strong id="hh-forecast-pending">—</strong></span></div>
             <p id="hh-forecast-unknown" class="hh-forecast-unknown" role="status">接続すると見込みを表示します。</p>
+            <p id="hh-forecast-dates" class="hh-note"></p>
             <details class="hh-forecast-details"><summary>計算の内訳・固定費の予定</summary><div id="hh-forecast-rows"></div><button type="button" id="hh-forecast-edit" class="hh-text-button">固定費の予定を追加・修正</button><p class="hh-note">今月の支払がないと確認できた項目は、0円の予定を登録できます。</p></details>
-            <p class="hh-note hh-forecast-disclaimer">利用月の見込みです。カード請求額は重ねて足しません。未取込分・これからの買い物は含みません。</p>
+            <p class="hh-note hh-forecast-disclaimer">支払済みと今月残りの予定を含む、月全体の参考額です。現金払い・未取込分は含みません。利用月の収支とは集計の月が異なります。</p>
           </section>
-          <div class="hh-total-heading"><h3>記録済みの収支</h3><a class="hh-chart-link" href="#hh-breakdown">グラフを見る ↓</a></div>
+          <div class="hh-total-heading"><h3>利用月の収支（記録済み）</h3><a class="hh-chart-link" href="#hh-breakdown">グラフを見る ↓</a></div>
           <div class="hh-cash-summary" aria-label="収入・支出合計・収支差額">
             <div class="hh-cash-row"><span>収入</span><strong id="hh-income">—</strong></div>
             <div class="hh-cash-row hh-cash-expense"><span>記録済み支出<small>返金差引</small></span><strong id="hh-expense">—</strong></div>
             <div class="hh-cash-row hh-cash-balance"><span>収支差額<small>収入 − 支出</small></span><strong id="hh-balance">—</strong></div>
           </div>
           <div class="hh-kpis"><div class="hh-kpi">前月との差<strong id="hh-month-diff">—</strong><small>記録済み分の比較</small></div><div class="hh-kpi">手動登録の支払予定<strong id="hh-upcoming">—</strong><small id="hh-upcoming-note">選択月の未払い分</small></div></div>
-          <p class="hh-note">支出は使った日、収入は入金日で集計します。カードの請求額は下の欄で確認できます。</p>
+          <p class="hh-note">こちらの支出は使った日、収入は入金日で集計します。カード請求は重ねて加算しません。</p><p id="hh-rent-automation-note" class="hh-note">家賃の自動記録は、接続後に設定を確認します。</p>
           <details class="hh-coverage-details"><summary>集計の対象と注意点</summary><p id="hh-coverage" class="hh-note">接続すると、記録済みの共同家計を表示します。収支差額は口座残高とは異なります。</p></details>
           <button type="button" id="hh-start-connect" class="hh-secondary" data-hh-view="manage">接続して家計を見る</button>
         </div>
@@ -181,7 +183,7 @@
           <p class="hh-note">取込時点の明細額です。未取込は0円として扱いません。家賃・水道光熱費は含みません。利用月の支出へ重ねて加算されることはありません。</p>
         </section>
         <section class="box hh-box hh-trends-box"><h3>過去6か月の支出</h3><p class="hh-note">各月の記録済み分を比較しています。</p><div id="hh-trends" class="hh-chart"></div></section>
-        <div class="box hh-box"><div class="hh-section-heading"><h3>口座からの支払予定</h3><button type="button" class="hh-text-button" id="hh-open-payments">追加・修正</button></div><p class="hh-note">実績の支出には加算しません。家賃・電気代・水道代の予定は、同じ月の「支出見込み」に使います。</p><p id="hh-payment-total" class="hh-note">まだ読み込んでいません。</p><div id="hh-payments" class="hh-scroll"></div></div>
+        <div class="box hh-box"><div class="hh-section-heading"><h3>口座からの支払予定</h3><button type="button" class="hh-text-button" id="hh-open-payments">追加・修正</button></div><p class="hh-note">ここへの予定登録だけでは実績に加算しません。家賃・光熱費の予定は同じ月の「支払見込み」に使います。電気代は11月からカード決済へ移行するため、口座振替の概算を加えません。</p><p id="hh-payment-total" class="hh-note">まだ読み込んでいません。</p><div id="hh-payments" class="hh-scroll"></div></div>
         <div class="box hh-box"><details><summary>記録済みの明細</summary><div id="hh-transactions"></div></details><details><summary>集計から除いた要確認データ</summary><ul id="hh-issues"></ul></details></div>
         <div class="hh-story-footer"><img src="assets/illustrations/hug.webp" width="273" height="280" alt="くまとうさぎのハグ" loading="lazy"><span>ふたりのくらしを、<br>ふたりのペースで。</span></div>
       </section>
@@ -271,7 +273,7 @@
         <div class="box">
             <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>料理アルバム</h3></div><img src="assets/nav/menu.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <label style="display:block; text-align:center; margin-bottom:10px; border: 2px dashed #ddd; padding: 20px; border-radius: 10px; background: #fafafa;">
-                <span style="font-size:40px; cursor:pointer;">📸</span><br>
+                <img class="life-camera-icon" src="assets/ui/camera.webp?v=8fb9ebd283ab" width="80" height="80" alt="" loading="lazy" decoding="async">
                 <span style="font-size:14px; color:#5D7EA7; font-weight:bold;">撮影 または アルバムから選択</span>
                 <input type="file" id="camera-input" accept="image/*" style="display:none;" onchange="handleFileSelect(this)">
             </label>
@@ -293,7 +295,7 @@
         <div class="box">
             <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>思い出アルバム</h3></div><img src="assets/illustrations/hug.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <label style="display:block; text-align:center; margin-bottom:10px; border: 2px dashed #ddd; padding: 20px; border-radius: 10px; background: #fafafa;">
-                <span style="font-size:40px; cursor:pointer;">📸</span><br>
+                <img class="life-camera-icon" src="assets/ui/camera.webp?v=8fb9ebd283ab" width="80" height="80" alt="" loading="lazy" decoding="async">
                 <span style="font-size:14px; color:#E07A5F; font-weight:bold;">2人の写真を撮影・選択</span>
                 <input type="file" id="memory-camera-input" accept="image/*" style="display:none;" onchange="handleMemoryFileSelect(this)">
             </label>
@@ -467,6 +469,7 @@
         // --- 体重管理ロジック ---
         async function saveWeight() {
             const btn = document.getElementById('btn-save-weight');
+            const idleContent = btn.innerHTML;
             btn.disabled = true; btn.innerText = "保存中...";
             const payload = {
                 type: "web_app", action: "register_weight",
@@ -484,7 +487,7 @@
                 showToast("❌ 通信エラー"); 
                 console.error(e);
             } finally { 
-                btn.disabled = false; btn.innerText = "✅ 記録"; 
+                btn.disabled = false; btn.innerHTML = idleContent;
             }
         }
 
@@ -518,25 +521,37 @@
             if(myChart) myChart.destroy();
             const gN = document.getElementById('g-naoki').value;
             const gM = document.getElementById('g-maki').value;
+            const sage = '#7d9277', coral = '#c38370';
+            const tickStyle = { color: '#776b60', font: { family: '"Zen Maru Gothic", sans-serif', size: 11 } };
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: items.map(i => i.date),
                     datasets: [
-                        { label: '尚輝', data: items.map(i => i.naoki), borderColor: '#5ab48e', tension: 0.3, spanGaps: true },
-                        { label: '尚輝目標', data: items.map(() => gN ? Number(gN) : null), borderColor: '#5ab48e', borderDash: [5, 5], pointRadius: 0, fill: false },
-                        { label: '真輝', data: items.map(i => i.maki), borderColor: '#F2C94C', tension: 0.3, spanGaps: true },
-                        { label: '真輝目標', data: items.map(() => gM ? Number(gM) : null), borderColor: '#F2C94C', borderDash: [5, 5], pointRadius: 0, fill: false }
+                        { label: '尚輝', data: items.map(i => i.naoki), borderColor: sage, backgroundColor: sage, pointBackgroundColor: sage, pointBorderColor: '#fffdf7', pointBorderWidth: 1.5, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2.5, tension: 0.3, spanGaps: true },
+                        { label: '尚輝目標', data: items.map(() => gN ? Number(gN) : null), borderColor: 'rgba(125,146,119,0.5)', borderDash: [5, 5], borderWidth: 1.5, pointRadius: 0, fill: false },
+                        { label: '真輝', data: items.map(i => i.maki), borderColor: coral, backgroundColor: coral, pointBackgroundColor: coral, pointBorderColor: '#fffdf7', pointBorderWidth: 1.5, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2.5, tension: 0.3, spanGaps: true },
+                        { label: '真輝目標', data: items.map(() => gM ? Number(gM) : null), borderColor: 'rgba(195,131,112,0.5)', borderDash: [5, 5], borderWidth: 1.5, pointRadius: 0, fill: false }
                     ]
                 },
-                options: { 
-                    responsive: true, 
+                options: {
+                    responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { x: { ticks: { maxTicksLimit: 7 } }, y: { min: 40, max: 80 } }
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#fffdf7', titleColor: '#392b25', bodyColor: '#776b60',
+                            borderColor: '#dfd9ca', borderWidth: 1, padding: 10, cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { ...tickStyle, maxTicksLimit: 7 }, grid: { color: 'rgba(119,107,96,0.07)' }, border: { color: '#dfd9ca' } },
+                        y: { min: 40, max: 80, ticks: tickStyle, grid: { color: 'rgba(119,107,96,0.12)' }, border: { display: false } }
+                    }
                 }
             });
         }
+
 
         // --- その他機能 ---
         let currentOwner = 'common';
@@ -592,8 +607,9 @@
     <script src="household-core.js?v=3a58e2d8ea44"></script>
     <script src="card-csv.js?v=f96f7374efc9"></script>
     <script src="household-visuals.js?v=169aed52ddee"></script>
-    <script src="spending-forecast.js?v=d3fb2818dac8"></script>
-    <script src="household.js?v=b6e99c8d9638"></script>
+    <script src="spending-forecast.js?v=1b0b1dbad646"></script>
+    <script src="payment-outlook.js?v=73a76eef5ac4"></script>
+    <script src="household.js?v=64293e0b9fa6"></script>
     <script src="character-navigation.js?v=5b4529385055"></script>
     <script src="life-core.js?v=a0ded204dd71"></script>
     <script src="life-records.js?v=a88d12a13094"></script>

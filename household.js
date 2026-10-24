@@ -71,6 +71,7 @@
   }
   function transactionCard(r){
     const card=node('article');card.className='hh-transaction';const head=node('div');head.className='hh-transaction-head';head.append(node('strong',r.merchant||r.item||r.category),node('strong',(r.kind==='返金'?'−':'')+money(r.amount)));card.append(head,node('p',[r.date,r.kind,r.category,r.card||r.method].filter(Boolean).join(' · ')));if(r.item&&r.merchant)card.append(node('p',r.item));
+    if(r.source==='定額家賃の自動記録')card.append(node('small','定額から自動記録・銀行の引落結果は未照合'));
     if(Number.isInteger(r.row))card.append(node('small','元の記録：Data '+r.row+'行'));
     return card;
   }
@@ -92,29 +93,37 @@
   }
   function renderForecast(data,month,loading=false){
     const title=/^\d{4}-\d{2}$/.test(month)?Number(month.slice(5))+'月':'この月';
-    $('hh-forecast-title').textContent=title+'の支出見込み';
+    $('hh-forecast-title').textContent=title+'の支払見込み';
     $('hh-forecast-rows').replaceChildren();
+    $('hh-rent-automation-note').textContent=data?.rentAutomation?.enabled?'家賃は毎月27日に69,125円を自動記録します（銀行の引落結果は未照合）。':'家賃：毎月27日・69,125円。自動記録の有効化は設定待ちです。';
     if(!data){
       ['hh-forecast-total','hh-forecast-recorded','hh-forecast-pending'].forEach(id=>$(id).textContent='—');
       $('hh-forecast-badge').textContent=loading?'読込中':'参考額';
-      $('hh-forecast-caption').textContent='記録済みの支出に、未記録の固定費を足します。';
+      $('hh-forecast-caption').textContent='この月に口座から出る分をまとめます。';
+      $('hh-forecast-dates').textContent='';
       $('hh-forecast-unknown').textContent=loading?'固定費の予定を確認しています…':'まだ読み込めていないため、見込みは表示していません。';
       return;
     }
-    const result=HHSpendingForecast.build(data,month,today().slice(0,7));
+    const result=HHPaymentOutlook.build(data,month,today().slice(0,7));
     $('hh-forecast-total').textContent=money(result.total);
-    $('hh-forecast-recorded').textContent=money(result.recorded);
-    $('hh-forecast-pending').textContent=money(result.pending);
+    $('hh-forecast-recorded').textContent=result.cardsTotal===null?'—':money(result.cardsTotal);
+    $('hh-forecast-pending').textContent=money(result.bankTotal);
     $('hh-forecast-badge').textContent=result.unknown.length?'未確認あり':'参考額';
-    $('hh-forecast-caption').textContent=!result.hasSpendingRecords?'支出は未記録・固定費のみの見込み':result.unknown.length?'いま分かっている分の合計':'記録済み＋未記録の固定費';
-    $('hh-forecast-unknown').textContent=result.unknown.length?'未確認：'+result.unknown.join('・')+'。この分は合計に含めていません。':'固定費は実績が記録されると、予定分を差し引きます。';
-    result.rows.forEach(r=>{
+    $('hh-forecast-caption').textContent=result.unknown.length?'口座から出る分・確認できている小計':'この月に口座から出る分の合計';
+    $('hh-forecast-unknown').textContent=result.unknown.length?'未確認：'+result.unknown.join('・')+'。この分は合計に含めていません。':'カード請求＋家賃・光熱費など。二重に加算しません。';
+    $('hh-forecast-dates').textContent=result.dateUnconfirmed.length?'引落日未確認：'+result.dateUnconfirmed.join('・')+'。すべて27日とは限りません。':'';
+    result.cards.forEach(c=>{
+      const row=node('div'),heading=node('div');row.className='hh-forecast-row';
+      heading.append(node('span',c.name),node('strong',c.amount===null?'未取込':money(c.amount)));row.append(heading,node('small',c.date?'引落日 '+c.date.replaceAll('-','/'):'引落日 未確認'));$('hh-forecast-rows').append(row);
+    });
+    result.fixed.forEach(r=>{
       const row=node('div'),heading=node('div'),description=node('small',r.basis);
-      row.className='hh-forecast-row';heading.append(node('span',r.name),node('strong',r.expected===null?'未確認':money(r.expected)));
+      row.className='hh-forecast-row';heading.append(node('span',r.name),node('strong',r.amount===null?'未確認':money(r.amount)));
       row.append(heading,description);
-      if(r.expected!==null)row.append(node('small','記録済み '+money(r.actual)+' ／ 追加予定 '+money(r.pending)));
+      if(r.amount!==null)row.append(node('small','うち口座払いの記録済み '+money(r.actual-r.refund)+(r.refund?'（返金差引）':'')));
       $('hh-forecast-rows').append(row);
     });
+    if(result.other){const row=node('div');row.className='hh-forecast-row';row.append(node('span','その他の口座払い（記録済み・返金差引）'),node('strong',money(result.other)));$('hh-forecast-rows').append(row);}
   }
   async function refresh(validated){
     const request=++refreshNumber, month=$('hh-month').value;

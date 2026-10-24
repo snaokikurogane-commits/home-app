@@ -24,7 +24,11 @@
       const actual=actuals.reduce((s,t)=>s+amount(t.amount),0);
       const scheduled=payments.filter(p=>p.name===name);
       let expected=null,basis='金額・今月の予定が未確認';
-      if(scheduled.length){
+      if(name==='電気代'&&month>='2026-11'){
+        const confirmed=scheduled.filter(p=>['確定','支払済'].includes(p.status));
+        expected=confirmed.length?confirmed.reduce((sum,p)=>sum+amount(p.amount),0):actual;
+        basis=confirmed.length?'確認済みの口座払い予定':'11月からカード決済へ移行・口座振替の概算なし';
+      }else if(scheduled.length){
         expected=scheduled.reduce((s,p)=>s+amount(p.amount),0);
         basis='登録した支払予定'+(scheduled.some(p=>p.status==='見込み')?'（見込みを含む）':'');
       }else if(name==='家賃'&&(selected>=current||prior.some(t=>(t.categories||[]).some(c=>c.name===name&&c.amount>0)))){

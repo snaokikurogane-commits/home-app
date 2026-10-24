@@ -26,6 +26,15 @@
 .life-page .bg-naoki { background:#537482; color:#fffdf7; }
 .life-page .bg-maki { background:#e9ce8d; color:#4d3b28; }
 .life-page .return-btn { min-height:80px; font-size:13px; }
+.life-page .return-btn .life-person-icon { width:30px; height:30px; margin:0 0 3px; }
+.life-page .life-camera-icon { display:block; width:80px; height:80px; object-fit:contain; margin:-8px auto 0; cursor:pointer; }
+.life-page #btn-save-weight { display:flex; align-items:center; justify-content:center; gap:5px; }
+.life-page .life-check-icon { display:block; flex:0 0 32px; width:32px; height:32px; object-fit:contain; }
+.life-page .life-weight-legend { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px 16px; margin:0 0 14px; color:#776b60; font-size:11px; }
+.life-page .life-weight-series { display:inline-flex; align-items:center; gap:6px; }
+.life-page .life-weight-series::before { content:""; width:18px; height:3px; border-radius:2px; background:#7d9277; }
+.life-page .life-weight-series-maki::before { background:#c38370; }
+.life-page .life-weight-legend small { font-size:10px; }
 .life-page .radio-label, .life-page .owner-btn { border-color:#dfd9ca; background:#f9f6ed; color:#776b60; }
 .life-page .owner-btn.active, .life-page input[type="radio"]:checked + .radio-label { background:#edf1e6; border-color:#8caa7f; color:#45613e; }
 .life-page .radio-label { display:grid; place-items:center; min-height:44px; padding:10px 5px; }
