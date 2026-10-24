@@ -82,10 +82,10 @@
         <div class="box">
             <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>今すぐ帰ります</h3></div><img src="assets/illustrations/hero.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <div class="return-grid">
-                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'TRANSIT')"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="">🚃 尚輝 電車</button>
-                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'DRIVING')"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="">🚗 尚輝 車</button>
-                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'DRIVING')"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="">🏍 真輝 バイク</button>
-                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'TRANSIT')"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="">🚃 真輝 電車</button>
+                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'TRANSIT')"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="" loading="lazy" decoding="async">🚃 尚輝 電車</button>
+                <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'DRIVING')"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="" loading="lazy" decoding="async">🚗 尚輝 車</button>
+                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'DRIVING')"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="" loading="lazy" decoding="async">🏍 真輝 バイク</button>
+                <button class="return-btn bg-maki" onclick="quickReturn('maki', 'TRANSIT')"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="" loading="lazy" decoding="async">🚃 真輝 電車</button>
             </div>
             <div id="return-status" style="text-align:center; margin-top:10px; font-size:14px;"></div>
         </div>
@@ -99,13 +99,13 @@
             </div>
             <div style="display:flex; gap:8px;">
                 <div class="life-weight-person" style="flex:1; background:#f8f9fa; padding:10px; border-radius:12px; text-align:center;">
-                    <h4 style="margin:0; font-size:14px;"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt=""> 尚輝</h4>
+                    <h4 style="margin:0; font-size:14px;"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="" loading="lazy" decoding="async"> 尚輝</h4>
                     <input type="text" id="w-naoki" inputmode="decimal" placeholder="体重" style="text-align:center;">
                     <div style="font-size:11px; color:#666;">目標: <input type="text" id="g-naoki" inputmode="decimal" placeholder="58.0" style="width:45px; padding:2px; text-align:center;"></div>
                     <div id="diff-naoki" style="font-size:12px; color:#e74c3c; font-weight:bold; margin-top:5px;">-- kg</div>
                 </div>
                 <div class="life-weight-person" style="flex:1; background:#f8f9fa; padding:10px; border-radius:12px; text-align:center;">
-                    <h4 style="margin:0; font-size:14px;"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt=""> 真輝</h4>
+                    <h4 style="margin:0; font-size:14px;"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="" loading="lazy" decoding="async"> 真輝</h4>
                     <input type="text" id="w-maki" inputmode="decimal" placeholder="体重" style="text-align:center;">
                     <div style="font-size:11px; color:#666;">目標: <input type="text" id="g-maki" inputmode="decimal" placeholder="50.0" style="width:45px; padding:2px; text-align:center;"></div>
                     <div id="diff-maki" style="font-size:12px; color:#e74c3c; font-weight:bold; margin-top:5px;">-- kg</div>
@@ -125,9 +125,9 @@
                 <input type="date" id="event-end-date" style="flex: 1;">
             </div>
             <div class="owner-selector" style="margin-top:10px;">
-                <button class="owner-btn" data-owner="naoki" onclick="selectOwner('naoki')"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt=""> 尚輝</button>
-                <button class="owner-btn" data-owner="maki" onclick="selectOwner('maki')"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt=""> 真輝</button>
-                <button class="owner-btn active" data-owner="common" onclick="selectOwner('common')"><img class="life-person-icon" src="assets/people/common.png" width="24" height="24" alt=""> 2人</button>
+                <button class="owner-btn" data-owner="naoki" onclick="selectOwner('naoki')"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="" loading="lazy" decoding="async"> 尚輝</button>
+                <button class="owner-btn" data-owner="maki" onclick="selectOwner('maki')"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="" loading="lazy" decoding="async"> 真輝</button>
+                <button class="owner-btn active" data-owner="common" onclick="selectOwner('common')"><img class="life-person-icon" src="assets/people/common.png" width="24" height="24" alt="" loading="lazy" decoding="async"> 2人</button>
             </div>
             <button class="btn-green" onclick="submitEvent()" id="btn-submit-event">登録</button>
             <ul id="schedule-ul" style="margin-top:15px;"></ul>
@@ -267,9 +267,9 @@
                 <input type="file" id="camera-input" accept="image/*" style="display:none;" onchange="handleFileSelect(this)">
             </label>
             <div class="radio-group">
-                <input type="radio" name="photo-owner" id="p-naoki" value="naoki"><label for="p-naoki" class="radio-label"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="">尚輝</label>
-                <input type="radio" name="photo-owner" id="p-maki" value="maki"><label for="p-maki" class="radio-label"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="">真輝</label>
-                <input type="radio" name="photo-owner" id="p-common" value="common" checked><label for="p-common" class="radio-label"><img class="life-person-icon" src="assets/people/common.png" width="24" height="24" alt="">2人</label>
+                <input type="radio" name="photo-owner" id="p-naoki" value="naoki"><label for="p-naoki" class="radio-label"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="" loading="lazy" decoding="async">尚輝</label>
+                <input type="radio" name="photo-owner" id="p-maki" value="maki"><label for="p-maki" class="radio-label"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="" loading="lazy" decoding="async">真輝</label>
+                <input type="radio" name="photo-owner" id="p-common" value="common" checked><label for="p-common" class="radio-label"><img class="life-person-icon" src="assets/people/common.png" width="24" height="24" alt="" loading="lazy" decoding="async">2人</label>
             </div>
             <input type="text" id="photo-memo" placeholder="料理名・メモ (任意)">
             <button class="btn-green" onclick="uploadPhoto()">保存する</button>
@@ -317,9 +317,9 @@
                 </select>
             </div>
             <div class="radio-group">
-                <input type="radio" name="bucket-owner" id="b-naoki" value="naoki"><label for="b-naoki" class="radio-label"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="">尚輝</label>
-                <input type="radio" name="bucket-owner" id="b-maki" value="maki"><label for="b-maki" class="radio-label"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="">真輝</label>
-                <input type="radio" name="bucket-owner" id="b-common" value="common" checked><label for="b-common" class="radio-label"><img class="life-person-icon" src="assets/people/common.png" width="24" height="24" alt="">2人</label>
+                <input type="radio" name="bucket-owner" id="b-naoki" value="naoki"><label for="b-naoki" class="radio-label"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="" loading="lazy" decoding="async">尚輝</label>
+                <input type="radio" name="bucket-owner" id="b-maki" value="maki"><label for="b-maki" class="radio-label"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="" loading="lazy" decoding="async">真輝</label>
+                <input type="radio" name="bucket-owner" id="b-common" value="common" checked><label for="b-common" class="radio-label"><img class="life-person-icon" src="assets/people/common.png" width="24" height="24" alt="" loading="lazy" decoding="async">2人</label>
             </div>
             <button class="btn-green" onclick="submitBucket()">リストに追加</button>
             <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
@@ -333,8 +333,8 @@
             <input type="text" id="pay-item" placeholder="何に使った？">
             <input type="text" id="pay-amount" placeholder="金額" inputmode="numeric">
             <div class="radio-group">
-                <input type="radio" name="payer" id="pay-naoki" value="尚輝" checked><label for="pay-naoki" class="radio-label"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="">尚輝払</label>
-                <input type="radio" name="payer" id="pay-maki" value="真輝"><label for="pay-maki" class="radio-label"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="">真輝払</label>
+                <input type="radio" name="payer" id="pay-naoki" value="尚輝" checked><label for="pay-naoki" class="radio-label"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="" loading="lazy" decoding="async">尚輝払</label>
+                <input type="radio" name="payer" id="pay-maki" value="真輝"><label for="pay-maki" class="radio-label"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="" loading="lazy" decoding="async">真輝払</label>
             </div>
             <button class="btn-green" onclick="submitPayment()">記録</button>
             <hr style="margin:20px 0; border:0; border-top:1px dashed #ddd;">
@@ -346,12 +346,12 @@
         <div class="box">
             <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>感謝ポイント</h3></div><img src="assets/illustrations/hug.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <div style="display:flex; gap:12px;">
-                <button class="btn-blue" onclick="addPoint('naoki')"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt=""> 尚輝へ</button>
-                <button class="btn-red" onclick="addPoint('maki')"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt=""> 真輝へ</button>
+                <button class="btn-blue" onclick="addPoint('naoki')"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="" loading="lazy" decoding="async"> 尚輝へ</button>
+                <button class="btn-red" onclick="addPoint('maki')"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="" loading="lazy" decoding="async"> 真輝へ</button>
             </div>
             <div class="point-box">
-                <div class="point-card"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="">尚輝<span id="pt-naoki" class="point-num">0</span></div>
-                <div class="point-card"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="">真輝<span id="pt-maki" class="point-num">0</span></div>
+                <div class="point-card"><img class="life-person-icon" src="assets/people/naoki.png" width="24" height="24" alt="" loading="lazy" decoding="async">尚輝<span id="pt-naoki" class="point-num">0</span></div>
+                <div class="point-card"><img class="life-person-icon" src="assets/people/maki.png" width="24" height="24" alt="" loading="lazy" decoding="async">真輝<span id="pt-maki" class="point-num">0</span></div>
             </div>
         </div>
     </div>
