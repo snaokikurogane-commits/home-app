@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>山西町ライフ</title>
     <meta name="application-name" content="共同家計簿">
-    <meta name="theme-color" content="#426b58">
+    <meta name="theme-color" content="#faf7ee">
     <meta name="apple-mobile-web-app-title" content="共同家計簿">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="mobile-web-app-capable" content="yes">
-    <link rel="icon" type="image/png" sizes="32x32" href="icons/household-32.png?v=198e0f035358">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/household-180.png?v=af67fc458ce1">
-    <link rel="manifest" href="manifest.webmanifest?v=4ab6bd50a708">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/household-32.png?v=e6e366758022">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/household-180.png?v=ebc5e6fdcef9">
+    <link rel="manifest" href="manifest.webmanifest?v=fce567e3248e">
+    <link rel="stylesheet" href="assets/fonts/fonts.css?v=123498a4990b">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -69,13 +70,16 @@
         #toast.show { visibility: visible; opacity: 1; }
     </style>
     <link rel="stylesheet" href="household.css?v=7a5ab03837dd">
+    <link rel="stylesheet" href="nordic-household.css?v=7e906d26bfee">
+    <link rel="stylesheet" href="nordic-life.css?v=f273c9ce095e">
+    <link rel="stylesheet" href="character-navigation.css?v=afb5a780d190">
 <script>if(new URLSearchParams(location.search).get("demo")==="1"){window.fetch=async function(){throw new Error("操作見本では外部への送信はできません。");};}</script>
 </head>
 <body>
 
-    <div id="tab-return" class="container active">
+    <div id="tab-return" class="container life-page active">
         <div class="box">
-            <h3>🏠 今すぐ帰ります</h3>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>今すぐ帰ります</h3></div><img src="assets/illustrations/hero.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <div class="return-grid">
                 <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'TRANSIT')">🐢🚃 尚輝 電車</button>
                 <button class="return-btn bg-naoki" onclick="quickReturn('naoki', 'DRIVING')">🐢🚗 尚輝 車</button>
@@ -86,20 +90,20 @@
         </div>
     </div>
 
-    <div id="tab-weight" class="container">
+    <div id="tab-weight" class="container life-page">
         <div class="box">
-            <h3>⚖️ 体重管理</h3>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>体重管理</h3></div><img src="assets/nav/money.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <div style="height: 200px; margin-bottom: 10px;">
                 <canvas id="weightChart"></canvas>
             </div>
             <div style="display:flex; gap:8px;">
-                <div style="flex:1; background:#f8f9fa; padding:10px; border-radius:12px; text-align:center;">
+                <div class="life-weight-person" style="flex:1; background:#f8f9fa; padding:10px; border-radius:12px; text-align:center;">
                     <h4 style="margin:0; font-size:14px;">🐢 尚輝</h4>
                     <input type="text" id="w-naoki" inputmode="decimal" placeholder="体重" style="text-align:center;">
                     <div style="font-size:11px; color:#666;">目標: <input type="text" id="g-naoki" inputmode="decimal" placeholder="58.0" style="width:45px; padding:2px; text-align:center;"></div>
                     <div id="diff-naoki" style="font-size:12px; color:#e74c3c; font-weight:bold; margin-top:5px;">-- kg</div>
                 </div>
-                <div style="flex:1; background:#f8f9fa; padding:10px; border-radius:12px; text-align:center;">
+                <div class="life-weight-person" style="flex:1; background:#f8f9fa; padding:10px; border-radius:12px; text-align:center;">
                     <h4 style="margin:0; font-size:14px;">🧸 真輝</h4>
                     <input type="text" id="w-maki" inputmode="decimal" placeholder="体重" style="text-align:center;">
                     <div style="font-size:11px; color:#666;">目標: <input type="text" id="g-maki" inputmode="decimal" placeholder="50.0" style="width:45px; padding:2px; text-align:center;"></div>
@@ -110,9 +114,9 @@
         </div>
     </div>
 
-    <div id="tab-schedule" class="container">
+    <div id="tab-schedule" class="container life-page">
         <div class="box">
-            <h3>📅 予定登録</h3>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>予定登録</h3></div><img src="assets/nav/schedule.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <input type="text" id="event-name" placeholder="予定名 (例: ハワイ)">
             <div style="display: flex; align-items: center; gap: 5px;">
                 <input type="date" id="event-start-date" style="flex: 1;">
@@ -130,6 +134,7 @@
     </div>
 
     <div id="tab-money" class="container">
+      <div class="hh-storybook-hero"><div class="hh-hero-copy"><p>ふたりのくらしを、<br>すこしずつ。</p><small>いっしょに、家計管理。</small></div><img class="hh-hero-art" src="assets/illustrations/hero.webp" width="600" height="421" alt="花に囲まれたくまとうさぎ"></div>
       <header class="hh-masthead">
         <h2>共同家計簿</h2>
         <span class="hh-masthead-dots" aria-hidden="true"></span>
@@ -155,6 +160,8 @@
           <details class="hh-coverage-details"><summary>集計の対象と注意点</summary><p id="hh-coverage" class="hh-note">接続すると、記録済みの共同家計を表示します。収支差額は口座残高とは異なります。</p></details>
           <button type="button" id="hh-start-connect" class="hh-secondary" data-hh-view="manage">接続して家計を見る</button>
         </div>
+
+        <section class="box hh-box hh-charts" id="hh-breakdown" aria-labelledby="hh-breakdown-title"><div class="hh-section-heading"><h3 id="hh-breakdown-title">支出の内訳</h3><div class="hh-chart-switch" aria-label="グラフの種類"><button type="button" data-hh-chart="bar" aria-pressed="true">棒グラフ</button><button type="button" data-hh-chart="donut" aria-pressed="false">円グラフ</button></div></div><p class="hh-note hh-category-hint">費目をタップすると、その月の買い物の明細が開きます。</p><div id="hh-category-chart"><div id="hh-donut-wrap" class="hh-donut-wrap" hidden><svg id="hh-donut" class="hh-donut" viewBox="0 0 220 220" role="group" aria-label="支出内訳のドーナツグラフ"></svg><div class="hh-donut-center"><span>支出合計</span><strong id="hh-donut-total">—</strong><small>返金差引</small></div></div><p id="hh-chart-message" class="hh-chart-message" hidden></p><div id="hh-categories" class="hh-chart" aria-busy="false" data-chart="bar"></div></div></section>
         <section class="box hh-box hh-billing" aria-labelledby="hh-billing-title">
           <div class="hh-section-heading"><h3 id="hh-billing-title">カードの請求額</h3><span>請求月で確認</span></div>
           <div class="hh-month-bar"><label for="hh-billing-month">請求月</label><select id="hh-billing-month" disabled></select></div>
@@ -163,12 +170,14 @@
           <p id="hh-billing-status" class="hh-note" role="status" aria-live="polite">接続するとカード別に表示します。</p>
           <p class="hh-note">取込時点の明細額です。未取込は0円として扱いません。家賃・水道光熱費は含みません。利用月の支出へ重ねて加算されることはありません。</p>
         </section>
-        <section class="box hh-box hh-charts" id="hh-breakdown" aria-labelledby="hh-breakdown-title"><div class="hh-section-heading"><h3 id="hh-breakdown-title">支出の内訳</h3><span>費目別</span></div><p class="hh-note hh-category-hint">費目をタップすると、その月の買い物の明細が開きます。</p><div id="hh-categories" class="hh-chart" aria-busy="false"></div><div class="hh-trend-section"><h3>過去6か月の支出</h3><p class="hh-note">各月の記録済み分を比較しています。</p><div id="hh-trends" class="hh-chart"></div></div></section>
+        <section class="box hh-box hh-trends-box"><h3>過去6か月の支出</h3><p class="hh-note">各月の記録済み分を比較しています。</p><div id="hh-trends" class="hh-chart"></div></section>
         <div class="box hh-box"><div class="hh-section-heading"><h3>口座からの支払予定</h3><button type="button" class="hh-text-button" id="hh-open-payments">追加・修正</button></div><p class="hh-note">ここへの登録は、支出に重ねて加算されません。</p><p id="hh-payment-total" class="hh-note">まだ読み込んでいません。</p><div id="hh-payments" class="hh-scroll"></div></div>
         <div class="box hh-box"><details><summary>記録済みの明細</summary><div id="hh-transactions"></div></details><details><summary>集計から除いた要確認データ</summary><ul id="hh-issues"></ul></details></div>
+        <div class="hh-story-footer"><img src="assets/illustrations/hug.webp" width="273" height="280" alt="くまとうさぎのハグ" loading="lazy"><span>ふたりのくらしを、<br>ふたりのペースで。</span></div>
       </section>
       <section class="hh-view" id="hh-view-record" role="tabpanel" aria-labelledby="hh-tab-record" hidden>
-        <div class="box hh-box"><h3>使ったお金を記録</h3><p class="hh-note">現金など、明細にない支払いを記録します。カード明細で取り込む買い物は、重ねて入力しなくて大丈夫です。</p>
+        <div class="hh-record-heading"><div><h3>支出や収入を記録</h3><p class="hh-note">小さな記録を、こつこつ。</p></div><img id="hh-record-rabbit" src="assets/illustrations/rabbit-still.webp" width="256" height="256" alt="青い服のうさぎ"></div>
+        <div class="box hh-box"><p class="hh-note">現金など、明細にない支払いを記録します。カード明細で取り込む買い物は、重ねて入力しなくて大丈夫です。</p>
           <form id="hh-entry"><div class="hh-grid">
             <label>利用日<input id="hh-date" type="date" required></label><label>収支区分<select id="hh-kind"><option>支出</option><option>収入</option><option>返金</option></select></label>
             <label>金額（円）<input id="hh-amount" type="text" inputmode="numeric" placeholder="例：1,280" required></label><label>費目<select id="hh-category"><option>食費</option><option>日用雑貨</option><option>外食</option><option>家賃</option><option>水道代</option><option>電気代</option><option>通信費</option><option>交通費</option><option>宿泊費</option><option>保険料</option><option>医療費</option><option>娯楽</option><option>給与</option><option>支出その他</option><option>収入その他</option><option>未分類</option></select></label>
@@ -202,9 +211,9 @@
     </div>
 
 
-    <div id="tab-scan" class="container">
+    <div id="tab-scan" class="container life-page">
         <div class="box">
-            <h3>🛒 底値登録</h3>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>底値登録</h3></div><img src="assets/nav/list.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <input type="text" id="item" placeholder="商品名を入力">
             <input type="text" id="price" placeholder="価格" inputmode="numeric">
             <input type="text" id="weight" placeholder="内容量(g)" inputmode="numeric">
@@ -218,9 +227,9 @@
         </div>
     </div>
 
-    <div id="tab-list" class="container">
+    <div id="tab-list" class="container life-page">
         <div class="box">
-            <h3>📝 買うものリスト</h3>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>買うものリスト</h3></div><img src="assets/nav/list.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <div style="display:flex; gap:8px;">
                 <input type="text" id="list-input" placeholder="牛乳、洗剤など">
                 <button class="btn-blue" style="width:30%; margin:8px 0;" onclick="addListItem()">追加</button>
@@ -229,9 +238,9 @@
         </div>
     </div>
 
-    <div id="tab-menu" class="container">
+    <div id="tab-menu" class="container life-page">
         <div class="box">
-            <h3>🍳 今週の献立</h3>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>今週の献立</h3></div><img src="assets/nav/menu.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <div class="menu-row"><span class="menu-label">月</span><input type="text" id="menu-mon" class="menu-input"></div>
             <div class="menu-row"><span class="menu-label">火</span><input type="text" id="menu-tue" class="menu-input"></div>
             <div class="menu-row"><span class="menu-label">水</span><input type="text" id="menu-wed" class="menu-input"></div>
@@ -248,9 +257,9 @@
         </div>
     </div>
 
-    <div id="tab-photo" class="container">
+    <div id="tab-photo" class="container life-page">
         <div class="box">
-            <h3>🍽 料理アルバム</h3>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>料理アルバム</h3></div><img src="assets/nav/menu.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <label style="display:block; text-align:center; margin-bottom:10px; border: 2px dashed #ddd; padding: 20px; border-radius: 10px; background: #fafafa;">
                 <span style="font-size:40px; cursor:pointer;">📸</span><br>
                 <span style="font-size:14px; color:#5D7EA7; font-weight:bold;">撮影 または アルバムから選択</span>
@@ -270,9 +279,9 @@
         </div>
     </div>
 
-    <div id="tab-memory" class="container">
+    <div id="tab-memory" class="container life-page">
         <div class="box">
-            <h3>👫 思い出アルバム</h3>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>思い出アルバム</h3></div><img src="assets/illustrations/hug.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <label style="display:block; text-align:center; margin-bottom:10px; border: 2px dashed #ddd; padding: 20px; border-radius: 10px; background: #fafafa;">
                 <span style="font-size:40px; cursor:pointer;">📸</span><br>
                 <span style="font-size:14px; color:#E07A5F; font-weight:bold;">2人の写真を撮影・選択</span>
@@ -286,17 +295,17 @@
         </div>
     </div>
 
-    <div id="tab-angry" class="container">
+    <div id="tab-angry" class="container life-page">
         <div class="box" style="border: 2px solid #3D405B;">
-            <h3>🧸 ムカッときたら…</h3>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>ムカッときたら…</h3></div><img src="assets/nav/more.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <textarea id="angry-item" rows="4" placeholder="（例）靴下が脱ぎっぱなしです😡"></textarea>
             <button class="btn-black" onclick="submitAnger()">送信する</button>
         </div>
     </div>
 
-    <div id="tab-bucket" class="container">
+    <div id="tab-bucket" class="container life-page">
         <div class="box">
-            <h3>✨ やりたいこと</h3>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>やりたいこと</h3></div><img src="assets/illustrations/hero.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <input type="text" id="bucket-item" placeholder="例：北海道でカニ">
             <div style="display:flex; gap:10px;">
                 <input type="date" id="bucket-limit" style="flex:1;">
@@ -317,9 +326,9 @@
         </div>
     </div>
 
-    <div id="tab-pay" class="container">
+    <div id="tab-pay" class="container life-page">
         <div class="box">
-            <h3>💸 立替記録</h3>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>立替記録</h3></div><img src="assets/nav/money.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <input type="text" id="pay-item" placeholder="何に使った？">
             <input type="text" id="pay-amount" placeholder="金額" inputmode="numeric">
             <div class="radio-group">
@@ -332,9 +341,9 @@
         </div>
     </div>
 
-    <div id="tab-love" class="container">
+    <div id="tab-love" class="container life-page">
         <div class="box">
-            <h3>❤️ 感謝ポイント</h3>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>感謝ポイント</h3></div><img src="assets/illustrations/hug.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <div style="display:flex; gap:12px;">
                 <button class="btn-blue" onclick="addPoint('naoki')">🐢 尚輝へ</button>
                 <button class="btn-red" onclick="addPoint('maki')">🧸 真輝へ</button>
@@ -363,14 +372,14 @@
       <symbol id="life-cloud" viewBox="0 0 24 24"><path d="M6 17a4 4 0 0 1-1-8 7 7 0 0 1 13-2 5 5 0 0 1 0 10H6Zm3 3h6"/></symbol>
       <symbol id="life-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9a8 8 0 1 0 0 6M20 4v5h-5"/></g></symbol>
     </defs></svg>
-    <div id="tab-more" class="container">
-      <header class="life-more-title"><h2>その他のメニュー</h2><p>暮らしの記録や写真はこちらから。</p></header>
+    <div id="tab-more" class="container life-page">
+      <header class="life-more-title life-page-heading"><div><h2>その他のメニュー</h2><p>暮らしの記録や写真はこちらから。</p></div><img src="assets/nav/more.webp" width="53" height="96" alt=""></header>
       <div class="life-more-grid">
         <button class="life-more-card" type="button" onclick="switchTab('return')"><svg aria-hidden="true"><use href="#life-home"></use></svg>帰宅連絡</button>
         <button class="life-more-card" type="button" onclick="switchTab('scan')"><svg aria-hidden="true"><use href="#life-tag"></use></svg>底値を比べる</button>
         <button class="life-more-card" type="button" onclick="switchTab('photo')"><svg aria-hidden="true"><use href="#life-camera"></use></svg>料理の写真</button>
         <button class="life-more-card" type="button" onclick="switchTab('memory')"><svg aria-hidden="true"><use href="#life-image"></use></svg>思い出の写真</button>
-        <button class="life-more-card" type="button" onclick="switchTab('weight')"><svg aria-hidden="true"><use href="#life-weight"></use></svg>体重の記録</button>
+        <button class="life-more-card" type="button" onclick="switchTab('list')"><svg aria-hidden="true"><use href="#life-bag"></use></svg>買い物リスト</button>
         <button class="life-more-card" type="button" onclick="switchTab('bucket')"><svg aria-hidden="true"><use href="#life-star"></use></svg>やりたいこと</button>
         <button class="life-more-card" type="button" onclick="switchTab('pay')"><svg aria-hidden="true"><use href="#life-split"></use></svg>立替の記録</button>
       </div>
@@ -379,13 +388,24 @@
         <button class="life-more-card" type="button" onclick="switchTab('love')"><svg aria-hidden="true"><use href="#life-heart"></use></svg>感謝ポイント</button>
       </div></details>
     </div>
-    <nav class="nav-bar" aria-label="暮らしのメニュー">
-      <button type="button" class="nav-item" data-tab="money" onclick="switchTab('money')"><span class="nav-icon"><svg aria-hidden="true"><use href="#life-wallet"></use></svg></span>家計簿</button>
-      <button type="button" class="nav-item" data-tab="list" onclick="switchTab('list')"><span class="nav-icon"><svg aria-hidden="true"><use href="#life-bag"></use></svg></span>買い物</button>
-      <button type="button" class="nav-item" data-tab="menu" onclick="switchTab('menu')"><span class="nav-icon"><svg aria-hidden="true"><use href="#life-meal"></use></svg></span>献立</button>
-      <button type="button" class="nav-item" data-tab="schedule" onclick="switchTab('schedule')"><span class="nav-icon"><svg aria-hidden="true"><use href="#life-calendar"></use></svg></span>予定</button>
-      <button type="button" class="nav-item" data-tab="more" onclick="switchTab('more')"><span class="nav-icon"><svg aria-hidden="true"><use href="#life-more"></use></svg></span>その他</button>
+    <nav class="nav-bar character-navigation" aria-label="暮らしのメニュー">
+      <button type="button" class="nav-item" data-tab="money" onclick="switchTab('money')" style="--nav-accent:#55734f;--nav-wash:#edf1e6">
+        <span class="nav-stage" aria-hidden="true"><span class="nav-character"><img src="assets/nav/money.webp" alt="" width="72" height="96" draggable="false"></span><span class="nav-function"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10 12 3l9 7v10H3Z M9 20v-7h6v7"></path></svg></span></span><span class="nav-label">家計簿</span>
+      </button>
+      <button type="button" class="nav-item" data-tab="weight" onclick="switchTab('weight')" style="--nav-accent:#456879;--nav-wash:#edf3f5">
+        <span class="nav-stage" aria-hidden="true"><span class="nav-character"><img src="assets/nav/money.webp" alt="" width="72" height="96" draggable="false"></span><span class="nav-function"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="4"></rect><path d="M7 8a7 7 0 0 1 10 0l-2 4H9L7 8Z M12 9l2-2"></path></svg></span></span><span class="nav-label">体重</span>
+      </button>
+      <button type="button" class="nav-item" data-tab="menu" onclick="switchTab('menu')" style="--nav-accent:#855832;--nav-wash:#f5eee3">
+        <span class="nav-stage" aria-hidden="true"><span class="nav-character"><img src="assets/nav/menu.webp" alt="" width="128" height="89" draggable="false"></span><span class="nav-function"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12a7 7 0 1 1-14 0a7 7 0 1 1 14 0 M18 12a4 4 0 1 1-8 0a4 4 0 1 1 8 0 M2 3v6c0 2 4 2 4 0V3 M4 3v18"></path></svg></span></span><span class="nav-label">献立</span>
+      </button>
+      <button type="button" class="nav-item" data-tab="schedule" onclick="switchTab('schedule')" style="--nav-accent:#8d5547;--nav-wash:#faeee6">
+        <span class="nav-stage" aria-hidden="true"><span class="nav-character"><img src="assets/nav/schedule.webp" alt="" width="64" height="96" draggable="false"></span><span class="nav-function"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 5h18v16H3Z M3 10h18 M7 2v6 M17 2v6 M7 14h2 M13 14h2 M7 18h2"></path></svg></span></span><span class="nav-label">予定</span>
+      </button>
+      <button type="button" class="nav-item" data-tab="more" onclick="switchTab('more')" style="--nav-accent:#4e6954;--nav-wash:#edf2e9">
+        <span class="nav-stage" aria-hidden="true"><span class="nav-character"><img src="assets/nav/more.webp" alt="" width="53" height="96" draggable="false"></span><span class="nav-function"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 5h18v13H9l-5 3v-3H3Z M7 11h.1 M12 11h.1 M17 11h.1"></path></svg></span></span><span class="nav-label">その他</span>
+      </button>
     </nav>
+
 
     <div id="toast"></div>
 
@@ -409,12 +429,13 @@
             const target = document.getElementById('tab-' + tabName);
             if(target) target.classList.add('active');
             
-            const navTab = ['money','list','menu','schedule'].includes(tabName) ? tabName : 'more';
+            const navTab = ['money','weight','menu','schedule'].includes(tabName) ? tabName : 'more';
             document.querySelectorAll('.nav-item[data-tab]').forEach(el => {
                 const active = el.dataset.tab === navTab;
                 el.classList.toggle('active-tab', active);
                 if(active) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
             });
+            window.HHCharacterNavigation?.sync(navTab);
 
             if(tabName === 'schedule') loadSchedules();
             if(tabName === 'weight') loadWeightData();
@@ -560,6 +581,8 @@
     <script src="household-rules.js?v=a2548a90b4ad"></script>
     <script src="household-core.js?v=3a58e2d8ea44"></script>
     <script src="card-csv.js?v=f96f7374efc9"></script>
-    <script src="household.js?v=629e957bf389"></script>
+    <script src="household-visuals.js?v=169aed52ddee"></script>
+    <script src="household.js?v=b5b0defd533d"></script>
+    <script src="character-navigation.js?v=5b4529385055"></script>
 </body>
 </html>

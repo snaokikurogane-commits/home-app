@@ -1,0 +1,60 @@
+@charset "UTF-8";
+/* Presentation for the life tools. Existing form and route behavior is preserved. */
+.container.life-page, #tab-more.life-page {
+  width:100%; max-width:500px; margin:0 auto; padding:16px 16px 28px; color:var(--hh-ink);
+}
+.life-page .box { padding:16px; margin-bottom:14px; border:1px solid var(--hh-line); border-radius:16px; background:var(--hh-card); box-shadow:none; }
+.life-page .life-page-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:86px; margin-bottom:18px; padding:0 0 14px; border-bottom:1px solid #e9e5db; }
+.life-page-heading > div { flex:1 1 auto; min-width:0; }
+.life-page-heading h3, .life-page-heading h2 { margin:0; color:var(--hh-ink); font-size:22px; font-weight:700; line-height:1.5; text-align:left; overflow-wrap:anywhere; }
+.life-page-heading .life-eyebrow { margin:0 0 5px; color:var(--hh-muted); font-size:10px; letter-spacing:.1em; }
+.life-page-heading img { display:block; flex:0 0 68px; width:68px; height:72px; object-fit:contain; filter:saturate(.65) sepia(.06); pointer-events:none; }
+#tab-return .life-page-heading img, #tab-bucket .life-page-heading img { flex-basis:88px; width:88px; }
+#tab-menu .life-page-heading img, #tab-photo .life-page-heading img { transform:rotate(-5deg); }
+#tab-more .life-page-heading { min-height:98px; margin-bottom:16px; padding:2px 4px 14px; }
+#tab-more .life-page-heading h2 { font-size:22px; }
+#tab-more .life-page-heading p { margin:6px 0 0; }
+.life-page :is(input,select,textarea,button) { font-family:inherit; }
+.life-page :is(input,select,textarea) { min-width:0; min-height:44px; padding:10px 11px; border:1px solid #dcd7ca; border-radius:10px; background:#fffefa; color:var(--hh-ink); font-size:16px; line-height:1.5; }
+.life-page :is(input,textarea)::placeholder { color:#8a8175; opacity:1; }
+.life-page button { min-height:44px; border-radius:10px; font-size:14px; font-weight:700; line-height:1.5; box-shadow:none; touch-action:manipulation; }
+.life-page :is(button,input,textarea,select,summary):focus-visible { outline:2px solid #456879; outline-offset:3px; }
+.life-page .btn-green { background:#55734f; color:#fffdf7; }
+.life-page .btn-blue { background:#537482; color:#fffdf7; }
+.life-page .btn-red { background:#e3a18e; color:#4c3027; }
+.life-page .btn-black { background:#726052; color:#fffdf7; }
+.life-page .bg-naoki { background:#537482; color:#fffdf7; }
+.life-page .bg-maki { background:#e9ce8d; color:#4d3b28; }
+.life-page .return-btn { min-height:80px; font-size:13px; }
+.life-page .radio-label, .life-page .owner-btn { border-color:#dfd9ca; background:#f9f6ed; color:#776b60; }
+.life-page .owner-btn.active, .life-page input[type="radio"]:checked + .radio-label { background:#edf1e6; border-color:#8caa7f; color:#45613e; }
+.life-page .radio-label { display:grid; place-items:center; min-height:44px; padding:10px 5px; }
+.life-page .menu-label { flex:0 0 30px; color:#776b60; }
+.life-page .menu-input { min-width:0; }
+.life-page .history-list { color:#776b60; border-color:#e6e0d3; }
+.life-page .history-item { gap:10px; border-color:#e6e0d3; overflow-wrap:anywhere; }
+.life-page :is(#shopping-ul,#schedule-ul,#bucket-ul) li { gap:10px; background:#f8f5ec; border-color:#e6e0d3; color:var(--hh-ink); overflow-wrap:anywhere; }
+.life-page .delete-btn { flex:0 0 auto; min-height:36px; background:#f4dfd5; color:#7e493b; font-size:11px; }
+.life-page .life-more-card { min-height:76px; border-color:var(--hh-line); background:var(--hh-card); color:#4e6954; text-align:left; font-size:13px; }
+.life-page :is(.photo-card,.price-item,.point-card) { background:#f8f5ec; border:1px solid #e6e0d3; box-shadow:none; }
+.life-page .point-num { color:#8d6b30; font-family:var(--hh-amount-font); font-variant-numeric:tabular-nums; }
+.life-page .life-weight-person { min-width:0; background:#f3f0e5 !important; }
+.life-page canvas { max-width:100%; }
+.life-weight-person input { font-family:var(--hh-amount-font); font-variant-numeric:tabular-nums; }
+.life-weight-person input[id^="g-"] { width:58px !important; min-height:34px; }
+.life-page label:has(> input[type="file"]) { border-color:#d7d1bf !important; background:#f8f5ec !important; }
+#tab-angry.life-page .box { border:1px solid var(--hh-line) !important; }
+.life-page.active { animation-duration:180ms; }
+@media(max-width:350px) {
+  .container.life-page, #tab-more.life-page { padding:12px 12px 24px; }
+  .life-page .box { padding:12px; }
+  .life-page-heading h3, .life-page-heading h2 { font-size:20px; }
+  .life-page-heading img { flex-basis:56px; width:56px; height:66px; }
+  #tab-return .life-page-heading img, #tab-bucket .life-page-heading img { flex-basis:72px; width:72px; }
+  .life-page .life-more-card { gap:8px; padding:14px 10px; font-size:12px; }
+}
+@media(min-width:760px) {
+  .container.life-page, #tab-more.life-page { max-width:560px; padding:24px 24px 40px; }
+  .life-page .box { padding:24px; }
+}
+@media(prefers-reduced-motion:reduce) { .life-page.active { animation:none; } }
