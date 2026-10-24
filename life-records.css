@@ -1,0 +1,30 @@
+.life-person-icon { display:inline-block; width:24px; height:24px; object-fit:contain; vertical-align:middle; margin-right:3px; flex:0 0 auto; }
+.life-page .owner-btn, .life-page .radio-label { display:flex; align-items:center; justify-content:center; gap:4px; }
+.life-person { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; font-size:11px; color:var(--hh-muted); }
+.life-person img { width:22px; height:22px; object-fit:contain; }
+.life-list-heading { margin:24px 0 10px; color:var(--hh-ink); font-size:16px; font-weight:700; }
+.life-record-status { margin:10px 0; font-size:12px; color:var(--hh-muted); line-height:1.7; }
+.life-filter-tabs { display:flex; gap:5px; padding:4px; border-radius:10px; background:#f0eddf; }
+.life-filter-tabs button { flex:1; min-width:0; margin:0; padding:8px 5px; font-size:12px; color:var(--hh-muted); background:transparent; }
+.life-filter-tabs button[aria-pressed="true"] { color:#fffdf7; background:#55734f; }
+.life-page #schedule-ul .life-schedule-card { align-items:center; margin:0 0 8px; padding:13px 11px; border:1px solid #e6e0d3; border-radius:10px; }
+.life-schedule-card > div { min-width:0; }
+.life-schedule-card strong { display:block; font-size:14px; overflow-wrap:anywhere; }
+.life-schedule-card small { display:block; margin-top:5px; font-family:var(--hh-amount-font); font-size:12px; color:var(--hh-muted); }
+.life-history-link { display:block; width:fit-content; margin:-5px 0 14px auto; color:#55734f; font-size:12px; text-underline-offset:4px; }
+.life-menu-history { margin-top:24px; padding-top:0; border-color:var(--hh-line); }
+.life-week-card { margin-bottom:10px; padding:0 12px 10px; border:1px solid var(--hh-line); border-radius:10px; background:#f9f6ed; }
+.life-week-card summary { padding:13px 0 4px; cursor:pointer; color:var(--hh-ink); font-size:14px; }
+.life-week-card summary span { margin-left:10px; color:var(--hh-muted); font-size:11px; }
+.life-week-days { display:grid; grid-template-columns:26px minmax(0,1fr); gap:9px 8px; margin:12px 0; }
+.life-week-days dt { color:#55734f; font-weight:700; }
+.life-week-days dd { margin:0; overflow-wrap:anywhere; color:var(--hh-ink); }
+.life-saved-date { color:var(--hh-muted); font-size:10px; }
+.life-photo-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.life-photo-grid .photo-card { margin:0; border-radius:10px; }
+.life-photo-grid .photo-img { display:block; width:100%; height:auto; aspect-ratio:1; object-fit:cover; background:#eee9de; }
+.life-photo-grid .photo-meta { padding:9px; }
+.life-photo-grid .photo-date { display:block; font-size:10px; font-family:var(--hh-amount-font); color:var(--hh-muted); }
+.life-photo-grid .photo-memo { margin:5px 0 0; color:var(--hh-ink); font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
+.life-page .life-load-more { margin-top:16px; border:1px solid #c9d2bc; background:#edf1e6; color:#45613e; font-size:13px; }
+.life-load-more[hidden] { display:none; }

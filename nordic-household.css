@@ -175,8 +175,8 @@ body {
 }
 
 #hh-tab-record[aria-selected="true"] {
-  color: var(--hh-ink);
-  background: var(--hh-coral);
+  color: #fff;
+  background: #b05f50;
   border-color: #b7705e;
 }
 
@@ -231,6 +231,13 @@ body {
   border-radius: 9px;
   background: var(--hh-card);
   color: var(--hh-ink);
+}
+#hh-refresh { padding: 0; margin: 0; justify-self: end; }
+#hh-month { min-width: 0; min-inline-size: 0; max-inline-size: 100%; box-sizing: border-box; overflow: hidden; }
+#hh-month::-webkit-date-and-time-value { min-width: 0; text-align: left; }
+@media (max-width: 480px) {
+  .hh-household-month { grid-template-columns: minmax(0, 1fr) 44px; gap: 7px 9px; }
+  .hh-household-month > label { grid-column: 1 / -1; }
 }
 
 .hh-total-heading { margin-top: 0; }
@@ -409,8 +416,8 @@ body {
 #hh-entry > details[open] > .hh-full { animation: hh-detail-reveal 180ms ease-out both; }
 .hh-box button { border-radius: 9px; }
 .hh-box .hh-secondary { border-color: var(--hh-accent-line); background: var(--hh-accent-soft); }
-#hh-save.btn-green { display: block; width: 100%; min-height: 50px; margin-top: 21px; padding: 11px 15px; border: 1px solid #c57a69; border-radius: 10px; background: var(--hh-coral); color: var(--hh-ink); font-size: 16px; font-weight: 700; letter-spacing: .05em; }
-#hh-save.btn-green:hover:not(:disabled) { border-color: #a56453; background: #d47d6b; }
+#hh-save.btn-green { display: block; width: 100%; min-height: 50px; margin-top: 21px; padding: 11px 15px; border: 1px solid #a65345; border-radius: 10px; background: #b05f50; color: #fff; font-size: 16px; font-weight: 700; letter-spacing: .05em; }
+#hh-save.btn-green:hover:not(:disabled) { border-color: #934b40; background: #a65345; }
 .hh-status { color: var(--hh-accent); }
 .hh-status[data-error="true"] { color: #974936; }
 .hh-check input { accent-color: var(--hh-accent); }
