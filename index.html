@@ -70,7 +70,7 @@
         #toast.show { visibility: visible; opacity: 1; }
     </style>
     <link rel="stylesheet" href="household.css?v=7a5ab03837dd">
-    <link rel="stylesheet" href="nordic-household.css?v=c5ca0a4e80a4">
+    <link rel="stylesheet" href="nordic-household.css?v=791b3ed9471f">
     <link rel="stylesheet" href="nordic-life.css?v=3f8f05764bc3">
     <link rel="stylesheet" href="life-records.css?v=779c6f69db61">
     <link rel="stylesheet" href="character-navigation.css?v=afb5a780d190">
@@ -150,7 +150,7 @@
       </nav>
       <section class="hh-view" id="hh-view-overview" role="tabpanel" aria-labelledby="hh-tab-overview">
         <div class="box hh-box hh-summary-box">
-          <div class="hh-month-bar hh-household-month"><label for="hh-month">家計の月</label><input type="month" id="hh-month"><button type="button" id="hh-refresh" class="hh-icon-button" aria-label="集計を更新"><svg aria-hidden="true"><use href="#life-refresh"></use></svg></button></div>
+          <div class="hh-month-bar hh-household-month"><label for="hh-month">家計の月</label><div class="hh-month-field"><input type="month" id="hh-month"></div><button type="button" id="hh-refresh" class="hh-icon-button" aria-label="集計を更新"><svg aria-hidden="true"><use href="#life-refresh"></use></svg></button></div>
           <section class="hh-forecast" aria-labelledby="hh-forecast-title">
             <div class="hh-forecast-heading"><h3 id="hh-forecast-title">この月の支払見込み</h3><span id="hh-forecast-badge">参考額</span></div>
             <p id="hh-forecast-caption" class="hh-note">この月に口座から出る分をまとめます。</p>
@@ -173,7 +173,7 @@
           <button type="button" id="hh-start-connect" class="hh-secondary" data-hh-view="manage">接続して家計を見る</button>
         </div>
 
-        <section class="box hh-box hh-charts" id="hh-breakdown" aria-labelledby="hh-breakdown-title"><div class="hh-section-heading"><h3 id="hh-breakdown-title">支出の内訳</h3><div class="hh-chart-switch" aria-label="グラフの種類"><button type="button" data-hh-chart="bar" aria-pressed="true">棒グラフ</button><button type="button" data-hh-chart="donut" aria-pressed="false">円グラフ</button></div></div><p class="hh-note hh-category-hint">費目をタップすると、その月の買い物の明細が開きます。</p><div id="hh-category-chart"><div id="hh-donut-wrap" class="hh-donut-wrap" hidden><svg id="hh-donut" class="hh-donut" viewBox="0 0 220 220" role="group" aria-label="支出内訳のドーナツグラフ"></svg><div class="hh-donut-center"><span>支出合計</span><strong id="hh-donut-total">—</strong><small>返金差引</small></div></div><p id="hh-chart-message" class="hh-chart-message" hidden></p><div id="hh-categories" class="hh-chart" aria-busy="false" data-chart="bar"></div></div></section>
+        <section class="box hh-box hh-charts" id="hh-breakdown" aria-labelledby="hh-breakdown-title"><div class="hh-section-heading"><h3 id="hh-breakdown-title">支出の内訳</h3><div class="hh-chart-switch" aria-label="グラフの種類"><button type="button" data-hh-chart="bar" aria-pressed="true">棒グラフ</button><button type="button" data-hh-chart="donut" aria-pressed="false">円グラフ</button></div></div><p class="hh-note hh-category-hint">費目をタップすると、その月の買い物の明細が開きます。</p><div id="hh-category-chart"><div id="hh-donut-wrap" class="hh-donut-wrap" hidden><img class="hh-donut-rabbit" src="assets/illustrations/rabbit-peek.webp" width="256" height="234" alt="" aria-hidden="true" loading="lazy" decoding="async"><svg id="hh-donut" class="hh-donut" viewBox="0 0 220 220" role="group" aria-label="支出内訳のドーナツグラフ"></svg><div class="hh-donut-center"><span>支出合計</span><strong id="hh-donut-total">—</strong><small>返金差引</small></div></div><p id="hh-chart-message" class="hh-chart-message" hidden></p><div id="hh-categories" class="hh-chart" aria-busy="false" data-chart="bar"></div></div></section>
         <section class="box hh-box hh-billing" aria-labelledby="hh-billing-title">
           <div class="hh-section-heading"><h3 id="hh-billing-title">カードの請求額</h3><span>請求月で確認</span></div>
           <div class="hh-month-bar"><label for="hh-billing-month">請求月</label><select id="hh-billing-month" disabled></select></div>
