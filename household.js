@@ -11,6 +11,15 @@
   const uuid=()=>crypto.randomUUID();
   function message(id,text,error=false){$(id).textContent=text;$(id).dataset.error=String(error);}
   function node(tag,text){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;}
+  function categoryArtwork(name){
+    const src=HHVisuals.categoryIcon(name);if(!src)return null;
+    const image=node('img');image.src=src;image.alt='';image.width=28;image.height=28;image.className='hh-category-icon';image.loading='lazy';image.decoding='async';image.setAttribute('aria-hidden','true');image.addEventListener('error',()=>{image.hidden=true;});return image;
+  }
+  function syncCategoryArtwork(){
+    const image=$('hh-category-icon'),src=HHVisuals.categoryIcon($('hh-category').value);
+    image.hidden=!src;
+    if(src)image.src=src;else image.removeAttribute('src');
+  }
   function pending(){try{return JSON.parse(sessionStorage.getItem('hh.pending')||'null');}catch(e){return null;}}
   async function api(action, fields={}) {
     if(demo){if(action==='hh_dashboard')return demoDashboard(fields.month);throw Error('操作見本では保存できません。');}
@@ -34,7 +43,7 @@
     items.forEach((r,index)=>{
       const detail=HHClientCore.categoryDetails(rows,month,r.name),box=node('details'),toggle=node('summary'),heading=node('span'),amount=node('strong',money(r.amount)),chevron=node('span');
       box.className='hh-category';box.id='hh-category-'+index;box.style.setProperty('--category-color',HHVisuals.categoryColor(r.name));box.dataset.negative=String(r.amount<0);toggle.id='hh-category-toggle-'+index;heading.className='hh-category-heading';amount.className='hh-category-amount';chevron.className='hh-category-chevron';chevron.setAttribute('aria-hidden','true');
-      const label=node('span'),dot=node('span'),name=node('span',r.name),percent=node('small',r.amount>0?(r.amount/chart.positiveTotal*100).toFixed(1).replace(/\.0$/,'')+'%':r.amount<0?'返金超過':'差引0円');label.className='hh-category-name';dot.className='hh-category-dot';dot.setAttribute('aria-hidden','true');percent.className='hh-category-percent';label.append(dot,name,percent);
+      const label=node('span'),symbol=node('span'),caption=node('span'),dot=node('span'),name=node('span',r.name),percent=node('small',r.amount>0?(r.amount/chart.positiveTotal*100).toFixed(1).replace(/\.0$/,'')+'%':r.amount<0?'返金超過':'差引0円');label.className='hh-category-name';symbol.className='hh-category-symbol';symbol.setAttribute('aria-hidden','true');caption.className='hh-category-caption';dot.className='hh-category-dot';dot.setAttribute('aria-hidden','true');percent.className='hh-category-percent';const artwork=categoryArtwork(r.name);if(artwork){symbol.append(artwork);symbol.classList.add('has-artwork');}symbol.append(dot);caption.append(name,percent);label.append(symbol,caption);
       heading.append(label,amount,chevron);const track=node('span'),bar=node('i');track.className='hh-category-track';bar.style.width=(100*Math.abs(r.amount)/max)+'%';track.setAttribute('aria-hidden','true');track.append(bar);toggle.append(heading,track);
       const list=node('div');list.className='hh-category-list';list.setAttribute('role','group');list.setAttribute('aria-labelledby',toggle.id);
       const count=node('p',detail.transactions.length+'件の明細'+(detail.refund?'（支出 '+money(detail.expense)+' − 返金 '+money(detail.refund)+'）':''));count.className='hh-note';list.append(count);
@@ -158,7 +167,7 @@
   }
   function disconnect(){try{connection.disconnect();++refreshNumber;knownPayments=[];resetPreview();clearDashboard();$('hh-key').value='';$('hh-remember').value='session';connectionState();setView('manage');$('hh-connection').open=true;message('hh-connection-message','保存した接続キーを解除しました。');message('hh-status','接続設定から、もう一度接続できます。');}catch(e){message('hh-connection-message',e.message,true);}}
   function formTransaction(){return {date:$('hh-date').value,kind:$('hh-kind').value,amount:$('hh-amount').value,category:$('hh-category').value,method:$('hh-method').value,card:$('hh-method').value==='クレジットカード'?$('hh-card').value:'',merchant:$('hh-merchant').value,item:$('hh-item').value,note:$('hh-note').value,payer:'共同',source:'手入力'};}
-  function restoreTransaction(t){['date','kind','amount','category','method','merchant','item','note'].forEach(k=>$('hh-'+k).value=t[k]||'');if(t.card)$('hh-card').value=t.card;$('hh-card').disabled=t.method!=='クレジットカード';}
+  function restoreTransaction(t){['date','kind','amount','category','method','merchant','item','note'].forEach(k=>$('hh-'+k).value=t[k]||'');if(t.card)$('hh-card').value=t.card;$('hh-card').disabled=t.method!=='クレジットカード';syncCategoryArtwork();}
   async function save(event){
     event.preventDefault();if(busy)return;busy=true;$('hh-save').disabled=true;
     try{
@@ -238,6 +247,8 @@
   document.querySelectorAll('.hh-view-tabs button').forEach((button,index,buttons)=>button.onkeydown=event=>{let next;if(event.key==='ArrowRight')next=(index+1)%buttons.length;else if(event.key==='ArrowLeft')next=(index+buttons.length-1)%buttons.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=buttons.length-1;else return;event.preventDefault();buttons[next].click();buttons[next].focus();});
   $('hh-open-payments').onclick=$('hh-forecast-edit').onclick=()=>{newPayment();$('hh-payment-date').value=$('hh-month').value+'-27';$('hh-payment-editor').scrollIntoView({block:'start',behavior:'smooth'});};
   $('hh-refresh').onclick=refresh;$('hh-month').onchange=refresh;$('hh-entry').onsubmit=save;$('hh-method').onchange=()=>$('hh-card').disabled=$('hh-method').value!=='クレジットカード';
+  $('hh-category').onchange=syncCategoryArtwork;syncCategoryArtwork();
+  $('hh-category-icon').addEventListener('error',()=>{$('hh-category-icon').hidden=true;});
   $('hh-preview').onclick=importPreview;$('hh-commit').onclick=importCommit;['hh-file','hh-source-id','hh-import-card'].forEach(id=>$(id).onchange=resetPreview);
   $('hh-file').onchange=()=>{resetPreview();$('hh-source-id').value='';};
   $('hh-payment-form').onsubmit=savePayment;$('hh-payment-new').onclick=newPayment;

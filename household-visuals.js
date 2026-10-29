@@ -7,6 +7,8 @@
   return{positiveTotal,negativeTotal,net:positiveTotal+negativeTotal,negative,zero:categories.filter(c=>c.amount===0),slices:positive.map(c=>{const slice={name:c.name,amount:c.amount,fraction:c.amount/positiveTotal,start};start+=slice.fraction;return slice;})};
  }
  function categoryColor(name){const colors={'家賃':'#829e78','食費':'#df9885','日用雑貨':'#88a9b7','外食':'#d3b37b','水道代':'#8bb9bf','電気代':'#c4a66b','通信費':'#a493ac','交通費':'#a4ad7b','娯楽':'#c69788'};if(colors[name])return colors[name];let hash=0;for(const c of name)hash=(hash*31+c.codePointAt(0))>>>0;return['#829e78','#df9885','#88a9b7','#c4a66b','#a493ac','#9e8973'][hash%6];}
+ const categoryIcons=Object.freeze({'家賃':'rent','食費':'food','日用雑貨':'supplies','外食':'dining','水道代':'water','電気代':'electricity','通信費':'phone','交通費':'transport','宿泊費':'lodging','娯楽':'leisure'});
+ function categoryIcon(name){return Object.prototype.hasOwnProperty.call(categoryIcons,name)?'assets/categories/'+categoryIcons[name]+'.webp':'';}
  function createMotion(options){
   let played=false,active=false,reduced=!!options.reduced,timer=null;
   function clear(){if(timer!==null)options.cancel(timer);timer=null;}
@@ -36,5 +38,5 @@
   if('IntersectionObserver'in window)new IntersectionObserver(entries=>{if(!entries[0].isIntersecting)motion.leave();}).observe(image);
   return motion;
  }
- return{chartData,categoryColor,createMotion,reduced,enhanceDisclosure,recordMotion};
+ return{chartData,categoryColor,categoryIcon,createMotion,reduced,enhanceDisclosure,recordMotion};
 });

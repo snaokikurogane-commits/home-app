@@ -70,7 +70,7 @@
         #toast.show { visibility: visible; opacity: 1; }
     </style>
     <link rel="stylesheet" href="household.css?v=7a5ab03837dd">
-    <link rel="stylesheet" href="nordic-household.css?v=791b3ed9471f">
+    <link rel="stylesheet" href="nordic-household.css?v=f3da55ddb795">
     <link rel="stylesheet" href="nordic-life.css?v=3f8f05764bc3">
     <link rel="stylesheet" href="life-records.css?v=779c6f69db61">
     <link rel="stylesheet" href="character-navigation.css?v=afb5a780d190">
@@ -173,7 +173,7 @@
           <button type="button" id="hh-start-connect" class="hh-secondary" data-hh-view="manage">接続して家計を見る</button>
         </div>
 
-        <section class="box hh-box hh-charts" id="hh-breakdown" aria-labelledby="hh-breakdown-title"><div class="hh-section-heading"><h3 id="hh-breakdown-title">支出の内訳</h3><div class="hh-chart-switch" aria-label="グラフの種類"><button type="button" data-hh-chart="bar" aria-pressed="true">棒グラフ</button><button type="button" data-hh-chart="donut" aria-pressed="false">円グラフ</button></div></div><p class="hh-note hh-category-hint">費目をタップすると、その月の買い物の明細が開きます。</p><div id="hh-category-chart"><div id="hh-donut-wrap" class="hh-donut-wrap" hidden><img class="hh-donut-rabbit" src="assets/illustrations/rabbit-peek.webp" width="256" height="234" alt="" aria-hidden="true" loading="lazy" decoding="async"><svg id="hh-donut" class="hh-donut" viewBox="0 0 220 220" role="group" aria-label="支出内訳のドーナツグラフ"></svg><div class="hh-donut-center"><span>支出合計</span><strong id="hh-donut-total">—</strong><small>返金差引</small></div></div><p id="hh-chart-message" class="hh-chart-message" hidden></p><div id="hh-categories" class="hh-chart" aria-busy="false" data-chart="bar"></div></div></section>
+        <section class="box hh-box hh-charts" id="hh-breakdown" aria-labelledby="hh-breakdown-title"><div class="hh-section-heading"><h3 id="hh-breakdown-title">支出の内訳</h3><div class="hh-chart-switch" aria-label="グラフの種類"><button type="button" data-hh-chart="bar" aria-pressed="true">棒グラフ</button><button type="button" data-hh-chart="donut" aria-pressed="false">円グラフ</button></div></div><p class="hh-note hh-category-hint">費目をタップすると、その月の買い物の明細が開きます。</p><div id="hh-category-chart"><div id="hh-donut-wrap" class="hh-donut-wrap" hidden><img class="hh-donut-rabbit" src="assets/illustrations/rabbit-peek-left.webp" width="256" height="251" alt="" aria-hidden="true" loading="lazy" decoding="async"><svg id="hh-donut" class="hh-donut" viewBox="0 0 220 220" role="group" aria-label="支出内訳のドーナツグラフ"></svg><div class="hh-donut-center"><span>支出合計</span><strong id="hh-donut-total">—</strong><small>返金差引</small></div></div><p id="hh-chart-message" class="hh-chart-message" hidden></p><div id="hh-categories" class="hh-chart" aria-busy="false" data-chart="bar"></div></div></section>
         <section class="box hh-box hh-billing" aria-labelledby="hh-billing-title">
           <div class="hh-section-heading"><h3 id="hh-billing-title">カードの請求額</h3><span>請求月で確認</span></div>
           <div class="hh-month-bar"><label for="hh-billing-month">請求月</label><select id="hh-billing-month" disabled></select></div>
@@ -192,7 +192,7 @@
         <div class="box hh-box"><p class="hh-note">現金など、明細にない支払いを記録します。カード明細で取り込む買い物は、重ねて入力しなくて大丈夫です。</p>
           <form id="hh-entry"><div class="hh-grid">
             <label>利用日<input id="hh-date" type="date" required></label><label>収支区分<select id="hh-kind"><option>支出</option><option>収入</option><option>返金</option></select></label>
-            <label>金額（円）<input id="hh-amount" type="text" inputmode="numeric" placeholder="例：1,280" required></label><label>費目<select id="hh-category"><option>食費</option><option>日用雑貨</option><option>外食</option><option>家賃</option><option>水道代</option><option>電気代</option><option>通信費</option><option>交通費</option><option>宿泊費</option><option>保険料</option><option>医療費</option><option>娯楽</option><option>給与</option><option>支出その他</option><option>収入その他</option><option>未分類</option></select></label>
+            <label>金額（円）<input id="hh-amount" type="text" inputmode="numeric" placeholder="例：1,280" required></label><label><span class="hh-category-label">費目<img id="hh-category-icon" src="assets/categories/food.webp" width="26" height="26" alt="" aria-hidden="true" decoding="async"></span><select id="hh-category"><option>食費</option><option>日用雑貨</option><option>外食</option><option>家賃</option><option>水道代</option><option>電気代</option><option>通信費</option><option>交通費</option><option>宿泊費</option><option>保険料</option><option>医療費</option><option>娯楽</option><option>給与</option><option>支出その他</option><option>収入その他</option><option>未分類</option></select></label>
             <label>支払方法<select id="hh-method"><option>現金</option><option>クレジットカード</option><option>口座振替</option><option>銀行振込</option></select></label><label>共同カード<select id="hh-card" disabled><option>楽天（共同）</option><option>Amazon（共同）</option><option>PayPay（共同）</option></select></label>
           </div><label class="hh-full">店舗・支払先<input id="hh-merchant" maxlength="200" placeholder="例：スーパー"></label>
           <details><summary>商品やメモを追加（任意）</summary><label class="hh-full">商品・内容<input id="hh-item" maxlength="500"></label><label class="hh-full">補足<input id="hh-note" maxlength="500"></label></details>
@@ -317,7 +317,7 @@
 
     <div id="tab-bucket" class="container life-page">
         <div class="box">
-            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>やりたいこと</h3></div><img src="assets/illustrations/hero.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
+            <header class="life-page-heading"><div><p class="life-eyebrow">ふたりの暮らし</p><h3>やりたいこと</h3></div><img src="assets/illustrations/rabbit-elephant.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></header>
             <input type="text" id="bucket-item" placeholder="例：北海道でカニ">
             <div style="display:flex; gap:10px;">
                 <input type="date" id="bucket-limit" style="flex:1;">
@@ -606,10 +606,10 @@
     <script src="household-rules.js?v=a2548a90b4ad"></script>
     <script src="household-core.js?v=3a58e2d8ea44"></script>
     <script src="card-csv.js?v=f96f7374efc9"></script>
-    <script src="household-visuals.js?v=169aed52ddee"></script>
+    <script src="household-visuals.js?v=bf92f44b8b9a"></script>
     <script src="spending-forecast.js?v=1b0b1dbad646"></script>
     <script src="payment-outlook.js?v=73a76eef5ac4"></script>
-    <script src="household.js?v=64293e0b9fa6"></script>
+    <script src="household.js?v=95ff6e961eff"></script>
     <script src="character-navigation.js?v=5b4529385055"></script>
     <script src="life-core.js?v=a0ded204dd71"></script>
     <script src="life-records.js?v=a88d12a13094"></script>
